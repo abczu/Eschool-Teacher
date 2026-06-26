@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
@@ -456,21 +456,30 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                           ],
                         ),
                         padding: const EdgeInsets.all(2),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 25,
-                          backgroundImage: widget.profileImage.isNotEmpty
-                              ? CachedNetworkImageProvider(
-                                  widget.profileImage,
-                                )
-                              : null,
-                          child: widget.profileImage.isEmpty
-                              ? const Icon(
-                                  Icons.person,
-                                  color: maroonPrimary,
-                                  size: 30,
-                                )
-                              : null,
+                        child: BlocBuilder<AuthCubit, AuthState>(
+                          builder: (context, state) {
+                            final userImage = context
+                                    .read<AuthCubit>()
+                                    .getUserDetails()
+                                    .image ??
+                                "";
+                            return CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 25,
+                              backgroundImage: userImage.isNotEmpty
+                                  ? CachedNetworkImageProvider(
+                                      userImage,
+                                    )
+                                  : null,
+                              child: userImage.isEmpty
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: maroonPrimary,
+                                      size: 30,
+                                    )
+                                  : null,
+                            );
+                          },
                         ),
                       ),
                     ),

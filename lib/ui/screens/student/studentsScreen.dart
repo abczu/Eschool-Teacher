@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesAndSessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentsCubit.dart';
@@ -780,11 +780,24 @@ class _StudentsScreenState extends State<StudentsScreen>
                   return _buildStudentsSkeleton();
                 }
                 if (state is StudentsFetchSuccess) {
+                  // Tambahkan filter pencarian lokal untuk hasil yang lebih akurat
+                  final searchQuery = _textEditingController.text.trim().toLowerCase();
+                  final filteredStudents = searchQuery.isEmpty
+                      ? state.students
+                      : state.students.where((student) {
+                          final name = (student.firstName ?? "").toLowerCase();
+                          final admissionNo =
+                              (student.student?.admissionNo ?? student.rollNumber ?? "")
+                                  .toLowerCase();
+                          return name.contains(searchQuery) ||
+                              admissionNo.contains(searchQuery);
+                        }).toList();
+
                   return FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
-                          if (state.students.isEmpty)
+                          if (filteredStudents.isEmpty)
                             Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 100),
@@ -792,14 +805,14 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      Icons.school_outlined,
+                                      Icons.search_off_rounded,
                                       size: 80,
                                       color:
                                           maroonPrimary.withValues(alpha: 0.3),
                                     ),
                                     const SizedBox(height: 20),
                                     const Text(
-                                      "Tidak ada data siswa",
+                                      "Siswa tidak ditemukan",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
                                         fontSize: 18,
@@ -808,9 +821,9 @@ class _StudentsScreenState extends State<StudentsScreen>
                                       ),
                                     ),
                                     const SizedBox(height: 10),
-                                    const Text(
-                                      "Silakan pilih kelas dan tahun ajaran lain",
-                                      style: TextStyle(
+                                    Text(
+                                      "Tidak ada hasil untuk \"$searchQuery\"",
+                                      style: const TextStyle(
                                         fontFamily: 'Poppins',
                                         fontSize: 14,
                                         color: textMediumColor,
@@ -820,7 +833,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                 ),
                               ),
                             ),
-                          if (state.students.isNotEmpty) ...[
+                          if (filteredStudents.isNotEmpty) ...[
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 24),
@@ -856,7 +869,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                       ),
                                     ),
                                     child: Text(
-                                      "${state.students.length} Siswa",
+                                      "${filteredStudents.length} Siswa",
                                       style: const TextStyle(
                                         color: maroonPrimary,
                                         fontWeight: FontWeight.w600,
@@ -874,12 +887,13 @@ class _StudentsScreenState extends State<StudentsScreen>
                               physics: const NeverScrollableScrollPhysics(),
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
-                              itemCount: state.students.length +
-                                  (context.read<StudentsCubit>().hasMore()
+                              itemCount: filteredStudents.length +
+                                  (context.read<StudentsCubit>().hasMore() &&
+                                          searchQuery.isEmpty
                                       ? 1
                                       : 0),
                               itemBuilder: (context, index) {
-                                if (index == state.students.length) {
+                                if (index == filteredStudents.length) {
                                   // This is the loading more indicator
                                   if (state.fetchMoreError) {
                                     return Center(
@@ -906,7 +920,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   );
                                 }
 
-                                final studentDetails = state.students[index];
+                                final studentDetails = filteredStudents[index];
                                 return AnimatedBuilder(
                                   animation: _animationController,
                                   builder: (context, child) {

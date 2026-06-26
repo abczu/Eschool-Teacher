@@ -1,4 +1,6 @@
 import 'package:eschool_saas_staff/ui/widgets/student/recapAttendanceContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/student/downloadAttendanceRecapDialog.dart';
+import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,9 +90,11 @@ class _RecapAttendanceSubjectScreenState
 
     setState(() {
       teacherId = userDetails.id;
-      schoolId = userDetails.schoolId;
+      // Fallback: ambil schoolId dari userDetails.school?.id jika schoolId null
+      schoolId = userDetails.schoolId ?? userDetails.school?.id;
       email = userDetails.email ?? "";
     });
+    debugPrint('[RecapSubject] Loaded teacher data: teacherId=$teacherId, schoolId=$schoolId (from schoolId=${userDetails.schoolId}, school.id=${userDetails.school?.id})');
     context.read<ClassesCubit>().getClasses();
   }
 
@@ -102,111 +106,300 @@ class _RecapAttendanceSubjectScreenState
     debugPrint('Getting recap for Year: $_selectedYear, Month: $_selectedMonth');
   }
 
-  void _showYearPicker() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Pilih Tahun'),
-          content: SizedBox(
-            width: 300,
-            height: 300,
-            child: YearPicker(
-              firstDate: DateTime(2020),
-              lastDate: DateTime(DateTime.now().year + 1),
-              selectedDate: DateTime(_selectedYear),
-              onChanged: (DateTime dateTime) {
-                setState(() {
-                  _selectedYear = dateTime.year;
-                  // Reset month selection when year changes
-                  _selectedMonth = null;
-                });
-                Navigator.pop(context);
-                // After selecting year, show month picker
-                _showMonthPicker();
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showMonthPicker() {
+  void _showMonthYearPicker() {
     final months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember'
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
     ];
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Pilih Bulan untuk Tahun $_selectedYear'),
-          content: SizedBox(
-            width: 300,
-            height: 400,
-            child: ListView.builder(
-              itemCount: months.length,
-              itemBuilder: (context, index) {
-                final monthIndex = index + 1;
-                return ListTile(
-                  title: Text(months[index]),
-                  trailing: _selectedMonth == monthIndex
-                      ? Icon(Icons.check, color: _maroonPrimary)
-                      : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedMonth = monthIndex;
-                    });
-                    Navigator.pop(context);
-                    getRecap();
-                  },
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Batal'),
-            ),
-          ],
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Bulan & Tahun',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: _maroonPrimary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Modern Year Selector - More compact to fix overflow
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _maroonPrimary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.chevron_left, color: _maroonPrimary, size: 20),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  setModalState(() => _selectedYear--);
+                                },
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  final TextEditingController yearController =
+                                      TextEditingController(text: '$_selectedYear');
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Tahun'),
+                                      content: TextField(
+                                        controller: yearController,
+                                        keyboardType: TextInputType.number,
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Contoh: 2024',
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('Batal'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            final int? newYear =
+                                                int.tryParse(yearController.text);
+                                            if (newYear != null && newYear > 1900 && newYear < 2100) {
+                                              setModalState(() {
+                                                _selectedYear = newYear;
+                                              });
+                                              Navigator.pop(context);
+                                            }
+                                          },
+                                          child: const Text('Simpan'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    '$_selectedYear',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: _maroonPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.chevron_right, color: _maroonPrimary, size: 20),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  setModalState(() => _selectedYear++);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Divider(),
+
+                  // Month Grid
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 2.0,
+                      ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final monthIndex = index + 1;
+                        final isSelected = _selectedMonth == monthIndex;
+
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedMonth = monthIndex;
+                            });
+                            Navigator.pop(context);
+                            getRecap();
+                          },
+                          borderRadius: BorderRadius.circular(15),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: isSelected ? _maroonPrimary : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: isSelected ? [
+                                BoxShadow(
+                                  color: _maroonPrimary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                )
+                              ] : [],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              months[index],
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? Colors.white : Colors.grey[700],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 10),
+                  
+                  // Action Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Tutup',
+                          style: GoogleFonts.poppins(color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          }
         );
       },
     );
   }
 
-  void downloadRecap(int classId, int classSectionId, int month) async {
-    if (schoolId == null) {
+  void navigateToRecap(int classId, int classSectionId, int month,
+      {bool isDownload = false, int? passedSchoolId}) async {
+    final user = AuthRepository.getUserDetails();
+    final bool isStaff = (user.staff != null && user.staff!.id != null) ||
+        user.getRoles().toLowerCase().contains("staff");
+
+    final String token = AuthRepository.getAuthToken();
+    final String apiToken = token.split("|").last;
+    final String userSchoolId = user.schoolId.toString();
+
+    // Jika staff, gunakan staff!.id, jika guru gunakan teacher!.id
+    final String userParam = isStaff
+        ? "staff_id=${user.staff?.id ?? user.id}"
+        : "teacher_id=${user.teacher?.id ?? user.id}";
+
+    // Gunakan passedSchoolId jika ada, jika tidak gunakan userSchoolId
+    final effectiveSchoolId = (passedSchoolId?.toString()) ?? userSchoolId;
+
+    debugPrint(
+        "[RecapSubject] navigateToRecap called: effectiveSchoolId=$effectiveSchoolId, classId=$classId, classSectionId=$classSectionId, month=$month, year=$_selectedYear, download=$isDownload");
+
+    if (effectiveSchoolId.isEmpty) {
+      debugPrint("[RecapSubject] Navigate aborted: schoolId is empty");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Gagal navigasi: ID Sekolah tidak ditemukan. Silakan login ulang.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
-    final token = AuthRepository.getAuthToken();
+    final String url = "${Api.recapDownload}?"
+        "school_id=$effectiveSchoolId"
+        "&token=$token"
+        "&api_token=$apiToken"
+        "&$userParam"
+        "&month=$month"
+        "&year=$_selectedYear"
+        "&class_id=$classId"
+        "&class_section_id=$classSectionId"
+        "&type=api"
+        "&gm=1"
+        "${isDownload ? '&download=1' : ''}";
 
-    getx.Get.toNamed(
-      Routes.attendanceRecapScreen,
-      arguments: {
-        'schoolId': schoolId,
-        'token': token,
-        'month': month,
-        'year': _selectedYear,
-        'classId': classId,
-        'classSectionId': classSectionId,
-      },
-    );
+    if (isDownload) {
+      debugPrint("[RecapSubject] Showing download dialog for: $url");
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => DownloadAttendanceRecapDialog(
+          url: url,
+          fileName: "Rekap-Absensi-$month-$_selectedYear",
+        ),
+      );
+    } else {
+      debugPrint("[RecapSubject] Navigating to AttendanceRecapScreen for preview...");
+      getx.Get.toNamed(
+        Routes.attendanceRecapScreen,
+        arguments: {
+          'schoolId': effectiveSchoolId,
+          'token': token,
+          'month': month,
+          'year': _selectedYear,
+          'classId': classId,
+          'classSectionId': classSectionId,
+          'isDownload': isDownload,
+          'teacherId': user.id,
+        },
+      );
+    }
   }
 
   void filterClassSections(List<ClassSection> classSections, int teacherId) {
@@ -265,9 +458,20 @@ class _RecapAttendanceSubjectScreenState
             email: email,
             schoolId: schoolId,
             onDownload: (classSection, month) {
-              final classId = classSection.classDetails?.id ?? 0;
+              debugPrint('[RecapSubject] onDownload callback: class=${classSection.name}, classId=${classSection.classDetails?.id ?? classSection.classId}, classSectionId=${classSection.id}, schoolId=${classSection.schoolId}, month=$month');
+              final classId =
+                  classSection.classDetails?.id ?? classSection.classId ?? 0;
               final classSectionId = classSection.id ?? 0;
-              downloadRecap(classId, classSectionId, month);
+              navigateToRecap(classId, classSectionId, month, 
+                  isDownload: true, passedSchoolId: classSection.schoolId);
+            },
+            onPreview: (classSection, month) {
+              debugPrint('[RecapSubject] onPreview callback: class=${classSection.name}, classId=${classSection.classDetails?.id ?? classSection.classId}, classSectionId=${classSection.id}, schoolId=${classSection.schoolId}, month=$month');
+              final classId =
+                  classSection.classDetails?.id ?? classSection.classId ?? 0;
+              final classSectionId = classSection.id ?? 0;
+              navigateToRecap(classId, classSectionId, month,
+                  isDownload: false, passedSchoolId: classSection.schoolId);
             },
           ).animate().fadeIn(duration: 500.ms).slideY(
                 begin: 0.05,
@@ -296,13 +500,7 @@ class _RecapAttendanceSubjectScreenState
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  // If month is already selected, show month picker directly
-                  // If not, start with year picker
-                  if (_selectedMonth != null) {
-                    _showMonthPicker();
-                  } else {
-                    _showYearPicker();
-                  }
+                  _showMonthYearPicker();
                 },
                 borderRadius: BorderRadius.circular(12),
                 highlightColor: Colors.white.withValues(alpha: 0.1),

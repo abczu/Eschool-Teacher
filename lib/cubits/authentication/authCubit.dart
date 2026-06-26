@@ -71,7 +71,21 @@ class AuthCubit extends Cubit<AuthState> {
 
   bool isTeacher() {
     if (state is Authenticated) {
-      return (state as Authenticated).userDetails.teacher?.id != null;
+      final userDetails = (state as Authenticated).userDetails;
+      // Check for teacher ID
+      if (userDetails.teacher?.id != null) return true;
+
+      // Robust check: check occupation
+      if (userDetails.occupation?.toLowerCase().contains("teacher") ?? false) {
+        return true;
+      }
+
+      // Robust check: check roles
+      if ((userDetails.roles ?? []).any((role) =>
+          role.name?.toLowerCase().contains("teacher") ??
+          false || (role.name?.toLowerCase().contains("guru") ?? false))) {
+        return true;
+      }
     }
     return false;
   }

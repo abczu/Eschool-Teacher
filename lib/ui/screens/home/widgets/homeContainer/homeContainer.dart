@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/holidaysContainer.dart';
@@ -25,16 +25,16 @@ class HomeContainer extends StatefulWidget {
 
 class HomeContainerState extends State<HomeContainer> {
   void getHomeScreenData() {
+    final staffAllowedPermissionsAndModulesCubit =
+        context.read<StaffAllowedPermissionsAndModulesCubit>();
+
     context.read<HomeScreenDataCubit>().getHomeScreenData(
-        holidayModuleEnabled: context
-            .read<StaffAllowedPermissionsAndModulesCubit>()
-            .isModuleEnabled(moduleId: holidayManagementModuleId.toString()),
-        staffLeaveModuleEnabled: context
-            .read<StaffAllowedPermissionsAndModulesCubit>()
-            .isModuleEnabled(moduleId: staffLeaveManagementModuleId.toString()),
+        holidayModuleEnabled: staffAllowedPermissionsAndModulesCubit
+            .isPermissionGiven(permission: "holiday-list"),
+        staffLeaveModuleEnabled: staffAllowedPermissionsAndModulesCubit
+            .isPermissionGiven(permission: "leave-list"),
         isTeacher: false,
-        listTeacherTimetablePermission: context
-            .read<StaffAllowedPermissionsAndModulesCubit>()
+        listTeacherTimetablePermission: staffAllowedPermissionsAndModulesCubit
             .isPermissionGiven(permission: viewTeachersPermissionKey));
   }
 
@@ -67,11 +67,16 @@ class HomeContainerState extends State<HomeContainer> {
               return BlocBuilder<HomeScreenDataCubit, HomeScreenDataState>(
                   builder: (context, homeScreenDataState) {
                 if (homeScreenDataState is HomeScreenDataFetchSuccess) {
+                  final staffPermissionsCubit =
+                      context.read<StaffAllowedPermissionsAndModulesCubit>();
+
                   return RefreshIndicator(
                     color: Theme.of(context).colorScheme.primary,
                     displacement: MediaQuery.of(context).padding.top + 100,
                     onRefresh: () async {
-                      getHomeScreenData();
+                      context
+                          .read<StaffAllowedPermissionsAndModulesCubit>()
+                          .getPermissionAndAllowedModules();
                     },
                     child: SingleChildScrollView(
                       padding: EdgeInsets.only(
@@ -80,16 +85,15 @@ class HomeContainerState extends State<HomeContainer> {
                       child: Column(
                         children: [
                           const HomeOverviewDetailsContainer(),
-                          context
-                                  .read<
-                                      StaffAllowedPermissionsAndModulesCubit>()
-                                  .isModuleEnabled(
-                                      moduleId: timetableManagementModuleId
-                                          .toString())
-                              ? const TeachersTimeTableContainer()
-                              : const SizedBox(),
-                          const LeavesContainer(),
-                          const HolidaysContainer()
+                          if (staffPermissionsCubit.isPermissionGiven(
+                              permission: viewTimetablePermissionKey))
+                            const TeachersTimeTableContainer(),
+                          if (staffPermissionsCubit.isPermissionGiven(
+                              permission: "leave-list"))
+                            const LeavesContainer(),
+                          if (staffPermissionsCubit.isPermissionGiven(
+                              permission: "holiday-list"))
+                            const HolidaysContainer(),
                         ],
                       ),
                     ),

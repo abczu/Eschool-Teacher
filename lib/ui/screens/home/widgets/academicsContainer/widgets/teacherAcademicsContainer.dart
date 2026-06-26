@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/utils/system/in_appbanner.dart';
+import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -76,13 +79,32 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
           builder: (context, classState) {
             final isWalas = classState is ClassesFetchSuccess &&
                 classState.primaryClasses.isNotEmpty;
+            final staffAllowedPermissionsAndModulesCubit =
+                context.read<StaffAllowedPermissionsAndModulesCubit>();
+
+            // Debug prints to check permissions (only in debug mode)
+            if (kDebugMode &&
+                staffAllowedPermissionsAndModulesCubit.state
+                    is StaffAllowedPermissionsAndModulesFetchSuccess) {
+              debugPrint('--- CURRENT USER PERMISSIONS ---');
+              debugPrint((staffAllowedPermissionsAndModulesCubit.state
+                      as StaffAllowedPermissionsAndModulesFetchSuccess)
+                  .permissions
+                  .toString());
+              debugPrint('--- IS WALAS: $isWalas ---');
+              debugPrint('--------------------------------');
+            }
+
+            final hasExtraPermission = (staffAllowedPermissionsAndModulesCubit
+                    .state as StaffAllowedPermissionsAndModulesFetchSuccess)
+                .permissions
+                .any((p) => p.startsWith('extra-'));
 
             return AnimationLimiter(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(
-                  top:
-                      60, // Increased from 16 to 60 to create more space from the appbar
+                  top: 60,
                   left: 16,
                   right: 16,
                   bottom: 0,
@@ -95,9 +117,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: FadeInAnimation(child: widget),
                     ),
                     children: [
-                      // Added an empty SizedBox to provide additional space from the appbar
                       const SizedBox(height: 30),
 
+                      // Schedule Section
                       _buildMenuSection(
                         context: context,
                         title: "Jadwal",
@@ -109,16 +131,22 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           _buildMenuItem(
                             context: context,
                             icon: Icons.calendar_today,
-                            title: "Jadwal Saya", // Ganti dari myTimetableKey
+                            title: "Jadwal Saya",
                             index: 0,
                             onTap: () =>
                                 Get.toNamed(Routes.teacherMyTimetableScreen),
                           ),
-                          if (isWalas)
+                          if (staffAllowedPermissionsAndModulesCubit
+                                  .isPermissionGiven(
+                                      permission: viewClassesPermissionKey) ||
+                              staffAllowedPermissionsAndModulesCubit
+                                  .isPermissionGiven(
+                                      permission:
+                                          viewClassSectionsPermissionKey))
                             _buildMenuItem(
                               context: context,
                               icon: Icons.class_,
-                              title: "Kelas", // Ganti dari classSectionKey
+                              title: "Jadwal Kelas",
                               index: 1,
                               onTap: () =>
                                   Get.toNamed(Routes.teacherClassSectionScreen),
@@ -127,38 +155,44 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       ),
 
                       // Attendance Section
-                      if (isWalas) ...[
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(
+                              permission:
+                                  viewStudentAttendancePermissionKey)) ...[
                         _buildMenuSection(
                           context: context,
-                          title: "Kehadiran", // Ganti dari attendanceKey
+                          title: "Kehadiran",
                           icon: Icons.people,
                           iconColor:
                               const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 1,
                           menus: [
-                            _buildMenuItem(
-                              context: context,
-                              icon: Icons.add_circle_outline,
-                              title:
-                                  "Kehadiran Kegiatan Khusus", // Ganti dari addAttendanceKey
-                              index: 2,
-                              onTap: () => Get.toNamed(
-                                  Routes.teacherAddAttendanceScreen),
-                            ),
-                            _buildMenuItem(
-                              context: context,
-                              icon: Icons.visibility,
-                              title:
-                                  "Laporan Kehadiran Kegiatan Khusus", // Ganti dari viewAttendanceKey
-                              index: 3,
-                              onTap: () => Get.toNamed(
-                                  Routes.teacherViewAttendanceScreen),
-                            ),
+                            if (isWalas &&
+                                staffAllowedPermissionsAndModulesCubit
+                                    .isPermissionGiven(
+                                        permission:
+                                            createStudentAttendancePermissionKey))
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.add_circle_outline,
+                                title: "Kehadiran Kegiatan Khusus",
+                                index: 2,
+                                onTap: () => Get.toNamed(
+                                    Routes.teacherAddAttendanceScreen),
+                              ),
+                            if (isWalas)
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.visibility,
+                                title: "Laporan Kehadiran Kegiatan Khusus",
+                                index: 3,
+                                onTap: () => Get.toNamed(
+                                    Routes.teacherViewAttendanceScreen),
+                              ),
                             _buildMenuItem(
                               context: context,
                               icon: Icons.subject,
-                              title:
-                                  "Laporan Kehadiran per Mata Pelajaran", // Ganti dari viewAttendanceSubjectKey
+                              title: "Laporan Kehadiran per Mata Pelajaran",
                               index: 4,
                               onTap: () => Get.toNamed(
                                   Routes.teacherViewAttendanceSubjectScreen),
@@ -166,224 +200,229 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                             _buildMenuItem(
                               context: context,
                               icon: Icons.summarize,
-                              title:
-                                  "Rekap Kehadiran", // Ganti dari recapAttendanceSubjectKey
+                              title: "Rekap Kehadiran",
                               index: 5,
                               onTap: () => Get.toNamed(
                                   Routes.recapAttendanceSubjectScreen),
                             ),
-                            _buildMenuItem(
-                              context: context,
-                              icon: Icons.leaderboard,
-                              title:
-                                  "Point Alpha Siswa Tertinggi", // Ganti dari rankingAbsentKey
-                              index: 6,
-                              onTap: () =>
-                                  Get.toNamed(Routes.attendanceRankingScreen),
-                            ),
+                            if (isWalas)
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.leaderboard,
+                                title: "Point Alpha Siswa Tertinggi",
+                                index: 6,
+                                onTap: () =>
+                                    Get.toNamed(Routes.attendanceRankingScreen),
+                              ),
                           ],
                         ),
                       ],
 
                       // Lesson Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Mata Pelajaran", // Ganti dari subjectLessonKey
-                        icon: Icons.book,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 2,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.edit,
-                            title:
-                                "Kelola Pelajaran (Bab)", // Ganti dari manageLessonKey
-                            index: 7,
-                            onTap: () =>
-                                Get.toNamed(Routes.teacherManageLessonScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.topic,
-                            title:
-                                "Kelola Topik (Sub Bab)", // Ganti dari manageTopicKey
-                            index: 8,
-                            onTap: () =>
-                                Get.toNamed(Routes.teacherManageTopicScreen),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(permission: "lesson-list"))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Mata Pelajaran",
+                          icon: Icons.book,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 2,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.edit,
+                              title: "Kelola Pelajaran (Bab)",
+                              index: 7,
+                              onTap: () =>
+                                  Get.toNamed(Routes.teacherManageLessonScreen),
+                            ),
+                            if (staffAllowedPermissionsAndModulesCubit
+                                .isPermissionGiven(permission: "topic-list"))
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.topic,
+                                title: "Kelola Topik (Sub Bab)",
+                                index: 8,
+                                onTap: () => Get.toNamed(
+                                    Routes.teacherManageTopicScreen),
+                              ),
+                          ],
+                        ),
 
                       // Question Bank Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Bank Soal",
-                        icon: Icons.library_books,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 3,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.question_answer,
-                            title: "Bank Soal",
-                            index: 9,
-                            onTap: () => Get.toNamed(
-                                Routes.questionSubjectScreen,
-                                arguments: {'isStaffView': false}),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(
+                              permission: viewOnlineExamQuestionsPermissionKey))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Bank Soal",
+                          icon: Icons.library_books,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 3,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.question_answer,
+                              title: "Bank Soal",
+                              index: 9,
+                              onTap: () => Get.toNamed(
+                                  Routes.questionSubjectScreen,
+                                  arguments: {'isStaffView': false}),
+                            ),
+                          ],
+                        ),
 
                       // Assignment Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Tugas Siswa", // Ganti dari studentAssignmentKey
-                        icon: Icons.assignment,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 4,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.edit_note,
-                            title:
-                                "Kelola Tugas", // Ganti dari manageAssignmentKey
-                            index: 10,
-                            onTap: () => Get.toNamed(
-                                Routes.teacherManageAssignmentScreen),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(permission: "assignment-list"))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Tugas Siswa",
+                          icon: Icons.assignment,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 4,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.edit_note,
+                              title: "Kelola Tugas",
+                              index: 10,
+                              onTap: () => Get.toNamed(
+                                  Routes.teacherManageAssignmentScreen),
+                            ),
+                          ],
+                        ),
 
                       // Announcement Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Pengumuman", // Ganti dari messageKey
-                        icon: Icons.announcement,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 5,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.campaign,
-                            title:
-                                "Kelola Pengumuman", // Ganti dari manageAnnouncementKey
-                            index: 11,
-                            onTap: () => Get.toNamed(
-                                Routes.teacherManageAnnouncementScreen),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(permission: "announcement-list"))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Pengumuman",
+                          icon: Icons.announcement,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 5,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.campaign,
+                              title: "Kelola Pengumuman",
+                              index: 11,
+                              onTap: () => Get.toNamed(
+                                  Routes.teacherManageAnnouncementScreen),
+                            ),
+                          ],
+                        ),
 
                       // Offline Exam Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Ujian Offline", // Ganti dari offlineExamKey
-                        icon: Icons.school,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 6,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.edit_document,
-                            title:
-                                "Jadwal Ujian Offline", // Ganti dari examsKey
-                            index: 12,
-                            onTap: () => Get.toNamed(Routes.examsScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.analytics,
-                            title:
-                                "Hasil Ujian Offline", // Ganti dari examResultKey
-                            index: 13,
-                            onTap: () =>
-                                Get.toNamed(Routes.teacherExamResultScreen),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(
+                              permission: viewExamsPermissionKey))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Ujian Offline",
+                          icon: Icons.school,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 6,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.edit_document,
+                              title: "Jadwal Ujian Offline",
+                              index: 12,
+                              onTap: () => Get.toNamed(Routes.examsScreen),
+                            ),
+                            if (staffAllowedPermissionsAndModulesCubit
+                                .isPermissionGiven(
+                                    permission: viewExamResultPermissionKey))
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.analytics,
+                                title: "Hasil Ujian Offline",
+                                index: 13,
+                                onTap: () =>
+                                    Get.toNamed(Routes.teacherExamResultScreen),
+                              ),
+                          ],
+                        ),
 
                       // Online Exam Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Ujian Online",
-                        icon: Icons.computer,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 7,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.laptop_chromebook,
-                            title: "Ujian Online",
-                            index: 14,
-                            onTap: () => Get.toNamed(Routes.onlineExamScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.assessment,
-                            title: "Hasil Ujian Online",
-                            index: 15,
-                            onTap: () =>
-                                Get.toNamed(Routes.onlineExamResultScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.visibility,
-                            title: "Status Siswa Ujian",
-                            index: 16,
-                            onTap: () => Get.toNamed(Routes.examStatusScreen),
-                          ),
-                        ],
-                      ),
+                      if (staffAllowedPermissionsAndModulesCubit
+                          .isPermissionGiven(permission: "online-exam-list"))
+                        _buildMenuSection(
+                          context: context,
+                          title: "Ujian Online",
+                          icon: Icons.computer,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 7,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.laptop_chromebook,
+                              title: "Ujian Online",
+                              index: 14,
+                              onTap: () => Get.toNamed(Routes.onlineExamScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.assessment,
+                              title: "Hasil Ujian Online",
+                              index: 15,
+                              onTap: () =>
+                                  Get.toNamed(Routes.onlineExamResultScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.visibility,
+                              title: "Status Siswa Ujian",
+                              index: 16,
+                              onTap: () => Get.toNamed(Routes.examStatusScreen),
+                            ),
+                          ],
+                        ),
 
                       // Extracurricular Section
-                      _buildMenuSection(
-                        context: context,
-                        title: "Ekstrakurikuler",
-                        icon: Icons.sports_soccer,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 8,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.list,
-                            title: "Kelola Ekstrakurikuler",
-                            index: 17,
-                            onTap: () =>
-                                Get.toNamed(Routes.extracurricularScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.calendar_today,
-                            title: "Jadwal Ekstrakurikuler",
-                            index: 18,
-                            onTap: () =>
-                                Get.toNamed(Routes.extracurricularTimetable),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.people,
-                            title: "Daftar Anggota",
-                            index: 19,
-                            onTap: () =>
-                                Get.toNamed(Routes.extracurricularMember),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            title: 'Absensi Ekstrakurikuler',
-                            icon: Icons.edit_calendar_rounded,
-                            index: 20,
-                            onTap: () =>
-                                Get.toNamed(Routes.extracurricularAttendance),
-                          ),
-                        ],
-                      ),
+                      if (hasExtraPermission)
+                        _buildMenuSection(
+                          context: context,
+                          title: "Ekstrakurikuler",
+                          icon: Icons.sports_soccer,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 8,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.calendar_today,
+                              title: "Jadwal Ekstrakurikuler",
+                              index: 18,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularTimetable),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.people,
+                              title: "Daftar Anggota",
+                              index: 19,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularMember),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              title: 'Absensi Ekstrakurikuler',
+                              icon: Icons.edit_calendar_rounded,
+                              index: 20,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularAttendance),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),

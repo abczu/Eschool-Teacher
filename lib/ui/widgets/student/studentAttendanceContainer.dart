@@ -73,8 +73,8 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
               widget.studentAttendances.length,
               (index) => (
                 status: allAttendanceStatuses[index],
-                studentId: widget.studentAttendances[index]
-                        .studentDetails?.student?.userId ??
+                studentId: widget.studentAttendances[index].studentDetails
+                        ?.student?.userId ??
                     0
               ),
             ),
@@ -101,7 +101,8 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     super.didUpdateWidget(oldWidget);
     if (widget.studentAttendances != oldWidget.studentAttendances) {
       // Re-initialize statuses if student list changed
-      allAttendanceStatuses = (widget.allStudentAttendances ?? widget.studentAttendances).map((e) {
+      allAttendanceStatuses =
+          (widget.allStudentAttendances ?? widget.studentAttendances).map((e) {
         if (e.isPresent()) return StudentAttendanceStatus.present;
         if (e.isAbsent()) return StudentAttendanceStatus.absent;
         if (e.isSick()) return StudentAttendanceStatus.sick;
@@ -109,9 +110,9 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
         if (e.isAlpa()) return StudentAttendanceStatus.alpa;
         return StudentAttendanceStatus.absent;
       }).toList();
-      
+
       _updateAttendanceStats();
-      
+
       // Report new status list to parent
       if (widget.onStatusChanged != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,8 +122,8 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                 widget.studentAttendances.length,
                 (index) => (
                   status: allAttendanceStatuses[index],
-                  studentId: widget.studentAttendances[index]
-                          .studentDetails?.student?.userId ??
+                  studentId: widget.studentAttendances[index].studentDetails
+                          ?.student?.userId ??
                       0
                 ),
               ),
@@ -580,4 +581,3 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     );
   }
 }
-

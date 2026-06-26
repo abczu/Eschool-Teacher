@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter/services.dart';
@@ -198,48 +198,101 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                     if (state is SettingsSuccess) ...[
                                       // Parse the state data into sections
                                       ...(() {
-                                        final data =
-                                            parseCustomHtml(state.data);
-                                        RegExp emailRegex = RegExp(
-                                            r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
-                                        RegExp phoneRegex =
-                                            RegExp(r'(\+?[\d\s-]{10,})');
-                                        RegExp addressRegex = RegExp(
-                                            r'(?:alamat|lokasi|address)[:\s]*(.*?)(?=\n\n|\n(?:[a-z]+[:\s]|$)|$)',
-                                            caseSensitive: false,
-                                            multiLine: true);
+                                        try {
+                                          final rawData = state.data;
+                                          if (rawData.isEmpty || rawData == "null") {
+                                             return [
+                                               const SizedBox(height: 40),
+                                               Center(
+                                                 child: Text(
+                                                   "Belum ada informasi kontak dari sekolah.",
+                                                   style: GoogleFonts.poppins(color: AppColorPalette.secondaryMaroon),
+                                                 ),
+                                               )
+                                             ];
+                                          }
 
-                                        String? email = emailRegex
-                                            .firstMatch(data)
-                                            ?.group(1);
-                                        String? phone = phoneRegex
-                                            .firstMatch(data)
-                                            ?.group(1);
-                                        String? address = addressRegex
-                                            .firstMatch(data)
-                                            ?.group(1)
-                                            ?.trim();
+                                          final data = parseCustomHtml(rawData);
+                                          
+                                          // Improved Regex patterns
+                                          RegExp emailRegex = RegExp(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})');
+                                          RegExp phoneRegex = RegExp(r'(\d[\d\s-]{8,}\d)'); 
+                                          RegExp addressRegex = RegExp(
+                                              r'(?:alamat|lokasi|address)[:\s]*(.*?)(?=\n\n|\n(?:[a-z]+[:\s]|$)|$)',
+                                              caseSensitive: false,
+                                              multiLine: true);
 
-                                        return [
-                                          if (email != null)
-                                            _buildContactCard(
+                                          String? email = emailRegex.firstMatch(data)?.group(1);
+                                          String? phone = phoneRegex.firstMatch(data)?.group(1);
+                                          String? address = addressRegex.firstMatch(data)?.group(1)?.trim();
+                                          
+                                          List<Widget> contactWidgets = [];
+                                          
+                                          if (email != null) {
+                                            contactWidgets.add(_buildContactCard(
                                               Icons.email_rounded,
-                                              'Kirim Email',
+                                              'Email Resmi',
                                               email.trim(),
-                                            ),
-                                          if (phone != null)
-                                            _buildContactCard(
+                                            ));
+                                          }
+                                          
+                                          if (phone != null) {
+                                            contactWidgets.add(_buildContactCard(
                                               Icons.phone_rounded,
-                                              'Hubungi Kami',
+                                              'Telepon Sekolah',
                                               phone.trim(),
-                                            ),
-                                          if (address != null)
-                                            _buildContactCard(
+                                            ));
+                                            
+                                            if (phone.replaceAll(RegExp(r'\D'), '').length >= 10) {
+                                              contactWidgets.add(_buildContactCard(
+                                                Icons.chat_rounded,
+                                                'Hubungi via WhatsApp',
+                                                phone.trim(),
+                                              ));
+                                            }
+                                          }
+                                          
+                                          if (address != null) {
+                                            contactWidgets.add(_buildContactCard(
                                               Icons.location_on_rounded,
-                                              'Kunjungi Kami',
+                                              'Lokasi Sekolah',
                                               address.trim(),
-                                            ),
-                                        ];
+                                            ));
+                                          }
+                                          
+                                          if (contactWidgets.isEmpty) {
+                                            contactWidgets.add(
+                                              Container(
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.all(20),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius: BorderRadius.circular(24),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                                                      blurRadius: 20,
+                                                      offset: const Offset(0, 5),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Text(
+                                                  rawData.trim(),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    color: AppColorPalette.secondaryMaroon,
+                                                    height: 1.6,
+                                                  ),
+                                                ),
+                                              )
+                                            );
+                                          }
+
+                                          return contactWidgets;
+                                        } catch (e) {
+                                          debugPrint("Error parsing contact: $e");
+                                          return [Text("Informasi kontak tidak dapat dimuat.")];
+                                        }
                                       })(),
                                     ],
                                   ],
@@ -318,6 +371,10 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           break;
         case Icons.phone_rounded:
           urlString = 'tel:$content';
+          break;
+        case Icons.chat_rounded:
+          final cleanPhone = content.replaceAll(RegExp(r'\D'), '');
+          urlString = 'https://wa.me/$cleanPhone';
           break;
         case Icons.location_on_rounded:
           urlString =

@@ -18,6 +18,7 @@ class LeaveRequest {
   final double? days;
   final List<StudyMaterial>? attachments;
   final String? rejectReason;
+  final bool? isHomeroom;
 
   LeaveRequest(
       {this.id,
@@ -36,7 +37,8 @@ class LeaveRequest {
       this.days,
       this.fullLeave,
       this.halfLeave,
-      this.rejectReason});
+      this.rejectReason,
+      this.isHomeroom});
 
   LeaveRequest copyWith(
       {int? id,
@@ -55,9 +57,11 @@ class LeaveRequest {
       int? halfLeave,
       List<StudyMaterial>? attachments,
       double? days,
-      String? rejectReason}) {
+      String? rejectReason,
+      bool? isHomeroom}) {
     return LeaveRequest(
       id: id ?? this.id,
+      isHomeroom: isHomeroom ?? this.isHomeroom,
       attachments: attachments ?? this.attachments,
       days: days ?? this.days,
       fullLeave: fullLeave ?? this.fullLeave,
@@ -99,6 +103,9 @@ class LeaveRequest {
         halfLeave = json['half_leave'] as int?,
         rejectReason = json['reject_reason'] as String? ??
             json['rejection_reason'] as String?,
+        isHomeroom = json['is_homeroom'] is bool
+            ? json['is_homeroom'] as bool?
+            : (json['is_homeroom'] == 1),
         leaveDetail = (json['leave_detail'] as List?)
             ?.map(
                 (dynamic e) => LeaveDetail.fromJson(e as Map<String, dynamic>))
@@ -119,6 +126,7 @@ class LeaveRequest {
         'full_leave': fullLeave,
         'half_leave': halfLeave,
         'reject_reason': rejectReason,
+        'is_homeroom': isHomeroom,
         'user': user?.toJson(),
         'leave_detail': leaveDetail?.map((e) => e.toJson()).toList()
       };

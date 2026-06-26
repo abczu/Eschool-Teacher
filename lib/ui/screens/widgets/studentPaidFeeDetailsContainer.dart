@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:eschool_saas_staff/cubits/fee/downloadStudentFeeReceiptCubit.dart';
 import 'package:eschool_saas_staff/data/models/fee/payment.dart';
 import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -116,7 +117,16 @@ class _StudentPaidFeeDetailsContainerState
           DownloadStudentFeeReceiptState>(
         listener: (context, state) {
           if (state is DownloadStudentFeeReceiptSuccess) {
-            OpenFilex.open(state.downloadedFilePath);
+            debugPrint('Opening PDF at: ${state.downloadedFilePath}');
+            OpenFilex.open(state.downloadedFilePath).then((result) {
+              debugPrint('OpenFilex result: ${result.type} - ${result.message}');
+              if (result.type != ResultType.done) {
+                Utils.showSnackBar(
+                  message: "Gagal membuka file: ${result.message}",
+                  context: context,
+                );
+              }
+            });
             Get.back();
           }
         },

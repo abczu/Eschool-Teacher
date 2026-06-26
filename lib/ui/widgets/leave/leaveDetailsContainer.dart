@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
+import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/leave/leaveDetails.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
@@ -320,7 +320,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         backgroundColor = statusColor.withValues(alpha: 0.15);
         break;
       case 'Disetujui':
-        statusIcon = Icons.check_circle_rounded;
+        statusIcon = Icons.verified_rounded;
         backgroundColor = statusColor.withValues(alpha: 0.15);
         break;
       case 'Menunggu':

@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
@@ -88,22 +88,12 @@ class _TeacherTodaysTimetableContainerState
   }
 
   String getClassSectionName(int? classSectionId) {
-    if (classSectionId == null) {
-      debugPrint("ClassSectionId is null");
-      return "-";
-    }
+    if (classSectionId == null) return "-";
 
     final classState = context.read<ClassesCubit>().state;
-    debugPrint("ClassState: $classState");
 
     if (classState is ClassesFetchSuccess) {
       try {
-        debugPrint("Checking class section ID: $classSectionId");
-        debugPrint(
-            "Primary classes: ${classState.primaryClasses.map((e) => '${e.name} (${e.id})')}");
-        debugPrint(
-            "Other classes: ${classState.classes.map((e) => '${e.name} (${e.id})')}");
-
         // Check in primary classes first
         final primaryClass = classState.primaryClasses.firstWhere(
           (element) => element.id == classSectionId,
@@ -111,7 +101,6 @@ class _TeacherTodaysTimetableContainerState
         );
 
         if (primaryClass.id != 0) {
-          debugPrint("Found in primary classes: ${primaryClass.name}");
           return primaryClass.name ?? "";
         }
 
@@ -121,11 +110,8 @@ class _TeacherTodaysTimetableContainerState
           orElse: () => ClassSection(id: 0, name: "-", classId: 0),
         );
 
-        debugPrint(
-            "Found class section: ${classSection.name} for ID: $classSectionId");
         return classSection.name ?? "";
       } catch (e) {
-        debugPrint("Error finding class section: $e");
         return "-";
       }
     }
@@ -142,10 +128,6 @@ class _TeacherTodaysTimetableContainerState
         now.year, now.month, now.day, start.hour, start.minute, start.second);
     DateTime todayEnd = DateTime(
         now.year, now.month, now.day, end.hour, end.minute, end.second);
-
-    debugPrint("Current time: $now");
-    debugPrint("Slot start time: $todayStart");
-    debugPrint("Slot end time: $todayEnd");
 
     return now.isAfter(todayStart) && now.isBefore(todayEnd);
   }

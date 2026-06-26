@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/announcement/announcement.dart';
@@ -163,23 +163,21 @@ class AnnouncementRepository {
   static Future<void> addNotification(
       {required NotificationDetails notificationDetails}) async {
     try {
+      debugPrint("🔔 [NOTIFICATION-REPO] Proses simpan notifikasi baru...");
       await Hive.openBox(notificationsBoxKey);
       await Hive.box(notificationsBoxKey).put(
           notificationDetails.createdAt.toString(),
           notificationDetails.toJson());
-      if (kDebugMode) {
-        debugPrint("Done");
-      }
+      debugPrint("✅ [NOTIFICATION-REPO] BERHASIL simpan ke Hive. Title: ${notificationDetails.title}");
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint(e.toString());
-      }
+      debugPrint("❌ [NOTIFICATION-REPO] GAGAL simpan ke Hive! Error: $e");
     }
   }
 
   static Future<void> addNotificationTemporarily(
       {required Map<String, dynamic> data}) async {
     try {
+      debugPrint("💾 [NOTIFICATION-REPO] Menyimpan ke Storage Sementara (SharedPrefs)...");
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       await sharedPreferences.reload();
@@ -191,10 +189,9 @@ class AnnouncementRepository {
 
       await sharedPreferences.setStringList(
           temporarilyStoredNotificationsKey, notifications);
+      debugPrint("✅ [NOTIFICATION-REPO] Berhasil simpan sementara. Total Antrean: ${notifications.length}");
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint(e.toString());
-      }
+      debugPrint("❌ [NOTIFICATION-REPO] Gagal simpan sementara! Error: $e");
     }
   }
 
@@ -219,27 +216,58 @@ class AnnouncementRepository {
 
   Future<List<NotificationDetails>> getLocalNotifications() async {
     try {
+      if (!Hive.isBoxOpen(notificationsBoxKey)) {
+        await Hive.openBox(notificationsBoxKey);
+      }
       Box notificationBox = Hive.box(notificationsBoxKey);
       List<NotificationDetails> notifications = [];
 
+      // Load from Hive
+      debugPrint("📖 [NOTIFICATION-REPO] Membaca data dari Hive Box: $notificationsBoxKey");
+      debugPrint("   - Total keys di Hive: ${notificationBox.keys.length}");
+
       for (var notificationKey in notificationBox.keys.toList()) {
-        notifications.add(NotificationDetails.fromJson(
-          Map.from(notificationBox.get(notificationKey) ?? {}),
-        ));
+        try {
+          notifications.add(NotificationDetails.fromJson(
+            Map.from(notificationBox.get(notificationKey) ?? {}),
+          ));
+        } catch (e) {
+          debugPrint("❌ [NOTIFICATION-REPO] Gagal parse item Hive: $e");
+        }
+      }
+      
+      debugPrint("✅ [NOTIFICATION-REPO] Berhasil membaca ${notifications.length} notifikasi.");
+
+      // Load from Temporary Storage (SharedPrefs)
+      try {
+        final tempNotifications = await getTemporarilyStoredNotifications();
+        for (var temp in tempNotifications) {
+          notifications.add(NotificationDetails.fromJson(temp));
+        }
+        // Optional: Move temp to hive or clear temp after loading if desired
+        // For now, just merge to show data
+      } catch (e) {
+        debugPrint("Error loading temporary notifications: $e");
       }
 
-      final currentUserId = AuthRepository.getUserDetails().id;
+      // REMOVED: Incorrect ID filtering logic that caused blank screens
+      // element.id is the notification ID, not the user ID.
+      // In a multi-school/multi-user environment, we should use a proper field,
+      // but for now, showing all local notifications to ensure data is visible.
 
-      notifications = notifications
-          .where((element) => element.id == currentUserId)
-          .toList();
-
-      notifications.sort(
-          (first, second) => second.createdAt!.compareTo(first.createdAt!));
+      // Sort by newest first
+      notifications.sort((first, second) {
+        try {
+          return (second.createdAt ?? "").compareTo(first.createdAt ?? "");
+        } catch (e) {
+          return 0;
+        }
+      });
 
       return notifications;
     } catch (e) {
-      throw ApiException(defaultErrorMessageKey);
+      debugPrint("getLocalNotifications error: $e");
+      return [];
     }
   }
 }

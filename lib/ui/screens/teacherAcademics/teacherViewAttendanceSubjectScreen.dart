@@ -111,29 +111,27 @@ class _TeacherViewAttendanceSubjectScreenState
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        // Load timetable
+        // Load initial data
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
-        context
-            .read<ClassSectionsAndSubjectsCubit>()
-            .getClassSectionsAndSubjects();
-
-        // Get classes and automatically select the first class
+        context.read<ClassSectionsAndSubjectsCubit>().getClassSectionsAndSubjects();
         context.read<ClassesCubit>().getClasses();
 
-        // Add a listener to react to state changes
+        // One-time listener to handle initial selection
         _classSub = context.read<ClassesCubit>().stream.listen((classState) {
           if (mounted && classState is ClassesFetchSuccess) {
-            // Get all available classes
-            final allAvailableClasses =
-                context.read<ClassesCubit>().getAllClasses();
-
-            if (allAvailableClasses.isNotEmpty) {
+            final allAvailableClasses = context.read<ClassesCubit>().getAllClasses();
+            
+            if (allAvailableClasses.isNotEmpty && _selectedClassSection == null) {
               setState(() {
-                // Use the first class from all available classes
                 _selectedClassSection = allAvailableClasses.first;
+                allClasses = allAvailableClasses;
               });
-              // Load attendance data for the automatically selected class
+              
+              // Only call getAttendance once after initial selection
               getAttendance();
+              
+              // Cancel listener after first successful setup to prevent loops
+              _classSub?.cancel();
             }
           }
         });
@@ -141,14 +139,13 @@ class _TeacherViewAttendanceSubjectScreenState
     });
 
     // Fetch initial data
-    getClasses();
+    // context.read<ClassesCubit>().getClasses(); // Done inside Future.delayed above
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<ClassesCubit>().getClasses();
-    context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
+    // Do not call getClasses here as it can cause infinite loops during rebuilds
   }
 
   void scrollListener() {
@@ -161,17 +158,12 @@ class _TeacherViewAttendanceSubjectScreenState
   }
 
   void changeTimetableSlotSelection(int? newSelectedTimetableId) {
-    debugPrint('Changing timetable selection to ID: $newSelectedTimetableId');
-
     setState(() {
       _selectedTimetableId = newSelectedTimetableId ?? 0;
     });
 
-    // Add delay to ensure state is updated
     Future.microtask(() {
       if (_selectedTimetableId != 0) {
-        debugPrint(
-            'Fetching attendance for timetable ID: $_selectedTimetableId');
         getAttendance();
       }
     });
@@ -201,20 +193,12 @@ class _TeacherViewAttendanceSubjectScreenState
   }
 
   void getAttendance({StudentAttendanceStatus? selectedStatus}) {
-    debugPrint("Getting attendance for:");
-    debugPrint("Date: $_selectedDateTime");
-    debugPrint(
-        "Class: ${_selectedClassSection?.name} (${_selectedClassSection?.id})");
-    debugPrint("Timetable ID: $_selectedTimetableId");
-
     if (_selectedClassSection == null) {
       final classState = context.read<ClassesCubit>().state;
       if (classState is ClassesFetchSuccess &&
           classState.primaryClasses.isNotEmpty) {
         _selectedClassSection = classState.primaryClasses.first;
-        debugPrint("Using primary class: ${_selectedClassSection?.name}");
       } else {
-        debugPrint("No class section selected!");
         return;
       }
     }
@@ -228,27 +212,13 @@ class _TeacherViewAttendanceSubjectScreenState
               slot.classSectionId == _selectedClassSection?.id)
           .toList();
 
-      debugPrint(
-          "Available slots for selected class and date: ${slots.length}");
-      for (var slot in slots) {
-        debugPrint(
-            "Slot: ${slot.id} - ${slot.subject?.name} - ${slot.startTime}-${slot.endTime}");
-      }
-
       // Update selected timetable id if needed
       if (_selectedTimetableId == 0 && slots.isNotEmpty) {
         _selectedTimetableId = slots.first.id!;
-        debugPrint("Updated timetable ID to: $_selectedTimetableId");
       }
     }
 
     if (_selectedClassSection != null) {
-      debugPrint("Fetching attendance with params:");
-      debugPrint(
-          "- Date: ${DateFormat('yyyy-MM-dd').format(_selectedDateTime)}");
-      debugPrint("- Class Section ID: ${_selectedClassSection!.id}");
-      debugPrint("- Timetable ID: $_selectedTimetableId");
-
       context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
             date: _selectedDateTime,
             classSectionId: _selectedClassSection!.id!,
@@ -1638,7 +1608,6 @@ class _TeacherViewAttendanceSubjectScreenState
       body: BlocBuilder<ClassesCubit, ClassesState>(
         builder: (context, state) {
           if (state is ClassesFetchSuccess) {
-            debugPrint("ClassesFetchSuccess: ${state.primaryClasses}");
             return _buildStudentsContainer();
           }
           if (state is ClassesFetchFailure) {
@@ -1667,27 +1636,6 @@ class _TeacherViewAttendanceSubjectScreenState
         .fullName;
   }
 
-  void getClasses() async {
-    try {
-      final classState = context.read<ClassesCubit>().state;
-
-      if (classState is ClassesFetchSuccess) {
-        // Get all available classes from the system
-        final allAvailableClasses =
-            context.read<ClassesCubit>().getAllClasses();
-
-        debugPrint(
-            "All available classes: ${allAvailableClasses.length} classes");
-
-        setState(() {
-          // Use all available classes from ClassesCubit instead of just timetable slots
-          allClasses = allAvailableClasses;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error fetching classes: $e");
-    }
-  }
 
   void changeSelectedClassSection(ClassSection? classSection) {
     if (_selectedClassSection != classSection) {

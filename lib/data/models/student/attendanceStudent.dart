@@ -28,7 +28,7 @@ class AttendanceStudent {
       id: json['id'] as int?,
       subjectAttendanceId: json['subject_attendance_id'] as int?,
       studentId: json['student_id'] as int?,
-      type: json['type'] as int?,
+      type: json['type'] == null ? null : int.tryParse(json['type'].toString()),
       note: json['note'] as String?,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,

@@ -39,7 +39,15 @@ class ClassTeacher {
         classSectionId = json['class_section_id'] as int?,
         teacherId = json['teacher_id'] as int?,
         schoolId = json['school_id'] as int?,
-        teacher = UserDetails.fromJson(Map.from(json['teacher'] ?? {})),
+        teacher = json['teacher'] != null
+            ? UserDetails.fromJson(Map.from(json['teacher']))
+            : (json['class_teachers'] is Map && json['class_teachers']['teacher'] != null
+                ? UserDetails.fromJson(Map.from(json['class_teachers']['teacher']))
+                : (json['class_teachers'] is List && (json['class_teachers'] as List).isNotEmpty && (json['class_teachers'] as List).first['teacher'] != null
+                    ? UserDetails.fromJson(Map.from((json['class_teachers'] as List).first['teacher']))
+                    : (json['class_teacher'] is Map && json['class_teacher']['teacher'] != null
+                        ? UserDetails.fromJson(Map.from(json['class_teacher']['teacher']))
+                        : (json.containsKey('first_name') ? UserDetails.fromJson(json) : null)))),
         classId = json['class_id'] as int?;
 
   Map<String, dynamic> toJson() => {

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceRankingCubit.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceRankingCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/student/attendanceRanking.dart';
@@ -17,19 +17,24 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
+import 'package:eschool_saas_staff/cubits/academics/classesAndSessionYearsCubit.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 
 class RankingAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AttendanceRankingCubit()..getAttendanceRanking(),
+          create: (context) => AttendanceRankingCubit(),
         ),
         BlocProvider(
           create: (context) => ClassSectionsAndSubjectsCubit(),
         ),
         BlocProvider(
           create: (context) => GradeLevelCubit(),
+        ),
+        BlocProvider(
+          create: (context) => ClassesAndSessionYearsCubit(),
         ),
       ],
       child: const RankingAttendanceScreen(),
@@ -75,29 +80,32 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
         vsync: this, duration: const Duration(milliseconds: 300));
     _scrollController
         .addListener(_scrollListener); // Initialize class sections data
+    // Listen to classes and session years to get the default session year
+    context.read<ClassesAndSessionYearsCubit>().stream.listen((state) {
+      if (state is ClassesAndSessionYearsFetchSuccess) {
+        final defaultSessionYear = state.sessionYears.cast<SessionYear?>().firstWhere((e) => e?.isThisDefault() ?? false, orElse: () => null);
+        if (defaultSessionYear != null) {
+          debugPrint("RankingAttendanceScreen: Found default session year: ${defaultSessionYear.id}");
+          context.read<AttendanceRankingCubit>().getAttendanceRanking(sessionYearId: defaultSessionYear.id);
+        } else {
+          debugPrint("RankingAttendanceScreen: No default session year found, fetching without ID");
+          context.read<AttendanceRankingCubit>().getAttendanceRanking();
+        }
+      } else if (state is ClassesAndSessionYearsFetchFailure) {
+        debugPrint("RankingAttendanceScreen: Failed to load session years, fetching without ID");
+        context.read<AttendanceRankingCubit>().getAttendanceRanking();
+      }
+    });
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         debugPrint(
             "RankingAttendanceScreen: Initializing class sections data...");
         context
-            .read<ClassSectionsAndSubjectsCubit>()
-            .getClassSectionsAndSubjects();
+            .read<ClassesAndSessionYearsCubit>()
+            .getClassesAndSessionYears();
         // Initialize grade levels
         context.read<GradeLevelCubit>().getGradeLevels();
-      }
-    }); // Listen to class sections state changes for debugging
-    context.read<ClassSectionsAndSubjectsCubit>().stream.listen((state) {
-      if (state is ClassSectionsAndSubjectsFetchSuccess) {
-        debugPrint(
-            "RankingAttendanceScreen: Classes loaded successfully - ${state.classSections.length} classes");
-        for (var cls in state.classSections) {
-          debugPrint("Class: ${cls.name} (${cls.id})");
-        }
-      } else if (state is ClassSectionsAndSubjectsFetchFailure) {
-        debugPrint(
-            "RankingAttendanceScreen: Failed to load classes - ${state.errorMessage}");
-      } else if (state is ClassSectionsAndSubjectsFetchInProgress) {
-        debugPrint("RankingAttendanceScreen: Loading classes...");
       }
     }); // Listen to attendance ranking state changes to cache class levels
     context.read<AttendanceRankingCubit>().stream.listen((state) {
@@ -205,233 +213,108 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
   }
 
   Widget _buildRecapTable(AttendanceRanking attendanceRankings) {
-    // Debug: Print original data
-    debugPrint(
-        "DEBUG: Original data - allStudents count: ${attendanceRankings.allStudents?.length ?? 0}");
-    debugPrint(
-        "DEBUG: Original data - groupedByClassLevel count: ${attendanceRankings.groupedByClassLevel?.length ?? 0}");
-
-    // Debug: Print selected filters
-    debugPrint("DEBUG: Selected grade level: ${_selectedGradeLevel?.name}");
-    debugPrint("DEBUG: Selected class section: ${_selectedClassSection?.name}");
-
-    // Debug: Print available data structure
-    if (attendanceRankings.groupedByClassLevel != null) {
-      debugPrint("DEBUG: Available class levels:");
-      for (var classLevel in attendanceRankings.groupedByClassLevel!) {
-        debugPrint("  - Class Level: '${classLevel.classLevel}'");
-      }
-    }
-
-    if (attendanceRankings.allStudents != null) {
-      debugPrint("DEBUG: Sample students:");
-      for (var i = 0;
-          i <
-              (attendanceRankings.allStudents!.length > 5
-                  ? 5
-                  : attendanceRankings.allStudents!.length);
-          i++) {
-        var student = attendanceRankings.allStudents![i];
-        debugPrint(
-            "  - Student: '${student.studentName}', Class Level: '${student.classLevel}', Class Name: '${student.className}'");
-      }
-    }
-
-    // Update cache with fresh data
+    // 1. Update cache for diagnostics
     _cachedAttendanceData = attendanceRankings;
     _cachedClassLevels = getClassLevels(attendanceRankings);
-    debugPrint("DEBUG: Updated cache - class levels: $_cachedClassLevels");
 
-    // First filter by grade level if selected
+    // 2. Initial data
     AttendanceRanking filteredData = attendanceRankings;
+
+    // 3. Simple Grade Level Filter
     if (_selectedGradeLevel != null && _selectedGradeLevel!.name != null) {
-      // Filter by selected grade level - this will affect which classes we see
-      final gradeLevelName = _selectedGradeLevel!.name!;
-      debugPrint("DEBUG: Filtering by grade level: '$gradeLevelName'");
-
+      final String targetGrade = _selectedGradeLevel!.name!.toLowerCase().trim();
+      
       filteredData = AttendanceRanking(
-        groupedByClassLevel:
-            attendanceRankings.groupedByClassLevel?.where((classLevel) {
-          final levelName = classLevel.classLevel ?? '';
-          // Since classLevel might be null, check if it matches
-          final matches = levelName.isNotEmpty &&
-              (levelName == gradeLevelName ||
-                  levelName.contains(gradeLevelName) ||
-                  levelName.startsWith(gradeLevelName));
-
-          debugPrint(
-              "DEBUG: Class level '$levelName' vs '$gradeLevelName' - matches: $matches");
-          return matches;
+        groupedByClassLevel: attendanceRankings.groupedByClassLevel?.where((gl) {
+          final level = (gl.classLevel ?? "").toLowerCase();
+          return level.contains(targetGrade) || targetGrade.contains(level);
         }).toList(),
-        allStudents: attendanceRankings.allStudents?.where((student) {
-          // Since student.classLevel is null, use className to determine grade level
-          final className = student.className ?? '';
-          final classLevel = student.classLevel ?? '';
-
-          // Extract grade level from className (e.g., "XII TKJ B" -> should match "XII")
-          final classNameMatches = className.startsWith(gradeLevelName);
-          final classLevelMatches = classLevel.isNotEmpty &&
-              (classLevel == gradeLevelName ||
-                  classLevel.contains(gradeLevelName) ||
-                  classLevel.startsWith(gradeLevelName));
-          final matches = classNameMatches || classLevelMatches;
-
-          debugPrint(
-              "DEBUG: Student '${student.studentName}' - className: '$className', classLevel: '$classLevel', classNameMatches: $classNameMatches, classLevelMatches: $classLevelMatches, final: $matches");
-          return matches;
+        allStudents: attendanceRankings.allStudents?.where((s) {
+          final sClass = (s.className ?? "").toLowerCase();
+          final sLevel = (s.classLevel ?? "").toLowerCase();
+          return sClass.contains(targetGrade) || sLevel.contains(targetGrade);
         }).toList(),
       );
-
-      debugPrint(
-          "DEBUG: After grade level filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
     }
 
-    // Then filter by class section if selected
-    if (_selectedClassSection != null) {
-      // Filter by selected class section
-      final classSectionName = _selectedClassSection!.name ?? '';
-      debugPrint("DEBUG: Filtering by class section: '$classSectionName'");
+    // 4. Robust Class Section Filter
+    if (_selectedClassSection != null && _selectedClassSection!.name != null) {
+      // Normalize target name: remove spaces, dashes, and to lowercase (e.g., "Kelas 2 - E" -> "kelas2e")
+      final String targetNormalized = _selectedClassSection!.name!
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-zA-Z0-9]'), "");
+
+      debugPrint("DEBUG: Filtering by Class: $targetNormalized");
 
       filteredData = AttendanceRanking(
-        groupedByClassLevel:
-            filteredData.groupedByClassLevel?.where((classLevel) {
-          final levelName = classLevel.classLevel ?? '';
-          // Try multiple matching strategies for class sections too
-          final exactMatch = levelName == classSectionName;
-          final containsMatch = levelName.contains(classSectionName);
-          final startsWithMatch = levelName.startsWith(classSectionName);
-          final matches = exactMatch || containsMatch || startsWithMatch;
-
-          debugPrint(
-              "DEBUG: Class level '$levelName' vs class section '$classSectionName' - exact: $exactMatch, contains: $containsMatch, starts: $startsWithMatch, final: $matches");
-          return matches;
-        }).toList(),
-        allStudents: filteredData.allStudents?.where((student) {
-          final className = student.className ?? '';
-          // For students, use exact match for className since we want specific class
-          final classNameExactMatch = className == classSectionName;
-          // Also try partial match as fallback
-          final classNamePartialMatch = className.contains(classSectionName);
-          final matches = classNameExactMatch || classNamePartialMatch;
-
-          debugPrint(
-              "DEBUG: Student '${student.studentName}' - className: '$className' vs '$classSectionName' - exact: $classNameExactMatch, partial: $classNamePartialMatch, final: $matches");
-          return matches;
+        groupedByClassLevel: filteredData.groupedByClassLevel, // Keep the same groups
+        allStudents: filteredData.allStudents?.where((s) {
+          final String sClass = (s.className ?? "").toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), "");
+          
+          // Debug matching
+          final bool isMatch = sClass.contains(targetNormalized) || targetNormalized.contains(sClass);
+          if (isMatch) debugPrint("DEBUG: Match found for student ${s.studentName} in class $sClass");
+          
+          return isMatch;
         }).toList(),
       );
-
-      debugPrint(
-          "DEBUG: After class section filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
     }
 
-    // If allStudents is empty but we have groupedByClassLevel data,
-    // create allStudents from groupedByClassLevel
-    if ((filteredData.allStudents?.isEmpty ?? true) &&
-        (filteredData.groupedByClassLevel?.isNotEmpty ?? false)) {
-      debugPrint("DEBUG: Converting groupedByClassLevel to allStudents");
-
-      List<AllStudents> generatedAllStudents = [];
-
-      for (var classLevel in filteredData.groupedByClassLevel!) {
-        for (var topStudent in (classLevel.topStudents ?? [])) {
-          generatedAllStudents.add(AllStudents(
-            studentId: topStudent.studentId,
-            studentName: topStudent.studentName,
-            classLevel: classLevel.classLevel,
-            className: topStudent.className,
-            jumlahJpSum: topStudent.jumlahJpSum,
-            point: topStudent.point,
-            alphaCount: topStudent.alphaCount,
+    // 5. Recovery Logic: If allStudents is empty, try to populate from grouped data
+    if ((filteredData.allStudents == null || filteredData.allStudents!.isEmpty) &&
+        (filteredData.groupedByClassLevel != null && filteredData.groupedByClassLevel!.isNotEmpty)) {
+      List<AllStudents> recList = [];
+      for (var group in filteredData.groupedByClassLevel!) {
+        for (var top in (group.topStudents ?? [])) {
+          recList.add(AllStudents(
+            studentId: top.studentId,
+            studentName: top.studentName,
+            classLevel: group.classLevel,
+            className: top.className,
+            jumlahJpSum: top.jumlahJpSum,
+            point: top.point,
+            alphaCount: top.alphaCount,
           ));
         }
       }
-
-      // Sort by point (assuming higher points are better)
-      generatedAllStudents.sort((a, b) {
-        double pointA = double.tryParse(a.point?.toString() ?? '0') ?? 0;
-        double pointB = double.tryParse(b.point?.toString() ?? '0') ?? 0;
-        return pointB.compareTo(pointA); // Descending order
+      // Sort Descending
+      recList.sort((a, b) {
+        double pA = double.tryParse(a.point?.toString() ?? '0') ?? 0;
+        double pB = double.tryParse(b.point?.toString() ?? '0') ?? 0;
+        return pB.compareTo(pA);
       });
 
       filteredData = AttendanceRanking(
         groupedByClassLevel: filteredData.groupedByClassLevel,
-        allStudents: generatedAllStudents,
+        allStudents: recList,
       );
-
-      debugPrint(
-          "DEBUG: Generated ${generatedAllStudents.length} students for allStudents");
     }
 
-    // Check if data is empty - we have data if either source has content
-    bool hasNoData = (filteredData.allStudents?.isEmpty ?? true) &&
-        (filteredData.groupedByClassLevel?.isEmpty ?? true);
+    // 6. Check Empty State
+    final bool isEmpty = (filteredData.allStudents?.isEmpty ?? true) &&
+                         (filteredData.groupedByClassLevel?.isEmpty ?? true);
 
-    debugPrint(
-        "DEBUG: allStudents empty: ${filteredData.allStudents?.isEmpty ?? true}");
-    debugPrint(
-        "DEBUG: groupedByClassLevel empty: ${filteredData.groupedByClassLevel?.isEmpty ?? true}");
-    debugPrint("DEBUG: Final hasNoData result: $hasNoData");
-
-    if (hasNoData) {
+    if (isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.only(top: 80),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.inbox_outlined,
-                size: 80,
-                color: Colors.grey.shade400,
-              ),
+              Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.shade400),
               const SizedBox(height: 16),
-              Text(
-                "Tidak ada data peringkat kehadiran",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              if (_selectedClassSection != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  "Coba ubah filter yang dipilih",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              ],
+              const Text("Tidak ada data peringkat kehadiran", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
         ),
       );
-    } // Check if search query is active and no results found
-    if (_searchQuery.isNotEmpty && _hasNoSearchResults(filteredData)) {
-      return _buildNoSearchResults();
     }
-
-    // Debug print to help verify filter logic
-    debugPrint(
-        "RankingAttendanceScreen: _selectedGradeLevel = ${_selectedGradeLevel?.name}");
-    debugPrint(
-        "RankingAttendanceScreen: _selectedClassSection = ${_selectedClassSection?.name}");
-    debugPrint(
-        "RankingAttendanceScreen: allStudents count = ${filteredData.allStudents?.length ?? 0}");
-    debugPrint(
-        "RankingAttendanceScreen: groupedByClassLevel count = ${filteredData.groupedByClassLevel?.length ?? 0}");
 
     return AttendanceRankingContainer(
       attendanceRankings: filteredData,
-      showAllStudents:
-          true, // Always show all students since we removed class level filter
+      showAllStudents: true,
       searchQuery: _searchQuery,
-    ).animate().fadeIn(duration: 500.ms).slideY(
-          begin: 0.05,
-          end: 0,
-          curve: Curves.easeOutQuad,
-        );
+    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.05, end: 0);
   }
 
   Widget _buildAppBar() {
@@ -1206,4 +1089,3 @@ class AppBarDecorationPainter extends CustomPainter {
     return false;
   }
 }
-

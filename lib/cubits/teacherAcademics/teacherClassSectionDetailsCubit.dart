@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/repositories/academics/teacherAcademicRepository.dart';
 import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,12 +33,13 @@ class TeacherClassSectionDetailsCubit
   TeacherClassSectionDetailsCubit()
       : super(TeacherClassSectionDetailsInitial());
 
-  void getTeacherClassSectionDetails({int? classId}) async {
+  void getTeacherClassSectionDetails({int? classId, int? gradeLevelId}) async {
     try {
       emit(TeacherClassSectionDetailsFetchInProgress());
       emit(TeacherClassSectionDetailsFetchSuccess(
-          classSectionDetails: await _teacherAcademicsRepository
-              .getClassSectionDetails(classId: classId)));
+          classSectionDetails:
+              await _teacherAcademicsRepository.getClassSectionDetails(
+                  classId: classId, gradeLevelId: gradeLevelId)));
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherClassSectionDetailsFetchFailure(userFriendlyMessage));

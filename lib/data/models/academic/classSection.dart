@@ -21,6 +21,7 @@ class ClassSection {
   final Medium? medium;
   final List<ClassTeacher>? classTeachers;
   final List<SubjectTeacher>? subjectTeachers;
+  final int? subjectCount;
 
   ClassSection(
       {this.id,
@@ -36,7 +37,8 @@ class ClassSection {
       this.medium,
       this.section,
       this.classTeachers,
-      this.subjectTeachers});
+      this.subjectTeachers,
+      this.subjectCount});
 
   ClassSection copyWith(
       {int? id,
@@ -52,8 +54,10 @@ class ClassSection {
       ClassDetails? classDetails,
       Section? section,
       List<ClassTeacher>? classTeachers,
-      List<SubjectTeacher>? subjectTeachers}) {
+      List<SubjectTeacher>? subjectTeachers,
+      int? subjectCount}) {
     return ClassSection(
+        subjectCount: subjectCount ?? this.subjectCount,
         subjectTeachers: subjectTeachers ?? this.subjectTeachers,
         classTeachers: classTeachers ?? this.classTeachers,
         id: id ?? this.id,
@@ -88,13 +92,18 @@ class ClassSection {
         section = json['section'] != null
             ? Section.fromJson(Map.from(json['section']))
             : null,
-        // Tambahkan mapping untuk class_teachers
-        classTeachers = ((json['class_teachers'] ?? []) as List)
-            .map((teacher) => ClassTeacher.fromJson(Map.from(teacher)))
-            .toList(),
-        subjectTeachers = ((json['subject_teachers'] ?? []) as List)
+        // Mapping untuk class_teachers
+        classTeachers =
+            ((json['class_teachers'] ?? json['class_teacher'] ?? []) as List)
+                .map((teacher) => ClassTeacher.fromJson(Map.from(teacher)))
+                .toList(),
+        subjectTeachers = ((json['subject_teachers'] ??
+                json['subject_teacher'] ??
+                json['class_subject'] ??
+                []) as List)
             .map((teacher) => SubjectTeacher.fromJson(Map.from(teacher)))
-            .toList();
+            .toList(),
+        subjectCount = json['class_subject_count'] as int?;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -110,7 +119,8 @@ class ClassSection {
         'medium': medium?.toJson(),
         'section': section?.toJson(),
         'subject_teachers': subjectTeachers?.map((e) => e.toJson()).toList(),
-        'class_teachers': classTeachers?.map((e) => e.toJson()).toList()
+        'class_teachers': classTeachers?.map((e) => e.toJson()).toList(),
+        'class_subject_count': subjectCount
       };
 
   String get nama => "$name $fullName".trim();

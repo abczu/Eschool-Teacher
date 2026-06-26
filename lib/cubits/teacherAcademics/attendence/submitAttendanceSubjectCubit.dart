@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/repositories/exam/subjectAttendanceRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/exam/subjectAttendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,7 +76,7 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
       case StudentAttendanceStatus.present:
         return 1;
       case StudentAttendanceStatus.absent:
-        return 0;
+        return 4;
       case StudentAttendanceStatus.sick:
         return 2;
       case StudentAttendanceStatus.permission:

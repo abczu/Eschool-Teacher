@@ -1,4 +1,4 @@
-﻿// filepath: d:\UBIG\eSchool\eschool_saas_staff\lib\ui\screens\leaveRequestsScreen.dart
+// filepath: d:\UBIG\eSchool\eschool_saas_staff\lib\ui\screens\leaveRequestsScreen.dart
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectLeaveRequestCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentLeaveRequestCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/leaveRequestsCubit.dart';
@@ -716,6 +716,38 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                   // Action buttons with improved styling
                   LayoutBuilder(
                     builder: (context, boxConstraints) {
+                      // Check if it's a student leave and not homeroom teacher
+                      if (!isStaffLeave && leaveRequest.isHomeroom == false) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.orange.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.info_outline,
+                                  color: Colors.orange),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  "Hanya Wali Kelas yang dapat memproses izin",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.orange[800],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

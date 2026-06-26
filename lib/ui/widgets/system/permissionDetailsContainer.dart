@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
+import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentPermissionCubit.dart';
 import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/leave/rejectReasonDialog.dart';
@@ -341,7 +341,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                         offset: const Offset(0, 10),
                       ),
                     ],
-                    border: Border.all(color: _maroonPrimary.withValues(alpha: 0.2)),
+                    border: Border.all(
+                        color: _maroonPrimary.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -547,8 +548,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                           child: Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.5),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.5),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
@@ -824,7 +825,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             onTap: () => _showAttachments(context),
                             borderRadius: BorderRadius.circular(50),
                             splashColor: _maroonPrimary.withValues(alpha: 0.1),
-                            highlightColor: _maroonPrimary.withValues(alpha: 0.05),
+                            highlightColor:
+                                _maroonPrimary.withValues(alpha: 0.05),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
@@ -836,8 +838,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 boxShadow: _isHovering
                                     ? [
                                         BoxShadow(
-                                          color:
-                                              _maroonPrimary.withValues(alpha: 0.2),
+                                          color: _maroonPrimary.withValues(
+                                              alpha: 0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         )
@@ -923,7 +925,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Icon(
                                       Icons.class_outlined,
                                       size: 16,
-                                      color: _maroonPrimary.withValues(alpha: 0.7),
+                                      color:
+                                          _maroonPrimary.withValues(alpha: 0.7),
                                     ),
                                     const SizedBox(width: 8),
                                     Flexible(
@@ -957,7 +960,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Icon(
                                       Icons.format_list_numbered,
                                       size: 16,
-                                      color: _maroonPrimary.withValues(alpha: 0.7),
+                                      color:
+                                          _maroonPrimary.withValues(alpha: 0.7),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
@@ -1098,7 +1102,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.03),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.03),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),
@@ -1261,7 +1266,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           height: 60 * value,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _maroonPrimary.withValues(alpha: 0.1 * value),
+                            color:
+                                _maroonPrimary.withValues(alpha: 0.1 * value),
                           ),
                         ),
                       ),
@@ -1466,7 +1472,6 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ? null
                       : () => _approveLeave(context, lastLeave.id ?? 0),
                   label: "Setujui",
-                  
                   primaryColor: Colors.green.shade600,
                   isLoading: isInProgress,
                   isApprove: true,
@@ -1479,7 +1484,6 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ? null
                       : () => _rejectLeave(context, lastLeave.id ?? 0),
                   label: "Tolak",
-                 
                   primaryColor: Colors.red.shade600,
                   isLoading: isInProgress,
                   isApprove: false,
@@ -1540,7 +1544,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.red.shade100.withValues(alpha: 0.3),
+                                color:
+                                    Colors.red.shade100.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),

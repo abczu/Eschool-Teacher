@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
@@ -29,18 +29,19 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
   }
 
   void getHomeScreenData() {
+    final staffAllowedPermissionsAndModulesCubit =
+        context.read<StaffAllowedPermissionsAndModulesCubit>();
+
     context.read<HomeScreenDataCubit>().getHomeScreenData(
-        holidayModuleEnabled: context
-            .read<StaffAllowedPermissionsAndModulesCubit>()
-            .isModuleEnabled(moduleId: holidayManagementModuleId.toString()),
-        staffLeaveModuleEnabled: context
-            .read<StaffAllowedPermissionsAndModulesCubit>()
-            .isModuleEnabled(moduleId: staffLeaveManagementModuleId.toString()),
+        holidayModuleEnabled: staffAllowedPermissionsAndModulesCubit
+            .isPermissionGiven(permission: "holiday-list"),
+        staffLeaveModuleEnabled: staffAllowedPermissionsAndModulesCubit
+            .isPermissionGiven(permission: "leave-list"),
         listTeacherTimetablePermission: false,
         isTeacher: true);
-    if (context
-        .read<StaffAllowedPermissionsAndModulesCubit>()
-        .isModuleEnabled(moduleId: timetableManagementModuleId.toString())) {
+
+    if (staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+        permission: viewTimetablePermissionKey)) {
       context
           .read<TeacherMyTimetableCubit>()
           .getTeacherMyTimetable(isRefresh: true);
@@ -63,11 +64,16 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
               return BlocBuilder<HomeScreenDataCubit, HomeScreenDataState>(
                 builder: (context, homeScreenDataState) {
                   if (homeScreenDataState is HomeScreenDataFetchSuccess) {
+                    final staffPermissionsCubit =
+                        context.read<StaffAllowedPermissionsAndModulesCubit>();
+
                     return RefreshIndicator(
                       color: Theme.of(context).colorScheme.primary,
                       displacement: MediaQuery.of(context).padding.top + 100,
                       onRefresh: () async {
-                        getHomeScreenData();
+                        context
+                            .read<StaffAllowedPermissionsAndModulesCubit>()
+                            .getPermissionAndAllowedModules();
                       },
                       child: SingleChildScrollView(
                         padding: EdgeInsets.only(
@@ -75,23 +81,26 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                             bottom: 100),
                         child: Column(
                           children: [
-                            // TeacherHomeOverviewContainer(),
-                            const SizedBox(
-                              height: 45,
-                            ),
-                            BlocProvider(
-                              create: (BuildContext context) {
-                                return TeacherMyTimetableCubit()
-                                  ..getTeacherMyTimetable();
-                              },
-                              child: const TeacherTodaysTimetableContainer(),
-                            ),
-                            const TeacherPermissionContainer(),
-                            const TeacherLeavesContainer(),
-                            const TeacherHolidaysContainer(),
-                            const SizedBox(
-                              height: 15,
-                            ),
+                            const SizedBox(height: 45),
+                            if (staffPermissionsCubit.isPermissionGiven(
+                                permission: viewTimetablePermissionKey))
+                              BlocProvider(
+                                create: (BuildContext context) {
+                                  return TeacherMyTimetableCubit()
+                                    ..getTeacherMyTimetable();
+                                },
+                                child: const TeacherTodaysTimetableContainer(),
+                              ),
+                            if (staffPermissionsCubit.isPermissionGiven(
+                                permission: approveLeavePermissionKey))
+                              const TeacherPermissionContainer(),
+                            if (staffPermissionsCubit.isPermissionGiven(
+                                permission: "leave-list"))
+                              const TeacherLeavesContainer(),
+                            if (staffPermissionsCubit.isPermissionGiven(
+                                permission: "holiday-list"))
+                              const TeacherHolidaysContainer(),
+                            const SizedBox(height: 15),
                           ],
                         ),
                       ),

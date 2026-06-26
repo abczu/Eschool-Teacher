@@ -1,12 +1,14 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:eschool_saas_staff/utils/system/colorPalette.dart';
+import 'package:flutter/foundation.dart';
 
 class RecapAttendanceContainer extends StatelessWidget {
   final List<ClassSection> classSections;
   final Function(ClassSection, int) onDownload;
+  final Function(ClassSection, int) onPreview;
   final int selectedYear;
   final int? selectedMonth;
   final String? email;
@@ -16,48 +18,13 @@ class RecapAttendanceContainer extends StatelessWidget {
     super.key,
     required this.classSections,
     required this.onDownload,
+    required this.onPreview,
     required this.selectedYear,
     this.selectedMonth,
     this.email,
-    this.schoolId, // Tambahkan ini
+    this.schoolId,
   });
 
-  // Update the _previewRecap method
-  void _previewRecap(
-      BuildContext context, ClassSection section, int month) async {
-    // Check if class is in PKL
-    if (section.pkl == 1) {
-      _showPKLNotification(context, section.name ?? 'Kelas ini');
-      return;
-    }
-
-    if (schoolId == null) {
-      debugPrint('School ID is null');
-      return;
-    }
-
-    final url = Uri.parse('https://eschool.ac.id/recap-download'
-        '?school_id=$schoolId' // Gunakan schoolId yang diterima dari parameter
-        '&class_id=${section.classDetails?.id}'
-        '&class_section_id=${section.id}'
-        '&month=$month'
-        '&year=$selectedYear'
-        '&email=${Uri.encodeComponent(email ?? "")}'
-        '&gm=naowndoianwodinaiwondaoiwnd'
-        '&download=false');
-
-    debugPrint('Preview URL: $url'); // Debug log
-
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.inAppWebView);
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      debugPrint('Error launching preview URL: $e');
-    }
-  }
 
   // Add this new method to show PKL notification
   void _showPKLNotification(BuildContext context, String className) {
@@ -277,41 +244,38 @@ class RecapAttendanceContainer extends StatelessWidget {
       );
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Container(
-        color: AppColorPalette.warmBeige.withValues(alpha: 0.5),
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        child: Column(
-          children: [
-            // Show only the selected month
-            FadeInUp(
-              duration: const Duration(milliseconds: 400),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildMonthHeader(
-                        selectedMonth! - 1), // Convert to 0-based index
-                    _buildClassList(selectedMonth! - 1,
-                        context), // Convert to 0-based index
-                  ],
-                ),
+    return Container(
+      color: AppColorPalette.warmBeige.withValues(alpha: 0.5),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Column(
+        children: [
+          // Show only the selected month
+          FadeInUp(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildMonthHeader(
+                      selectedMonth! - 1), // Convert to 0-based index
+                  _buildClassList(selectedMonth! - 1,
+                      context), // Convert to 0-based index
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -526,79 +490,36 @@ class RecapAttendanceContainer extends StatelessWidget {
       spacing: 8, // Jarak horizontal antara tombol
       runSpacing: 8, // Jarak vertikal jika tombol wrap ke baris baru
       children: [
-        _buildActionButton(
+        _ActionButton(
           icon:
               isPKL ? Icons.business_center_rounded : Icons.visibility_rounded,
           label: 'Preview',
-          onPressed: () => _previewRecap(context, section, monthIndex + 1),
+          onPressed: () {
+            debugPrint('[RecapContainer] Preview tapped for ${section.name}, month=${monthIndex + 1}, isPKL=$isPKL');
+            if (isPKL) {
+              _showPKLNotification(context, section.name ?? 'Kelas ini');
+            } else {
+              onPreview(section, monthIndex + 1);
+            }
+          },
           isPrimary: true,
           isPKL: isPKL,
         ),
-        _buildActionButton(
+        _ActionButton(
           icon: isPKL ? Icons.business_center_rounded : Icons.download_rounded,
           label: 'Unduh',
-          onPressed: () => isPKL
-              ? _showPKLNotification(context, section.name ?? 'Kelas ini')
-              : onDownload(section, monthIndex + 1),
+          onPressed: () {
+            debugPrint('[RecapContainer] Unduh tapped for ${section.name}, month=${monthIndex + 1}, isPKL=$isPKL');
+            if (isPKL) {
+              _showPKLNotification(context, section.name ?? 'Kelas ini');
+            } else {
+              onDownload(section, monthIndex + 1);
+            }
+          },
           isPrimary: false,
           isPKL: isPKL,
         ),
       ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-    required bool isPrimary,
-    required bool isPKL,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: isPKL
-                ? Colors.grey.shade300
-                : isPrimary
-                    ? AppColorPalette.primaryMaroon
-                    : AppColorPalette.secondaryMaroon,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: isPKL
-                    ? Colors.grey.withValues(alpha: 0.2)
-                    : AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -618,5 +539,94 @@ class RecapAttendanceContainer extends StatelessWidget {
       'Desember'
     ];
     return months[month - 1];
+  }
+}
+
+/// Tombol aksi yang menggunakan GestureDetector untuk deteksi tap yang lebih andal
+/// dibanding Material + InkWell yang bisa gagal di dalam ScrollView
+class _ActionButton extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+  final bool isPrimary;
+  final bool isPKL;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    required this.isPrimary,
+    required this.isPKL,
+  });
+
+  @override
+  State<_ActionButton> createState() => _ActionButtonState();
+}
+
+class _ActionButtonState extends State<_ActionButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) {
+        setState(() => _isPressed = true);
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () {
+        setState(() => _isPressed = false);
+      },
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedOpacity(
+          opacity: _isPressed ? 0.8 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: widget.isPKL
+                  ? Colors.grey.shade300
+                  : widget.isPrimary
+                      ? AppColorPalette.primaryMaroon
+                      : AppColorPalette.secondaryMaroon,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.isPKL
+                      ? Colors.grey.withValues(alpha: 0.2)
+                      : AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  widget.label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

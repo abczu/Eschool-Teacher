@@ -235,7 +235,7 @@ class FeeRepository {
         queryParameters: params,
       );
 
-      // Use centralized helper for PDF (Support pdf_url)
+      // Use centralized helper for PDF (Support pdf_url or base64 'pdf' field)
       final bytes = await Api.fetchDocumentBytes(result);
       return base64Encode(bytes);
     } catch (e) {

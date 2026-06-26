@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/appLocalizationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
@@ -19,6 +19,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 
 class AppColorPalette {
   static const Color primaryMaroon = Color(0xFF8B1F41);
@@ -197,25 +198,31 @@ class _ProfileContainerState extends State<ProfileContainer>
               },
             ),
 
-            // Main Content
             AnimationLimiter(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsetsDirectional.only(
-                  top: Utils.appContentTopScrollPadding(context: context) +
-                      190, // Increased top padding to accommodate new app bar
-                  end: appContentHorizontalPadding,
-                  start: appContentHorizontalPadding,
-                  bottom: 100,
-                ),
-                child: Column(
-                  children: AnimationConfiguration.toStaggeredList(
-                    duration: const Duration(milliseconds: 600),
-                    childAnimationBuilder: (widget) => SlideAnimation(
-                      verticalOffset: 30.0,
-                      child: FadeInAnimation(child: widget),
-                    ),
-                    children: <Widget>[
+              child: RefreshIndicator(
+                color: maroonPrimary,
+                onRefresh: () async {
+                  context
+                      .read<StaffAllowedPermissionsAndModulesCubit>()
+                      .getPermissionAndAllowedModules();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsetsDirectional.only(
+                    top: Utils.appContentTopScrollPadding(context: context) +
+                        190,
+                    end: 16, // Samakan dengan Akademik
+                    start: 16, // Samakan dengan Akademik
+                    bottom: 100,
+                  ),
+                  child: Column(
+                    children: AnimationConfiguration.toStaggeredList(
+                      duration: const Duration(milliseconds: 600),
+                      childAnimationBuilder: (widget) => SlideAnimation(
+                        verticalOffset: 30.0,
+                        child: FadeInAnimation(child: widget),
+                      ),
+                      children: <Widget>[
                       const SizedBox(height: 8),
 
                       // // Welcome message
@@ -481,6 +488,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 ),
               ),
             ),
+          ),
 
             // Enhanced Curved App Bar
             _buildDramaticCurvedAppBar(context: context),
@@ -577,28 +585,17 @@ class _ProfileContainerState extends State<ProfileContainer>
         verticalOffset: 40,
         child: FadeInAnimation(
           child: Container(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.only(bottom: 25, left: 15, right: 15), // Membuat kotak lebih ramping sesuai Akademik
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  Colors.white.withValues(alpha: 0.95),
-                ],
-              ),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withValues(alpha: 0.1),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+                  color: iconColor.withValues(alpha: 0.12), // Sedikit lebih pekat
+                  blurRadius: 20, // Samakan dengan akademik
+                  offset: const Offset(0, 8), // Samakan dengan akademik
                 ),
               ],
-              border: Border.all(
-                color: iconColor.withValues(alpha: 0.05),
-                width: 1,
-              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1156,9 +1153,9 @@ class _ProfileContainerState extends State<ProfileContainer>
 
             // Profile card
             Positioned(
-              bottom: 15,
-              left: 16,
-              right: 16,
+              bottom: 20,
+              left: 8,
+              right: 8,
               child: Container(
                 height: 120,
                 padding:
@@ -1180,6 +1177,10 @@ class _ProfileContainerState extends State<ProfileContainer>
                       spreadRadius: 0,
                     ),
                   ],
+                  border: Border.all(
+                    color: maroonPrimary.withValues(alpha: 0.05),
+                    width: 1,
+                  ),
                 ),
                 child: _buildProfileInfo(context),
               ),

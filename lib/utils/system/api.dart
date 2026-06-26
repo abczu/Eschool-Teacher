@@ -360,14 +360,27 @@ class Api {
     debugPrint(
         '🔑 [API] Auth Token: ${jwtToken.isNotEmpty ? "Present" : "Missing"}, School: $schoolCode');
 
+    final user = AuthRepository.getUserDetails();
+    // Gunakan logika yang lebih kuat untuk mendeteksi staff agar tidak terkena dampak obfuscation di APK Release
+    final bool isStaffAccount = (user.staff != null && user.staff!.id != null) || 
+                                 user.getRoles().toLowerCase().contains("staff") ||
+                                 (user.occupation ?? "").toLowerCase().contains("staff");
+                                 
+    final String currentRole = isStaffAccount ? "staff" : "teacher";
+
+    debugPrint('🕒 [API_HEADER_DEBUG] User Full Name: ${user.fullName}');
+    debugPrint('🕒 [API_HEADER_DEBUG] Staff Profile: ${user.staff?.id}');
+    debugPrint('🕒 [API_HEADER_DEBUG] Teacher Profile: ${user.teacher?.id}');
+    debugPrint('🕒 [API_HEADER_DEBUG] Final Role Sent: $currentRole');
+
     return {
       "Authorization": "Bearer $jwtToken",
       if (includeSchoolCode) "school-code": schoolCode,
       if (contentType != null) "Content-Type": contentType,
       "Accept": "application/json",
       "X-Requested-With": "XMLHttpRequest",
-      "role": "teacher",
-      "view_type": "teacher",
+      "role": currentRole,
+      "view_type": currentRole,
       "all": "true",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -390,6 +403,7 @@ class Api {
 
   /// Mengambil data dokumen (PDF) dengan prioritas 'pdf_url' (Fase 2 Backend).
   static Future<Uint8List> fetchDocumentBytes(Map<String, dynamic> data) async {
+    // 1. Cek kunci utama
     if (data['pdf_url'] != null && data['pdf_url'].toString().isNotEmpty) {
       final dio = _dio;
       final response = await dio.get<List<int>>(
@@ -401,7 +415,30 @@ class Api {
     if (data['pdf'] != null && data['pdf'].toString().isNotEmpty) {
       return base64Decode(data['pdf'].toString());
     }
-    throw ApiException("Konten dokumen tidak ditemukan.");
+
+    // 2. Cek di dalam kunci 'data' (Sering digunakan di Laravel)
+    if (data['data'] != null) {
+      final nestedData = data['data'];
+      if (nestedData is Map) {
+        if (nestedData['pdf_url'] != null) {
+          final dio = _dio;
+          final response = await dio.get<List<int>>(
+            nestedData['pdf_url'].toString(),
+            options: Options(responseType: ResponseType.bytes),
+          );
+          return Uint8List.fromList(response.data!);
+        }
+        if (nestedData['pdf'] != null) {
+          return base64Decode(nestedData['pdf'].toString());
+        }
+      } else if (nestedData is String && nestedData.isNotEmpty) {
+        // Jika 'data' itu sendiri adalah string base64
+        return base64Decode(nestedData);
+      }
+    }
+
+    debugPrint("ERROR: No PDF content found in API response. Keys: ${data.keys}");
+    throw ApiException("Konten dokumen tidak ditemukan di server.");
   }
 
   static Future<Map<String, dynamic>> post({
@@ -558,10 +595,17 @@ class Api {
     try {
       final Dio dio = _dio;
 
+      final user = AuthRepository.getUserDetails();
+      final bool isStaffAccount = (user.staff != null && user.staff!.id != null) || 
+                                   user.getRoles().toLowerCase().contains("staff") ||
+                                   (user.occupation ?? "").toLowerCase().contains("staff");
+                                   
+      final String currentRole = isStaffAccount ? "staff" : "teacher";
+
       // Add default parameters
       queryParameters = {
-        'role': 'teacher',
-        'view_type': 'teacher',
+        'role': currentRole,
+        'view_type': currentRole,
         'all': 'true',
         ...?queryParameters,
       };
@@ -569,10 +613,9 @@ class Api {
       // Get headers
       final requestHeaders = headers(useAuthToken: useAuthToken ?? true);
 
-      // Set response type based on URL
-      final bool isPdfEndpoint = url.contains('pdf') ||
-          url == downloadStudentFeeReceipt ||
-          url == downloadStudentResult;
+      // Updated logic: Don't force bytes unless we are absolutely sure it's not a JSON response
+      // Most of our PDF endpoints return JSON containing base64 or a URL
+      final bool isRawPdf = url.contains('.pdf') && !url.contains('api');
 
       final response = await dio.get(
         url,
@@ -581,7 +624,7 @@ class Api {
             headers: requestHeaders,
             validateStatus: (status) => status! < 300,
             responseType:
-                isPdfEndpoint ? ResponseType.bytes : ResponseType.json),
+                isRawPdf ? ResponseType.bytes : ResponseType.json),
       );
 
       AppLogger.debug('Api.get', 'Response meta', data: {
@@ -589,19 +632,9 @@ class Api {
         'statusCode': response.statusCode,
         'query': queryParameters,
         'responseDataType': response.data.runtimeType.toString(),
-        'responseDataPreview': response.data is String
-            ? (response.data.length > 200
-                ? response.data.substring(0, 200) + '...<truncated>'
-                : response.data)
-            : response.data.toString().length > 200
-                ? '${response.data.toString().substring(0, 200)}...<truncated>'
-                : response.data.toString(),
       });
-      debugPrint("DEBUG STATUS CODE: ${response.statusCode}");
-      debugPrint("DEBUG RESPONSE BODY: ${response.data}");
-      debugPrint("DEBUG STATUS CODE: ${response.statusCode}");
-      debugPrint("DEBUG RESPONSE BODY: ${response.data}");
-      if (isPdfEndpoint && response.data is List<int>) {
+
+      if (response.data is List<int>) {
         return {'pdf': base64Encode(response.data), 'error': false};
       }
       return Map<String, dynamic>.from(response.data);

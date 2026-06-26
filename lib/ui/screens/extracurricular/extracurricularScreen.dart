@@ -114,8 +114,6 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     }
   }
 
-
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -174,9 +172,12 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                 // Immediately inject restored extracurricular into active list
                 if (result['extracurricular'] != null &&
                     result['extracurricular'] is Extracurricular) {
-                  final restoredEC = (result['extracurricular'] as Extracurricular)
-                      .copyWith(clearDeletedAt: true);
-                  context.read<ExtracurricularCubit>().addExtracurricular(restoredEC);
+                  final restoredEC =
+                      (result['extracurricular'] as Extracurricular)
+                          .copyWith(clearDeletedAt: true);
+                  context
+                      .read<ExtracurricularCubit>()
+                      .addExtracurricular(restoredEC);
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(

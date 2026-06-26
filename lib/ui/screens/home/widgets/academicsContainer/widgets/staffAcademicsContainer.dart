@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/staff/staffsScreen.dart';
@@ -268,24 +268,29 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                       : const SizedBox(),
 
                   // Question Bank Section
-                  _buildMenuSection(
-                    context: context,
-                    title: "Bank Soal",
-                    icon: Icons.quiz,
-                    iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
-                    index: 6,
-                    menus: [
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.question_answer,
-                        title: "Bank Soal",
-                        index: 11,
-                        onTap: () {
-                          Get.toNamed(Routes.questionSubjectScreen, arguments: {'isStaffView': true});
-                        },
-                      ),
-                    ],
-                  ),
+                  staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                          permission: viewOnlineExamQuestionsPermissionKey)
+                      ? _buildMenuSection(
+                          context: context,
+                          title: "Bank Soal",
+                          icon: Icons.quiz,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 6,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.question_answer,
+                              title: "Bank Soal",
+                              index: 11,
+                              onTap: () {
+                                Get.toNamed(Routes.questionSubjectScreen,
+                                    arguments: {'isStaffView': true});
+                              },
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
 
                   // Assignment Monitoring Section
                   staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
@@ -355,82 +360,96 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                       : const SizedBox(),
 
                   // Online Exam Section
-                  _buildMenuSection(
-                    context: context,
-                    title: "Ujian Online",
-                    icon: Icons.computer,
-                    iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
-                    index: 7,
-                    menus: [
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.quiz,
-                        title: "Ujian Online",
-                        index: 12,
-                        onTap: () => Get.toNamed(Routes.onlineExamScreen),
-                      ),
-                      if (staffAllowedPermissionsAndModulesCubit
-                          .isModuleEnabled(
-                              moduleId:
-                                  assignmentManagementModuleId.toString()))
-                        _buildMenuItem(
+                  staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                          permission: viewOnlineExamsPermissionKey)
+                      ? _buildMenuSection(
                           context: context,
-                          icon: Icons.assessment,
-                          title: "Hasil Ujian Online",
-                          index: 13,
-                          onTap: () =>
-                              Get.toNamed(Routes.onlineExamResultScreen),
-                        ),
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.visibility,
-                        title: "Status Siswa Ujian",
-                        index: 16,
-                        onTap: () => Get.toNamed(Routes.examStatusScreen),
-                      ),
-                    ],
-                  ),
+                          title: "Ujian Online",
+                          icon: Icons.computer,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 7,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.quiz,
+                              title: "Ujian Online",
+                              index: 12,
+                              onTap: () => Get.toNamed(Routes.onlineExamScreen),
+                            ),
+                            if (staffAllowedPermissionsAndModulesCubit
+                                .isModuleEnabled(
+                                    moduleId: assignmentManagementModuleId
+                                        .toString()))
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.assessment,
+                                title: "Hasil Ujian Online",
+                                index: 13,
+                                onTap: () =>
+                                    Get.toNamed(Routes.onlineExamResultScreen),
+                              ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.visibility,
+                              title: "Status Siswa Ujian",
+                              index: 16,
+                              onTap: () => Get.toNamed(Routes.examStatusScreen),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
 
                   // Extracurricular Section
-                  _buildMenuSection(
-                    context: context,
-                    title: "Ekstrakurikuler",
-                    icon: Icons.sports_soccer,
-                    iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
-                    index: 8,
-                    menus: [
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.list,
-                        title: "Kelola Ekstrakurikuler",
-                        index: 17,
-                        onTap: () => Get.toNamed(Routes.extracurricularScreen),
-                      ),
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.calendar_today,
-                        title: "Jadwal Ekstrakurikuler",
-                        index: 18,
-                        onTap: () =>
-                            Get.toNamed(Routes.extracurricularTimetable),
-                      ),
-                      _buildMenuItem(
-                        context: context,
-                        icon: Icons.people,
-                        title: "Daftar Anggota",
-                        index: 19,
-                        onTap: () => Get.toNamed(Routes.extracurricularMember),
-                      ),
-                      _buildMenuItem(
-                        context: context,
-                        title: 'Absensi Ekstrakurikuler',
-                        icon: Icons.edit_calendar_rounded,
-                        index: 20,
-                        onTap: () =>
-                            Get.toNamed(Routes.extracurricularAttendance),
-                      ),
-                    ],
-                  ),
+                  staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                          permission: viewExtracurricularPermissionKey)
+                      ? _buildMenuSection(
+                          context: context,
+                          title: "Ekstrakurikuler",
+                          icon: Icons.sports_soccer,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 8,
+                          menus: [
+                            if (staffAllowedPermissionsAndModulesCubit
+                                .isPermissionGiven(
+                                    permission:
+                                        createExtracurricularPermissionKey))
+                              _buildMenuItem(
+                                context: context,
+                                icon: Icons.list,
+                                title: "Kelola Ekstrakurikuler",
+                                index: 17,
+                                onTap: () =>
+                                    Get.toNamed(Routes.extracurricularScreen),
+                              ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.calendar_today,
+                              title: "Jadwal Ekstrakurikuler",
+                              index: 18,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularTimetable),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.people,
+                              title: "Daftar Anggota",
+                              index: 19,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularMember),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              title: 'Absensi Ekstrakurikuler',
+                              icon: Icons.edit_calendar_rounded,
+                              index: 20,
+                              onTap: () =>
+                                  Get.toNamed(Routes.extracurricularAttendance),
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
 
                   // Message Section
                   (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
@@ -496,27 +515,21 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                       : const SizedBox(),
 
                   // Payment Section
-                  (staffAllowedPermissionsAndModulesCubit.isModuleEnabled(
-                              moduleId: feesManagementModuleId.toString())) ||
-                          (staffAllowedPermissionsAndModulesCubit
-                              .isModuleEnabled(
-                                  moduleId:
-                                      expenseManagementModuleId.toString()))
+                  (staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                              permission: viewFeesPaidPermissionKey) ||
+                          staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
+                              permission: viewPayrollListPermissionKey))
                       ? _buildMenuSection(
                           context: context,
                           title: "Pembayaran",
                           icon: Icons.payments,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 9,
                           menus: [
-                            (staffAllowedPermissionsAndModulesCubit
-                                        .isModuleEnabled(
-                                            moduleId: feesManagementModuleId
-                                                .toString()) &&
-                                    staffAllowedPermissionsAndModulesCubit
-                                        .isPermissionGiven(
-                                            permission:
-                                                viewFeesPaidPermissionKey))
+                            staffAllowedPermissionsAndModulesCubit
+                                    .isPermissionGiven(
+                                        permission: viewFeesPaidPermissionKey)
                                 ? _buildMenuItem(
                                     context: context,
                                     icon: Icons.paid,
@@ -526,14 +539,10 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                                         Get.toNamed(Routes.paidFeesScreen),
                                   )
                                 : const SizedBox(),
-                            (staffAllowedPermissionsAndModulesCubit
-                                        .isModuleEnabled(
-                                            moduleId: expenseManagementModuleId
-                                                .toString()) &&
-                                    staffAllowedPermissionsAndModulesCubit
-                                        .isPermissionGiven(
-                                            permission:
-                                                viewPayrollListPermissionKey))
+                            staffAllowedPermissionsAndModulesCubit
+                                    .isPermissionGiven(
+                                        permission:
+                                            viewPayrollListPermissionKey)
                                 ? _buildMenuItem(
                                     context: context,
                                     icon: Icons.account_balance_wallet,
@@ -543,37 +552,22 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                                         Get.toNamed(Routes.managePayrollScreen),
                                   )
                                 : const SizedBox(),
-                            staffAllowedPermissionsAndModulesCubit
-                                    .isModuleEnabled(
-                                        moduleId: expenseManagementModuleId
-                                            .toString())
-                                ? context
-                                        .read<AuthCubit>()
-                                        .getUserDetails()
-                                        .isSchoolAdmin()
-                                    ? const SizedBox()
-                                    : _buildMenuItem(
-                                        context: context,
-                                        icon: Icons.account_balance,
-                                        title: myPayRollKey,
-                                        index: 18,
-                                        onTap: () =>
-                                            Get.toNamed(Routes.myPayrollScreen),
-                                      )
-                                : const SizedBox(),
-                            staffAllowedPermissionsAndModulesCubit
-                                    .isModuleEnabled(
-                                        moduleId: expenseManagementModuleId
-                                            .toString())
-                                ? _buildMenuItem(
-                                    context: context,
-                                    icon: Icons.money,
-                                    title: "Tunjangan & Potongan",
-                                    index: 19,
-                                    onTap: () => Get.toNamed(
-                                        Routes.allowancesAndDeductionsScreen),
-                                  )
-                                : const SizedBox(),
+                            // myPayroll remains visible for non-admin staff
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.account_balance,
+                              title: myPayRollKey,
+                              index: 18,
+                              onTap: () => Get.toNamed(Routes.myPayrollScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.money,
+                              title: "Tunjangan & Potongan",
+                              index: 19,
+                              onTap: () => Get.toNamed(
+                                  Routes.allowancesAndDeductionsScreen),
+                            ),
                           ],
                         )
                       : const SizedBox(),

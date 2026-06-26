@@ -18,6 +18,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
@@ -643,6 +644,15 @@ class Utils {
 
   static bool isRTLEnabled(BuildContext context) {
     return Directionality.of(context) == TextDirection.rtl;
+  }
+
+  /// Returns a directory that is accessible by external apps for file sharing.
+  /// On Android, it uses External Cache Directory.
+  /// On iOS and other platforms, it uses the standard Temporary Directory.
+  static Future<String> getSharableDirectory() async {
+    // We use internal cache directory and share it via FileProvider (configured in AndroidManifest)
+    // This is the most compatible way for Android 11+ and iOS.
+    return (await getTemporaryDirectory()).path;
   }
 }
 

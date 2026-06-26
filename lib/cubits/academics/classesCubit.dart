@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/repositories/academics/academicRepository.dart';
 import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,14 +28,15 @@ class ClassesCubit extends Cubit<ClassesState> {
 
   ClassesCubit() : super(ClassesInitial());
 
-  void getClasses() async {
+  void getClasses({bool forceRefresh = false}) async {
+    // Prevent redundant fetching if already successful and not forced
+    if (!forceRefresh && state is ClassesFetchSuccess) {
+      return;
+    }
+
     try {
       emit(ClassesFetchInProgress());
       final result = await _academicRepository.getClasses();
-      debugPrint(
-          "Primary classes: ${result.primaryClasses.map((e) => "${e.name} (${e.id})").toList()}");
-      debugPrint(
-          "Other classes: ${result.classes.map((e) => "${e.name} (${e.id})").toList()}");
       emit(ClassesFetchSuccess(
           classes: result.classes, primaryClasses: result.primaryClasses));
     } catch (e) {
@@ -56,14 +57,6 @@ class ClassesCubit extends Cubit<ClassesState> {
         ...currentState.primaryClasses,
         ...currentState.classes
       ];
-
-      // Debug logs
-      debugPrint(
-          "getAllClasses - Primary Classes: ${currentState.primaryClasses.map((e) => "${e.name} (${e.id})").toList()}");
-      debugPrint(
-          "getAllClasses - Other Classes: ${currentState.classes.map((e) => "${e.name} (${e.id})").toList()}");
-      debugPrint(
-          "getAllClasses - Combined Classes: ${allClasses.map((e) => "${e.name} (${e.id})").toList()}");
 
       return allClasses;
     }

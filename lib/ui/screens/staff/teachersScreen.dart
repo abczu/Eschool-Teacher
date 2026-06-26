@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:eschool_saas_staff/app/routes.dart';
@@ -181,9 +181,6 @@ class _TeachersScreenState extends State<TeachersScreen>
   }
 
   void searchQueryTextControllerListener() {
-    if (_textEditingController.text.trim().isEmpty) {
-      return;
-    }
     waitForNextSearchRequestTimer?.cancel();
     setWaitForNextSearchRequestTimer();
   }
@@ -232,16 +229,27 @@ class _TeachersScreenState extends State<TeachersScreen>
   }
 
   Widget _buildTeacherList(TeachersFetchSuccess state, BuildContext context) {
-    // Menerapkan filter berdasarkan status guru
-    var filteredTeachers = state.teachers;
+    // Menerapkan filter berdasarkan status dan pencarian lokal
+    final searchQuery = _textEditingController.text.trim().toLowerCase();
+    var filteredTeachers = state.teachers.where((teacher) {
+      // Filter status
+      bool matchesStatus = true;
+      if (_currentStatusFilter == TeacherStatusFilter.active) {
+        matchesStatus = teacher.isActive();
+      } else if (_currentStatusFilter == TeacherStatusFilter.inactive) {
+        matchesStatus = !teacher.isActive();
+      }
 
-    if (_currentStatusFilter == TeacherStatusFilter.active) {
-      filteredTeachers =
-          state.teachers.where((teacher) => teacher.isActive()).toList();
-    } else if (_currentStatusFilter == TeacherStatusFilter.inactive) {
-      filteredTeachers =
-          state.teachers.where((teacher) => !teacher.isActive()).toList();
-    }
+      // Filter pencarian lokal (nama atau role)
+      bool matchesSearch = true;
+      if (searchQuery.isNotEmpty) {
+        final name = (teacher.firstName ?? "").toLowerCase();
+        final role = teacher.getRoles().toLowerCase();
+        matchesSearch = name.contains(searchQuery) || role.contains(searchQuery);
+      }
+
+      return matchesStatus && matchesSearch;
+    }).toList();
 
     if (filteredTeachers.isEmpty) {
       // Check if this is due to search or no data at all

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/announcement/localNotificationsCubit.dart';
+import 'package:eschool_saas_staff/cubits/announcement/localNotificationsCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
@@ -65,16 +65,52 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       body: BlocBuilder<LocalNotificationsCubit, LocalNotificationsState>(
         builder: (context, state) {
           if (state is LocalNotificationsFetchSuccess) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                top: 25,
-              ),
-              child: Column(
-                children: state.notifications
-                    .map((notificationDetails) => NotificationItemContainer(
-                          notificationDetails: notificationDetails,
-                        ))
-                    .toList(),
+            if (state.notifications.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<LocalNotificationsCubit>().getLocalNotifications();
+                },
+                child: ListView(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                    const Center(
+                      child: Icon(Icons.notifications_off_outlined,
+                          size: 80, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        "Belum Ada Notifikasi",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700]),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Center(
+                      child: Text(
+                        "Notifikasi baru untuk Anda akan muncul di sini.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<LocalNotificationsCubit>().getLocalNotifications();
+              },
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 15, bottom: 20, left: 16, right: 16),
+                itemCount: state.notifications.length,
+                itemBuilder: (context, index) {
+                  return NotificationItemContainer(
+                    notificationDetails: state.notifications[index],
+                  );
+                },
               ),
             );
           }

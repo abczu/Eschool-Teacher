@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/data/models/payroll/payRoll.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DownloadPayRollSlipDialog extends StatefulWidget {
   final PayRoll payRoll;

@@ -229,10 +229,10 @@ class _TeacherAddAttendanceScreenSubjectState
     }
 
     context.read<StudentsByClassSectionCubit>().fetchStudents(
-      status: StudentListStatus.all,
-      classSectionId: _selectedClassSection!.id!,
-      classSubjectId: _selectedTimeTableSlot?.subjectTeacherId,
-    );
+          status: StudentListStatus.all,
+          classSectionId: _selectedClassSection!.id!,
+          classSubjectId: _selectedTimeTableSlot?.subjectTeacherId,
+        );
   }
 
   void changeClassSectionSelection(ClassSection? newSelectedClassSection) {
@@ -1769,8 +1769,6 @@ class _TeacherAddAttendanceScreenSubjectState
         children: [
           BlocBuilder<ClassesCubit, ClassesState>(
             builder: (context, state) {
-              debugPrint("EMITT");
-              debugPrint(state.toString());
               if (state is ClassesFetchSuccess) {
                 return Stack(children: [
                   _buildStudentsContainer(),
@@ -1791,213 +1789,12 @@ class _TeacherAddAttendanceScreenSubjectState
                   },
                 ));
               }
-              debugPrint("LOADING");
-              return SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 100),
+              return const SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title section skeleton
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      width: double.infinity,
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade300,
-                        highlightColor: Colors.grey.shade100,
-                        child: Container(
-                          height: 24,
-                          width: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Learning details section skeleton
-                    const SkeletonLearningDetails(),
-
-                    // Students attendance list skeleton
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          // List header skeleton
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16)),
-                            ),
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Container(
-                                    height: 16,
-                                    width: 180,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // Student list skeleton items
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            child: Column(
-                              children: List.generate(6, (index) {
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            Colors.grey.withValues(alpha: 0.05),
-                                        blurRadius: 2,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade100,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 13),
-                                      child: Row(
-                                        children: [
-                                          // Number
-                                          SizedBox(
-                                            width: 32,
-                                            child: Container(
-                                              height: 14,
-                                              width: 20,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(7),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          // Student avatar
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          // Student info
-                                          Expanded(
-                                            flex: 6,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  height: 16,
-                                                  width: double.infinity,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Container(
-                                                  height: 12,
-                                                  width: 80,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          // Attendance buttons
-                                          SizedBox(
-                                            width: 72,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  width: 32,
-                                                  height: 32,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Container(
-                                                  width: 32,
-                                                  height: 32,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    SkeletonLearningDetails(),
                   ],
                 ),
               );
@@ -2008,4 +1805,3 @@ class _TeacherAddAttendanceScreenSubjectState
     );
   }
 }
-

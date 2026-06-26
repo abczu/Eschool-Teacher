@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter/material.dart';

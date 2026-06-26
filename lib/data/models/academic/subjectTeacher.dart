@@ -59,8 +59,24 @@ class SubjectTeacher {
         classSubjectId = json['class_subject_id'] as int?,
         schoolId = json['school_id'] as int?,
         deletedAt = json['deleted_at'] as String?,
-        subject = Subject.fromJson(Map.from(json['subject'] ?? {})),
-        teacher = UserDetails.fromJson(Map.from(json['teacher'] ?? {})),
+        subject = json['subject'] != null
+            ? Subject.fromJson(Map.from(json['subject']))
+            : (json['subject_teachers'] is Map && json['subject_teachers']['subject'] != null
+                ? Subject.fromJson(Map.from(json['subject_teachers']['subject']))
+                : (json['subject_teachers'] is List && (json['subject_teachers'] as List).isNotEmpty && (json['subject_teachers'] as List).first['subject'] != null
+                    ? Subject.fromJson(Map.from((json['subject_teachers'] as List).first['subject']))
+                    : (json['subject_teacher'] is Map && json['subject_teacher']['subject'] != null
+                        ? Subject.fromJson(Map.from(json['subject_teacher']['subject']))
+                        : (json.containsKey('name') ? Subject.fromJson(json) : null)))),
+        teacher = json['teacher'] != null
+            ? UserDetails.fromJson(Map.from(json['teacher']))
+            : (json['subject_teachers'] is Map && json['subject_teachers']['teacher'] != null
+                ? UserDetails.fromJson(Map.from(json['subject_teachers']['teacher']))
+                : (json['subject_teachers'] is List && (json['subject_teachers'] as List).isNotEmpty && (json['subject_teachers'] as List).first['teacher'] != null
+                    ? UserDetails.fromJson(Map.from((json['subject_teachers'] as List).first['teacher']))
+                    : (json['subject_teacher'] is Map && json['subject_teacher']['teacher'] != null
+                        ? UserDetails.fromJson(Map.from(json['subject_teacher']['teacher']))
+                        : (json.containsKey('first_name') ? UserDetails.fromJson(json) : null)))),
         subjectWithName = json['subject_with_name'] as String?;
 
   Map<String, dynamic> toJson() => {
@@ -75,6 +91,4 @@ class SubjectTeacher {
         'subject': subject?.toJson(),
         'teacher': teacher?.toJson()
       };
-
-  
 }

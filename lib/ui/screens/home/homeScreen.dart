@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
@@ -127,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: context.read<AppConfigurationCubit>().appUnderMaintenance()
           ? const AppUnderMaintenanceContainer()

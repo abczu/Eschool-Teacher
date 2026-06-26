@@ -67,7 +67,7 @@ class StudentAttendance {
         classSectionId = json['class_section_id'] as int?,
         studentId = json['student_id'] as int?,
         sessionYearId = json['session_year_id'] as int?,
-        type = json['type'] as int?,
+        type = json['type'] == null ? null : int.tryParse(json['type'].toString()),
         date = json['date'] as String?,
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,

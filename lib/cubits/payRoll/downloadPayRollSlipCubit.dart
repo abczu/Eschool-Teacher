@@ -1,9 +1,9 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eschool_saas_staff/data/repositories/payroll/payRollRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class DownloadPayRollSlipState {}
@@ -39,7 +39,7 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
       debugPrint("Payroll Title: $payRollSlipTitle");
 
       String filePath = "";
-      final path = (await getApplicationDocumentsDirectory()).path;
+      final path = await Utils.getSharableDirectory();
       filePath = "$path/Salary-Slips/$payRollSlipTitle-$payRollId.pdf";
 
       debugPrint("Target file path: $filePath");

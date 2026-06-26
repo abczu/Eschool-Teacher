@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactListCubit.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactStatsCubit.dart';
@@ -1321,7 +1321,7 @@ class _ContactListScreenState extends State<ContactListScreen>
             ),
             const SizedBox(height: 32),
             Text(
-              '💬 Belum Ada Kontak',
+              'Belum Ada Kontak',
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,

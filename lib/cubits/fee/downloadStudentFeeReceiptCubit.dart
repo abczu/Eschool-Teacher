@@ -1,10 +1,10 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eschool_saas_staff/data/repositories/fee/feeRepository.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class DownloadStudentFeeReceiptState {}
@@ -51,7 +51,7 @@ class DownloadStudentFeeReceiptCubit
 
       // Generate unique filename incorporating timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final path = (await getApplicationDocumentsDirectory()).path;
+      final path = await Utils.getSharableDirectory();
       final filePath = "$path/Student-Fees/$studentName-receipt-$timestamp.pdf";
       debugPrint('Target File Path: $filePath');
 
@@ -77,9 +77,32 @@ class DownloadStudentFeeReceiptCubit
           'Successfully received PDF content. Length: ${slipContent.length} bytes');
 
       try {
+        // Clean the base64 string - remove any potential headers or whitespace
+        String cleanedBase64 = slipContent.trim();
+        if (cleanedBase64.startsWith('data:application/pdf;base64,')) {
+          cleanedBase64 =
+              cleanedBase64.substring('data:application/pdf;base64,'.length);
+        } else if (cleanedBase64.startsWith('data:')) {
+          final commaIndex = cleanedBase64.indexOf(',');
+          if (commaIndex != -1) {
+            cleanedBase64 = cleanedBase64.substring(commaIndex + 1);
+          }
+        }
+        cleanedBase64 = cleanedBase64.replaceAll(RegExp(r'\s+'), '');
+
         // Decode base64 to validate it's proper PDF data
-        final bytes = base64Decode(slipContent);
+        final bytes = base64Decode(cleanedBase64);
         debugPrint('Successfully decoded base64 data. Size: ${bytes.length} bytes');
+
+        // VALIDATION: Check for PDF Magic Bytes (%PDF-)
+        if (bytes.length < 4 || 
+            bytes[0] != 0x25 || bytes[1] != 0x50 || bytes[2] != 0x44 || bytes[3] != 0x46) {
+          debugPrint('ERROR: Decoded data does not start with PDF magic bytes (%PDF-)');
+          // Print first 50 bytes for debugging
+          final preview = bytes.take(50).toList();
+          debugPrint('First 50 bytes: $preview');
+          throw ApiException("Data yang diterima bukan format PDF yang valid");
+        }
 
         // Write PDF file
         final file = File(filePath);
@@ -89,7 +112,8 @@ class DownloadStudentFeeReceiptCubit
         emit(DownloadStudentFeeReceiptSuccess(downloadedFilePath: filePath));
       } catch (e) {
         debugPrint('Error processing PDF data: $e');
-        throw ApiException("Invalid PDF data received from server");
+        if (e is ApiException) rethrow;
+        throw ApiException("Gagal memproses data struk: ${e.toString()}");
       }
     } catch (e) {
       debugPrint('===== ERROR DOWNLOADING PDF RECEIPT =====');

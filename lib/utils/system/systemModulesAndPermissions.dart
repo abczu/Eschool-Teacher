@@ -32,12 +32,21 @@ const String viewStudentsPermissionKey = "student-list";
 const String viewStaffsPermissionKey = "staff-list";
 const String viewTimetablePermissionKey = "timetable-list";
 const String viewStudentAttendancePermissionKey = "attendance-list";
+const String createStudentAttendancePermissionKey = "attendance-create";
 const String viewClassesPermissionKey = "class-list";
 const String viewExamsPermissionKey = "exam-list";
 const String viewExamTimetablePermissionKey = "exam-timetable-list";
 const String viewExamResultPermissionKey = "exam-result";
 const String viewSessionYearsPermissionKey = "session-year-list";
 const String viewSemestersPermissionKey = "semester-list";
+const String viewOnlineExamQuestionsPermissionKey = "online-exam-questions-list";
+const String viewOnlineExamsPermissionKey = "online-exam-list";
+const String viewExtracurricularPermissionKey = "extra-list";
+const String createExtracurricularPermissionKey = "extra-create";
+const String editExtracurricularPermissionKey = "extra-edit";
+const String deleteExtracurricularPermissionKey = "extra-delete";
+const String viewClassSectionsPermissionKey = "class-section-list";
+
 
 //
 const String viewNotificationPermissionKey = "notification-list";

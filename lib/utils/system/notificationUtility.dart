@@ -1,4 +1,4 @@
-﻿// ignore_for_file: library_prefixes
+// ignore_for_file: library_prefixes
 
 import 'dart:async';
 import 'dart:convert';
@@ -34,13 +34,18 @@ class NotificationUtility {
     logRemoteMessageAndroid(remoteMessage, tag: 'FCM-UTILITY-BACKGROUND');
 
     final additionalData = remoteMessage.data;
-    final type = (additionalData['type'] ?? "").toString();
 
     if (kDebugMode) {
       debugPrint(remoteMessage.data.toString());
     }
 
-    if (type == notificationType) {
+    final type = (additionalData['type'] ?? "").toString().toLowerCase().replaceAll('-', '_');
+
+    if (kDebugMode) {
+      debugPrint("Background notification received. Type: $type");
+    }
+
+    if (type.isNotEmpty) {
       await Hive.initFlutter();
       await Hive.openBox(authBoxKey);
       await AnnouncementRepository.addNotificationTemporarily(
@@ -50,6 +55,7 @@ class NotificationUtility {
         image: remoteMessage.data['image'] ?? "",
         message: remoteMessage.notification?.body ?? "",
         title: remoteMessage.notification?.title ?? "",
+        sendTo: type,
       ).toJson());
     }
   }
@@ -57,17 +63,55 @@ class NotificationUtility {
   static void _onTapNotificationScreenNavigateCallback({
     required Map<String, dynamic> notificationData,
   }) {
-    final type = (notificationData['type'] ?? "").toString();
+    var type = (notificationData['type'] ?? "").toString();
+    type = type.trim().toLowerCase().replaceAll('-', '_');
 
     if (type.isNotEmpty) {
-      if (type == notificationType) {
-        Get.toNamed(Routes.notificationsScreen);
-      } else if (type == leaveType) {
-        Get.toNamed(Routes.leaveRequestScreen);
-      } else if (type == messageType) {
-        if (Get.currentRoute != Routes.chatContacts) {
-          Get.toNamed(Routes.chatContacts);
-        }
+      // Sesuai dengan pembagian di NotificationService
+      switch (type) {
+        case 'student_leave':
+        case 'student_leave_request':
+          Get.toNamed(Routes.leaveRequestScreen);
+          break;
+          
+        case 'student_leave_status':
+          Get.toNamed(Routes.generalPermissionScreen);
+          break;
+
+        case 'leave':
+        case 'leave_status':
+        case 'staff_leave_approved':
+        case 'staff_leave_rejected':
+          Get.toNamed(Routes.leavesScreen, arguments: {'showMyLeaves': true});
+          break;
+
+        case 'assignment':
+        case 'tugas':
+        case 'assignment_submission':
+        case 'student_submitted':
+          Get.toNamed(Routes.teacherManageAssignmentScreen);
+          break;
+
+        case 'attendance':
+        case 'attendance_update':
+        case 'attendance_marked':
+          Get.toNamed(Routes.teacherViewAttendanceScreen);
+          break;
+
+        case 'announcement':
+        case 'notification':
+          Get.toNamed(Routes.notificationsScreen);
+          break;
+
+        case 'message':
+        case 'chat':
+          if (Get.currentRoute != Routes.chatContacts) {
+            Get.toNamed(Routes.chatContacts);
+          }
+          break;
+
+        default:
+          Get.toNamed(Routes.notificationsScreen);
       }
     }
   }
@@ -170,7 +214,8 @@ class NotificationUtility {
 
     final type = (additionalData['type'] ?? "").toString();
 
-    if (type == notificationType) {
+    // Simpan semua jenis notifikasi penting ke riwayat (Notification, Leave, Message)
+    if (type == notificationType || type == leaveType || type == messageType) {
       AnnouncementRepository.addNotification(
           notificationDetails: notificationDetails.NotificationDetails(
         createdAt: DateTime.now().toString(),
@@ -178,6 +223,7 @@ class NotificationUtility {
         image: remoteMessage.data['image'] ?? "",
         message: remoteMessage.notification?.body ?? "",
         title: remoteMessage.notification?.title ?? "",
+        sendTo: type, // Simpan type agar bisa dibedakan di riwayat
       ));
     }
 

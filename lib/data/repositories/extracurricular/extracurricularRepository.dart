@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import 'package:eschool_saas_staff/data/models/auth/user.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:flutter/foundation.dart';
@@ -7,34 +7,55 @@ class ExtracurricularRepository {
   // Get list of active extracurriculars
   Future<List<Extracurricular>> getExtracurriculars() async {
     try {
-      debugPrint('🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getExtracurriculars}');
+      debugPrint(
+          '🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getExtracurriculars}');
 
       final response = await Api.get(
         url: Api.getExtracurriculars,
         useAuthToken: true,
         queryParameters: {
-          'role': 'teacher',
-          'view_type': 'teacher',
+          'role': 'staff',
+          'view_type': 'staff',
           'all': 'true',
         },
       );
 
       debugPrint(
-          '✅ [EXTRACURRICULAR REPO] Response: ${response['message'] ?? 'Success'}');
+          '✅ [EXTRACURRICULAR REPO] Response keys: ${response.keys.toList()}');
+      debugPrint(
+          '✅ [EXTRACURRICULAR REPO] Response message: ${response['message'] ?? 'N/A'}');
 
       if (response['error'] == true) {
-        debugPrint('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
+        debugPrint(
+            '❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load extracurriculars');
       }
 
-      // Response now uses 'rows' instead of 'data'
-      final List<dynamic> rows = response['rows'] ?? [];
+      // Try multiple response keys: 'data', 'rows', or root level list
+      List<dynamic> items = [];
+      if (response['data'] != null && response['data'] is List) {
+        items = response['data'] as List;
+        debugPrint('📊 [EXTRACURRICULAR REPO] Found data in "data" key');
+      } else if (response['rows'] != null && response['rows'] is List) {
+        items = response['rows'] as List;
+        debugPrint('📊 [EXTRACURRICULAR REPO] Found data in "rows" key');
+      } else if (response['data'] != null && response['data'] is Map) {
+        // Paginated response: data.data
+        final nested = response['data'] as Map;
+        items = (nested['data'] ?? nested['rows'] ?? []) as List;
+        debugPrint(
+            '📊 [EXTRACURRICULAR REPO] Found data in nested "data.data" key');
+      } else {
+        debugPrint(
+            '⚠️ [EXTRACURRICULAR REPO] No recognized data key found! Response: $response');
+      }
 
-      debugPrint('📊 [EXTRACURRICULAR REPO] Loaded ${rows.length} extracurriculars');
+      debugPrint(
+          '📊 [EXTRACURRICULAR REPO] Loaded ${items.length} extracurriculars');
 
       final extracurriculars =
-          rows.map((json) => Extracurricular.fromJson(json)).toList();
+          items.map((json) => Extracurricular.fromJson(json)).toList();
 
       debugPrint(
           '📊 [EXTRACURRICULAR REPO] Successfully loaded ${extracurriculars.length} active items');
@@ -66,7 +87,8 @@ class ExtracurricularRepository {
 
       // Check for success field instead of error field
       if (response['success'] != true) {
-        debugPrint('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
+        debugPrint(
+            '❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load archived extracurriculars');
       }
@@ -104,24 +126,35 @@ class ExtracurricularRepository {
   }) async {
     try {
       debugPrint('➕ [EXTRACURRICULAR REPO] Creating: $name');
+      debugPrint(
+          '📊 [EXTRACURRICULAR REPO] Payload: name=$name, description=$description, coach_id=$coachId');
 
       final response = await Api.post(
         url: Api.createExtracurricular,
         useAuthToken: true,
+        queryParameters: {
+          'role': 'staff',
+          'view_type': 'staff',
+        },
         body: {
           'name': name,
           'description': description,
           'coach_id': coachId.toString(),
+          '_method': 'POST',
         },
       );
 
+      debugPrint('✅ [EXTRACURRICULAR REPO] Create Response: $response');
+
       if (response['error'] == true) {
-        debugPrint('❌ [EXTRACURRICULAR REPO] Create failed: ${response['message']}');
+        debugPrint(
+            '❌ [EXTRACURRICULAR REPO] Create failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to create extracurricular');
       }
 
-      debugPrint('✅ [EXTRACURRICULAR REPO] Created successfully');
+      debugPrint(
+          '✅ [EXTRACURRICULAR REPO] Created successfully. New Item: ${response['data']}');
     } catch (e) {
       debugPrint('❌ [EXTRACURRICULAR REPO] Create exception: $e');
       throw ApiException(e.toString());
@@ -138,18 +171,21 @@ class ExtracurricularRepository {
     try {
       debugPrint('✏️ [EXTRACURRICULAR REPO] Updating ID $id: $name');
 
-      final response = await Api.put(
+      final response = await Api.postJson(
         url: '${Api.updateExtracurricular}/$id',
         useAuthToken: true,
         body: {
+          '_method':
+              'PUT', // Laravel way to handle PUT in some configurations or just use it as POST
           'name': name,
           'description': description,
-          'coach_id': coachId.toString(),
+          'coach_id': coachId,
         },
       );
 
       if (response['error'] == true) {
-        debugPrint('❌ [EXTRACURRICULAR REPO] Update failed: ${response['message']}');
+        debugPrint(
+            '❌ [EXTRACURRICULAR REPO] Update failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to update extracurricular');
       }
@@ -228,7 +264,8 @@ class ExtracurricularRepository {
         queryParameters: {'mode': 'permanent'}, // Optional parameter
       );
 
-      debugPrint('🔍 [EXTRACURRICULAR REPO] Permanent delete response: $response');
+      debugPrint(
+          '🔍 [EXTRACURRICULAR REPO] Permanent delete response: $response');
 
       if (response['error'] == true) {
         debugPrint(
@@ -247,34 +284,73 @@ class ExtracurricularRepository {
   // Get list of teachers and staff
   Future<List<User>> getTeachersStaffList() async {
     try {
-      debugPrint('🔍 [EXTRACURRICULAR REPO] API Call: ${Api.getTeachersStaffList}');
+      debugPrint(
+          '🔍 [EXTRACURRICULAR REPO] Fetching teachers from: ${Api.getTeachers}');
 
       final response = await Api.get(
-        url: Api.getTeachersStaffList,
+        url: Api.getTeachers,
         useAuthToken: true,
-        queryParameters: {
-          'role': 'teacher,staff',
-        },
       );
 
       debugPrint(
-          '✅ [EXTRACURRICULAR REPO] Teachers/Staff Response: ${response['message'] ?? 'Success'}');
+          '✅ [EXTRACURRICULAR REPO] Teachers Response keys: ${response.keys.toList()}');
 
       if (response['error'] == true) {
-        debugPrint('❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
+        debugPrint(
+            '❌ [EXTRACURRICULAR REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load teachers/staff');
       }
 
-      // Handle paginated response structure
-      final responseData = response['data'];
-      final List<dynamic> data = responseData is Map
-          ? (responseData['data'] ?? [])
-          : (responseData ?? []);
+      // Parse response - handle 'data', 'rows', or 'data.data' (paginated)
+      List<dynamic> items = [];
+      if (response['data'] != null && response['data'] is List) {
+        items = response['data'] as List;
+        debugPrint('📊 [EXTRACURRICULAR REPO] Found teachers in "data" key');
+      } else if (response['rows'] != null && response['rows'] is List) {
+        items = response['rows'] as List;
+        debugPrint('📊 [EXTRACURRICULAR REPO] Found teachers in "rows" key');
+      } else if (response['data'] != null && response['data'] is Map) {
+        final nested = response['data'] as Map;
+        items = (nested['data'] ?? nested['rows'] ?? []) as List;
+        debugPrint(
+            '📊 [EXTRACURRICULAR REPO] Found teachers in nested "data.data" key');
+      }
 
-      debugPrint('📊 [EXTRACURRICULAR REPO] Loaded ${data.length} users');
+      debugPrint(
+          '📊 [EXTRACURRICULAR REPO] Loaded ${items.length} teachers/staff candidates');
 
-      return data.map((json) => User.fromJson(json)).toList();
+      final List<User> teachers = [];
+      for (var json in items) {
+        try {
+          final map = Map<String, dynamic>.from(json ?? {});
+
+          // staff/teachers often returns user details with nested 'user' key
+          final userData = map['user'] as Map<String, dynamic>?;
+          if (userData != null) {
+            teachers.add(User(
+              id: userData['id'] as int?,
+              firstName: userData['first_name'] as String?,
+              lastName: userData['last_name'] as String?,
+              fullName: userData['full_name'] as String? ??
+                  '${userData['first_name'] ?? ''} ${userData['last_name'] ?? ''}'
+                      .trim(),
+              image: userData['image'] as String?,
+              role: userData['role'] as String?,
+            ));
+          } else {
+            // Fallback: try parsing directly as User
+            teachers.add(User.fromJson(map));
+          }
+        } catch (e) {
+          debugPrint(
+              '⚠️ [EXTRACURRICULAR REPO] Failed to parse a teacher item: $e');
+        }
+      }
+
+      debugPrint(
+          '📊 [EXTRACURRICULAR REPO] Successfully mapped ${teachers.length} teachers/staff');
+      return teachers;
     } catch (e) {
       debugPrint('❌ [EXTRACURRICULAR REPO] Exception: $e');
       throw ApiException(e.toString());

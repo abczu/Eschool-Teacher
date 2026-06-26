@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherClassSectionDetailsCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
@@ -94,7 +94,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   void getClassSectionDetails() async {
     context
         .read<TeacherClassSectionDetailsCubit>()
-        .getTeacherClassSectionDetails();
+        .getTeacherClassSectionDetails(gradeLevelId: _selectedGradeLevel?.id);
   }
 
   void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
@@ -382,96 +382,132 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Enhanced animated empty state icon
-                TweenAnimationBuilder(
-                    duration: const Duration(seconds: 2),
-                    tween: Tween<double>(begin: 0.8, end: 1.0),
-                    curve: Curves.elasticOut,
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Container(
-                          width: 180,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color:
-                                AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-                          ),
-                          child: Center(
-                            child: Transform.scale(
-                              scale: 1 + sin(_controller.value * 2 * pi) * 0.05,
-                              child: Icon(
-                                Icons.school_outlined,
-                                size: 100,
-                                color: AppColorPalette.primaryMaroon
-                                    .withValues(alpha: 0.7),
-                              ),
-                            ),
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Premium Animated Icon Container
+              Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.05),
+                  border: Border.all(
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Inner glowing circle
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+                              AppColorPalette.primaryMaroon.withValues(alpha: 0.0),
+                            ],
                           ),
                         ),
-                      );
-                    }),
-                const SizedBox(height: 32),
-
-                // Enhanced no classes text
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [
-                      AppColorPalette.primaryMaroon,
-                      AppColorPalette.secondaryMaroon,
+                      ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                       .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 2.seconds),
+                      
+                      Icon(
+                        Icons.school_outlined,
+                        size: 80,
+                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.8),
+                      ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
                     ],
-                  ).createShader(bounds),
-                  child: CustomTextContainer(
-                    textKey:
-                        Utils.getTranslatedLabel(noClassSectionSelectedKey),
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Action button
-                ElevatedButton.icon(
+              ),
+              
+              const SizedBox(height: 48),
+              
+              // Main Message
+              Text(
+                "Tidak Ada Data Kelas",
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColorPalette.primaryMaroon,
+                ),
+              ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
+              
+              const SizedBox(height: 12),
+              
+              // Descriptive text
+              Text(
+                "Daftar bagian kelas belum tersedia untuk tingkatan ini. Silakan coba tingkatan lain atau tekan tombol muat ulang.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+              
+              const SizedBox(height: 40),
+              
+              // Modern Capsule Button
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
                   onPressed: () {
-                    getClassSectionDetails();
                     HapticFeedback.mediumImpact();
+                    getClassSectionDetails();
                   },
-                  icon: const Icon(Icons.refresh_rounded),
+                  icon: const Icon(Icons.refresh_rounded, size: 22, color: Colors.white),
                   label: Text(
-                    "Refresh Classes",
+                    "Muat Ulang Data",
                     style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColorPalette.primaryMaroon,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    elevation: 4,
+                    elevation: 0,
                   ),
                 ),
-              ],
-            ),
+              ).animate().fadeIn(delay: 700.ms).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -832,7 +868,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
           const SizedBox(height: 16),
           _buildEnhancedInfoRow(context, 'Jumlah Mata Pelajaran',
-              '${details.subjectTeachers?.length ?? 0}', Icons.book_outlined,
+              '${details.subjectCount ?? details.subjectTeachers?.length ?? 0}',
+              Icons.book_outlined,
               gradient: [
                 AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
                 AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),

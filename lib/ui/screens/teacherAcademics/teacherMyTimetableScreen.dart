@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
+import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
@@ -56,9 +56,10 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        // Initially fetch with the selected day key
+        // Initially fetch ALL days for the whole week
+        // This is more stable as we can filter locally
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable(
-              dayKey: _selectedDayKey,
+              dayKey: null, // Fetch all
             );
         context.read<ClassesCubit>().getAllClasses();
       }
@@ -84,13 +85,6 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
     _scrollController.dispose();
     _dayScrollController.dispose();
     _fabAnimationController.dispose();
-
-    // Reset the timetable to show all days when leaving the screen
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
-      }
-    });
 
     super.dispose();
   }
@@ -174,10 +168,8 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                     setState(() {
                       _selectedDayKey = day['key']!;
                     });
-                    context
-                        .read<TeacherMyTimetableCubit>()
-                        .getTeacherMyTimetable(
-                            isRefresh: true, dayKey: day['key']!);
+                    // No need to fetch API again, we already have all days
+                    // unless we want to force a refresh of the whole week
                   },
                   highlightColor: Colors.white.withValues(alpha: 0.1),
                   splashColor: Colors.white.withValues(alpha: 0.2),
@@ -263,22 +255,109 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
       body: BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
         builder: (context, state) {
           if (state is TeacherMyTimetableFetchSuccess) {
-            // Display all returned slots without filtering by day
-            // Since the API already returns the correct slots for the selected day
-            final slots = state.timeTableSlots;
+            // Map the selected key (e.g. "mon") to the full day name stored in slot.day (e.g. "monday")
+            final Map<String, String> dayKeyToFullMap = {
+              'mon': 'monday',
+              'tue': 'tuesday',
+              'wed': 'wednesday',
+              'thu': 'thursday',
+              'fri': 'friday',
+              'sat': 'saturday',
+              'sun': 'sunday',
+            };
+            final String fullDayToFilter =
+                dayKeyToFullMap[_selectedDayKey.toLowerCase()] ??
+                    _selectedDayKey;
 
-            debugPrint("Total slots: ${slots.length}");
+            // Filter slots locally by the selected day
+            final slots = state.timeTableSlots.where((slot) {
+              return slot.day?.toLowerCase() == fullDayToFilter.toLowerCase();
+            }).toList();
+
+            debugPrint("Selected day key: $_selectedDayKey -> $fullDayToFilter");
+            debugPrint("Filtered slots: ${slots.length} out of ${state.timeTableSlots.length}");
             for (var slot in slots) {
               debugPrint(
-                  "Slot - Day: ${slot.day}, ID: ${slot.id}, ClassSectionId: ${slot.classSectionId}");
+                  "Slot - Day: ${slot.day}, ID: ${slot.id}, Subject: ${slot.subject?.name}");
             }
 
             if (slots.isEmpty) {
               return Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: CustomTextContainer(
-                    textKey: Utils.getTranslatedLabel(noTimeTableKey),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Premium Animated Icon Container
+                        Container(
+                          width: 160,
+                          height: 160,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _maroonPrimary.withValues(alpha: 0.05),
+                            border: Border.all(
+                              color: _maroonPrimary.withValues(alpha: 0.1),
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Inner glowing circle
+                                Container(
+                                  width: 90,
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        _maroonPrimary.withValues(alpha: 0.15),
+                                        _maroonPrimary.withValues(alpha: 0.0),
+                                      ],
+                                    ),
+                                  ),
+                                ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                                 .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 2.seconds),
+                                
+                                Icon(
+                                  Icons.event_busy_rounded,
+                                  size: 70,
+                                  color: _maroonPrimary.withValues(alpha: 0.7),
+                                ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Main Message
+                        Text(
+                          "Jadwal Belum Tersedia",
+                          style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: _maroonPrimary,
+                          ),
+                        ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
+                        
+                        const SizedBox(height: 12),
+                        
+                        // Descriptive text
+                        Text(
+                          "Tidak ada jadwal mengajar yang ditemukan untuk hari ini. Silakan pilih hari lain atau hubungi admin sekolah.",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                            height: 1.5,
+                          ),
+                        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+                      ],
+                    ),
                   ),
                 ),
               );

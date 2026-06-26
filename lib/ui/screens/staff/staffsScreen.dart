@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:eschool_saas_staff/app/routes.dart';
@@ -126,9 +126,6 @@ class _StaffsScreenState extends State<StaffsScreen>
   }
 
   void searchQueryTextControllerListener() {
-    if (_textEditingController.text.trim().isEmpty) {
-      return;
-    }
     waitForNextSearchRequestTimer?.cancel();
     setWaitForNextSearchRequestTimer();
   }
@@ -339,7 +336,23 @@ class _StaffsScreenState extends State<StaffsScreen>
   }
 
   Widget _buildStaffList(StaffsFetchSuccess state, BuildContext context) {
-    if (state.saffs.isEmpty) {
+    final searchQuery = _textEditingController.text.trim().toLowerCase();
+    final selectedStatus = getSatusValueFromKey(value: _selectedTabKey);
+
+    final filteredStaffs = state.saffs.where((staff) {
+      // Filter berdasarkan status (0 berarti "Semua", jadi tidak perlu difilter)
+      if (selectedStatus != 0 && staff.status != selectedStatus) {
+        return false;
+      }
+
+      // Filter berdasarkan pencarian teks
+      if (searchQuery.isEmpty) return true;
+      final name = (staff.firstName ?? "").toLowerCase();
+      final roles = staff.getRoles().toLowerCase();
+      return name.contains(searchQuery) || roles.contains(searchQuery);
+    }).toList();
+
+    if (filteredStaffs.isEmpty) {
       // Check if this is due to search or no data at all
       if (_textEditingController.text.trim().isNotEmpty) {
         return NoSearchResultsWidget(
@@ -394,9 +407,9 @@ class _StaffsScreenState extends State<StaffsScreen>
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
-        itemCount: state.saffs.length,
+        itemCount: filteredStaffs.length,
         itemBuilder: (context, index) {
-          final staffDetails = state.saffs[index];
+          final staffDetails = filteredStaffs[index];
           final bool isHovered = _hoveredStaffIndex == index;
 
           return AnimationConfiguration.staggeredList(

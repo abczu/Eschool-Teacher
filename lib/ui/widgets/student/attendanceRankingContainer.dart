@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/student/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/models/student/attendanceRanking.dart';
 import 'package:eschool_saas_staff/ui/widgets/student/attendenceRankingItemContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherClassSectionScreen.dart';
@@ -73,14 +73,16 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
 
   @override
   Widget build(BuildContext context) {
-    // Debug: Print received data
-    debugPrint("AttendanceRankingContainer DEBUG:");
-    debugPrint("  - showAllStudents: ${widget.showAllStudents}");
-    debugPrint(
-        "  - allStudents count: ${widget.attendanceRankings.allStudents?.length ?? 0}");
-    debugPrint(
-        "  - groupedByClassLevel count: ${widget.attendanceRankings.groupedByClassLevel?.length ?? 0}");
-    debugPrint("  - searchQuery: '${widget.searchQuery}'");
+    // Debug: Print received data for troubleshooting
+    debugPrint("--- AttendanceRankingContainer DEBUG ---");
+    debugPrint("showAllStudents: ${widget.showAllStudents}");
+    debugPrint("allStudents count: ${widget.attendanceRankings.allStudents?.length ?? 0}");
+    debugPrint("groupedByClassLevel count: ${widget.attendanceRankings.groupedByClassLevel?.length ?? 0}");
+    debugPrint("searchQuery: '${widget.searchQuery}'");
+
+    if (widget.attendanceRankings.allStudents != null && widget.attendanceRankings.allStudents!.isNotEmpty) {
+      debugPrint("Sample first student: ${widget.attendanceRankings.allStudents![0].studentName} - Alpha: ${widget.attendanceRankings.allStudents![0].alphaCount}");
+    }
 
     return Container(
       decoration: const BoxDecoration(

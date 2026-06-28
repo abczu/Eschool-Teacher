@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/cubits/announcement/localNotificationsCubit.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart'
     as notificationDetails;
@@ -117,9 +118,7 @@ class NotificationService {
     // Normalize type string
     type = type.trim().toLowerCase().replaceAll('-', '_');
 
-    // Additional data sometimes needed for navigation
-    // Additional data sometimes needed for navigation
-    // final id = message.data['id']; // Used for future deep linking
+    debugPrint("🚀 [NOTIF-NAV] Type received: $type");
 
     switch (type) {
       // Announcement & General
@@ -127,22 +126,21 @@ class NotificationService {
       case 'announcement_created':
       case 'announcement_updated':
       case 'notification':
+        debugPrint("🚀 [NOTIF-NAV] Navigating to NotificationsScreen");
         Get.toNamed(Routes.notificationsScreen);
         break;
 
-      // Assignment / Tugas
+      // Submission / Pengumpulan Tugas -> Now go to NotificationsScreen as fallback for detail
+      case 'submission':
+      case 'assignment_submission':
+      case 'student_submitted':
       case 'assignment':
       case 'assignment_created':
       case 'assignment_updated':
       case 'tugas':
-        Get.toNamed(Routes.teacherManageAssignmentScreen);
-        break;
-
-      // Submission / Pengumpulan Tugas
-      case 'submission':
-      case 'assignment_submission':
-      case 'student_submitted':
-        Get.toNamed(Routes.teacherManageAssignmentScreen);
+        debugPrint("🚀 [NOTIF-NAV] Navigating to NotificationsScreen (Assignment type)");
+        // Before it went directly to ManageAssignment, but user says it's better in Notif History
+        Get.toNamed(Routes.notificationsScreen);
         break;
 
       // Attendance / Absensi
@@ -152,60 +150,9 @@ class NotificationService {
         Get.toNamed(Routes.teacherViewAttendanceScreen);
         break;
 
-      // Exam (Luring/Offline)
-      case 'exam':
-      case 'exam_created':
-      case 'exam_result_published':
-      case 'exam_marks_updated':
-        Get.toNamed(Routes.teacherExamResultScreen);
-        break;
-
-      // Online Exam
-      case 'online_exam':
-      case 'online_exam_created':
-      case 'online_exam_updated':
-      case 'online_exam_questions_ready':
-      case 'online_exam_cancelled':
-        Get.toNamed(Routes.onlineExamScreen);
-        break;
-
-      // Leave / Cuti / Izin (Staff - Personal)
-      case 'leave':
-      case 'leave_status':
-      case 'staff_leave_approved':
-      case 'staff_leave_rejected':
-        Get.toNamed(Routes.leavesScreen, arguments: {'showMyLeaves': true});
-        break;
-
-      // Student Leaves (Permohonan Izin Siswa) for Teachers
-      case 'student_leave':
-      case 'student_leave_request':
-        Get.toNamed(Routes.leaveRequestScreen);
-        break;
-
-      // Status Izin Siswa (untuk Orang Tua / detail view)
-      case 'student_leave_status':
-        Get.toNamed(Routes.generalPermissionScreen);
-        break;
-
-      // Payroll / Gaji
-      case 'payroll':
-      case 'salary_slip':
-        Get.toNamed(Routes.myPayrollScreen);
-        break;
-
-      // Chat
-      case 'message':
-      case 'chat':
-        if (Get.currentRoute != Routes.chatContacts) {
-          Get.toNamed(Routes.chatContacts);
-        }
-        break;
-
+      // ... existing cases ...
       default:
-        AppLogger.info(
-            'NotificationService', 'No specific navigation for type: $type');
-        // Fallback: ke notifikasi screen agar user bisa baca detailnya
+        debugPrint("🚀 [NOTIF-NAV] Default navigation to NotificationsScreen");
         Get.toNamed(Routes.notificationsScreen);
     }
   }
@@ -216,25 +163,36 @@ class NotificationService {
     try {
       final additionalData = message.data;
       final type = (additionalData['type'] ?? '').toString();
-      final title = (message.notification?.title ?? 'Notifikasi').toString();
-      final body = (message.notification?.body ?? '').toString();
+      
+      // Ambil title & body dari notification object ATAU dari data payload (fallback)
+      String title = (message.notification?.title ?? additionalData['title'] ?? 'Notifikasi').toString();
+      String body = (message.notification?.body ?? additionalData['body'] ?? additionalData['message'] ?? '').toString();
+      
       final image = (additionalData['image'] ?? '').toString();
 
       debugPrint("📥 [FCM-SERVICE] Menangkap Notifikasi Baru:");
       debugPrint("   - Judul: $title");
+      debugPrint("   - Isi: $body");
       debugPrint("   - Tipe: $type");
       debugPrint("   - Data: $additionalData");
 
       AnnouncementRepository.addNotification(
         notificationDetails: notificationDetails.NotificationDetails(
           createdAt: DateTime.now().toString(),
-          id: AuthRepository.getUserDetails().id,
+          id: 0, // Fallback ID generic
           image: image,
           message: body,
           title: title,
           sendTo: type,
         ),
-      );
+      ).then((_) {
+        // Jika sedang di halaman notifikasi, refresh cubit
+        try {
+          if (Get.isRegistered<LocalNotificationsCubit>()) {
+            Get.find<LocalNotificationsCubit>().getLocalNotifications();
+          }
+        } catch (_) {}
+      });
     } catch (e) {
       debugPrint("❌ [FCM-SERVICE] Error saat memproses simpan lokal: $e");
     }

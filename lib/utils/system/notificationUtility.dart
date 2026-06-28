@@ -98,11 +98,6 @@ class NotificationUtility {
           Get.toNamed(Routes.teacherViewAttendanceScreen);
           break;
 
-        case 'announcement':
-        case 'notification':
-          Get.toNamed(Routes.notificationsScreen);
-          break;
-
         case 'message':
         case 'chat':
           if (Get.currentRoute != Routes.chatContacts) {

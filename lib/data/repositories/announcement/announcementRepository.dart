@@ -22,13 +22,28 @@ class AnnouncementRepository {
       final result = await Api.get(url: Api.getNotifications, queryParameters: {
         "page": page ?? 1,
       });
+      dynamic notificationsData = result['data'];
+      List notificationsList = [];
+      int currentPage = 1;
+      int totalPage = 1;
+
+      if (notificationsData is Map) {
+        if (notificationsData['data'] is List) {
+          notificationsList = notificationsData['data'];
+          currentPage = int.parse((notificationsData['current_page'] ?? 1).toString());
+          totalPage = int.parse((notificationsData['last_page'] ?? 1).toString());
+        }
+      } else if (notificationsData is List) {
+        notificationsList = notificationsData;
+      }
+
       return (
-        notifications: ((result['data']['data'] ?? []) as List)
+        notifications: notificationsList
             .map((notification) =>
                 NotificationDetails.fromJson(Map.from(notification ?? {})))
             .toList(),
-        currentPage: (result['data']['current_page'] ?? 1) as int,
-        totalPage: (result['data']['last_page'] ?? 1) as int,
+        currentPage: currentPage,
+        totalPage: totalPage,
       );
     } catch (e) {
       throw ApiException(e.toString());
@@ -163,12 +178,23 @@ class AnnouncementRepository {
   static Future<void> addNotification(
       {required NotificationDetails notificationDetails}) async {
     try {
-      debugPrint("🔔 [NOTIFICATION-REPO] Proses simpan notifikasi baru...");
-      await Hive.openBox(notificationsBoxKey);
-      await Hive.box(notificationsBoxKey).put(
+      if (!Hive.isBoxOpen(authBoxKey)) {
+        await Hive.openBox(authBoxKey);
+      }
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final userBoxKey = "${notificationsBoxKey}_$userId";
+      
+      debugPrint("🔔 [NOTIFICATION-REPO] Simpan ke Box: $userBoxKey");
+      
+      if (!Hive.isBoxOpen(userBoxKey)) {
+        await Hive.openBox(userBoxKey);
+      }
+
+      await Hive.box(userBoxKey).put(
           notificationDetails.createdAt.toString(),
           notificationDetails.toJson());
-      debugPrint("✅ [NOTIFICATION-REPO] BERHASIL simpan ke Hive. Title: ${notificationDetails.title}");
+          
+      debugPrint("✅ [NOTIFICATION-REPO] BERHASIL simpan ke Hive.");
     } catch (e) {
       debugPrint("❌ [NOTIFICATION-REPO] GAGAL simpan ke Hive! Error: $e");
     }
@@ -216,21 +242,29 @@ class AnnouncementRepository {
 
   Future<List<NotificationDetails>> getLocalNotifications() async {
     try {
-      if (!Hive.isBoxOpen(notificationsBoxKey)) {
-        await Hive.openBox(notificationsBoxKey);
+      if (!Hive.isBoxOpen(authBoxKey)) {
+        await Hive.openBox(authBoxKey);
       }
-      Box notificationBox = Hive.box(notificationsBoxKey);
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final userBoxKey = "${notificationsBoxKey}_$userId";
+      
+      if (!Hive.isBoxOpen(userBoxKey)) {
+        await Hive.openBox(userBoxKey);
+      }
+      
+      Box notificationBox = Hive.box(userBoxKey);
       List<NotificationDetails> notifications = [];
 
-      // Load from Hive
-      debugPrint("📖 [NOTIFICATION-REPO] Membaca data dari Hive Box: $notificationsBoxKey");
-      debugPrint("   - Total keys di Hive: ${notificationBox.keys.length}");
+      debugPrint("📖 [NOTIFICATION-REPO] Membaca data User: $userId");
 
       for (var notificationKey in notificationBox.keys.toList()) {
         try {
-          notifications.add(NotificationDetails.fromJson(
-            Map.from(notificationBox.get(notificationKey) ?? {}),
-          ));
+          final data = notificationBox.get(notificationKey);
+          if (data != null) {
+            notifications.add(NotificationDetails.fromJson(
+              Map<String, dynamic>.from(data),
+            ));
+          }
         } catch (e) {
           debugPrint("❌ [NOTIFICATION-REPO] Gagal parse item Hive: $e");
         }
@@ -268,6 +302,25 @@ class AnnouncementRepository {
     } catch (e) {
       debugPrint("getLocalNotifications error: $e");
       return [];
+    }
+  }
+
+  Future<void> clearLocalNotifications() async {
+    try {
+      if (!Hive.isBoxOpen(authBoxKey)) {
+        await Hive.openBox(authBoxKey);
+      }
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final userBoxKey = "${notificationsBoxKey}_$userId";
+      
+      if (!Hive.isBoxOpen(userBoxKey)) {
+        await Hive.openBox(userBoxKey);
+      }
+      await Hive.box(userBoxKey).clear();
+      await clearTemporarilyNotification();
+      debugPrint("✅ [NOTIFICATION-REPO] Berhasil menghapus notifikasi lokal User: $userId");
+    } catch (e) {
+      debugPrint("❌ [NOTIFICATION-REPO] Gagal menghapus notifikasi! Error: $e");
     }
   }
 }

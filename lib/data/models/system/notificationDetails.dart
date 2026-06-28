@@ -46,13 +46,13 @@ class NotificationDetails {
   }
 
   NotificationDetails.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
+      : id = int.tryParse(json['id']?.toString() ?? ""),
         title = json['title'] as String?,
         message = json['message'] as String?,
         image = json['image'] as String?,
         sendTo = json['send_to'] as String?,
-        sessionYearId = json['session_year_id'] as int?,
-        schoolId = json['school_id'] as int?,
+        sessionYearId = int.tryParse(json['session_year_id']?.toString() ?? ""),
+        schoolId = int.tryParse(json['school_id']?.toString() ?? ""),
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?;
 

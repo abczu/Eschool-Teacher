@@ -1,7 +1,8 @@
-﻿import 'package:eschool_saas_staff/data/models/student/attendanceStudent.dart';
+import 'package:eschool_saas_staff/data/models/student/attendanceStudent.dart';
 import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:eschool_saas_staff/utils/system/logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 
@@ -131,11 +132,16 @@ class SubjectAttendanceRepository {
       request.fields['grade_level_id'] = gradeLevelId.toString();
 
       // Convert attendance list to form data format
+      // Some server-side frameworks (like Laravel) expect indices for nested arrays in multipart
       for (int i = 0; i < attendance.length; i++) {
-        request.fields['attendance[$i][student_id]'] =
-            attendance[i]['student_id'].toString();
-        request.fields['attendance[$i][type]'] =
-            attendance[i]['type'].toString();
+        final studentId = attendance[i]['student_id'].toString();
+        final type = attendance[i]['type'].toString();
+        
+        request.fields['attendance[$i][student_id]'] = studentId;
+        request.fields['attendance[$i][type]'] = type;
+        
+        // Also log exactly what is being added to multipart to verify one last time
+        debugPrint('📦 [MULTIPART] attendance[$i][student_id]: $studentId, type: $type');
       }
 
       if (lampiran.isNotEmpty) {

@@ -22,10 +22,11 @@ class LocalNotificationsFetchFailure extends LocalNotificationsState {
 }
 
 class LocalNotificationsCubit extends Cubit<LocalNotificationsState> {
-  final AnnouncementRepository _announcementRepository =
-      AnnouncementRepository();
+  final AnnouncementRepository _announcementRepository;
 
-  LocalNotificationsCubit() : super(LocalNotificationsInitial()) {
+  LocalNotificationsCubit([AnnouncementRepository? announcementRepository])
+      : _announcementRepository = announcementRepository ?? AnnouncementRepository(),
+        super(LocalNotificationsInitial()) {
     debugPrint("🏗️ [NOTIF-CUBIT] LocalNotificationsCubit created");
   }
 
@@ -34,27 +35,48 @@ class LocalNotificationsCubit extends Cubit<LocalNotificationsState> {
       debugPrint("🚀 [NOTIF-CUBIT] getLocalNotifications initiated");
       emit(LocalNotificationsFetchInProgress());
 
-      // 1. Fetch from Local (Hive) first as it should be fast
+      // 0. Ambil parameter filter (daftar hitam & waktu pembersihan terakhir)
+      final deletedKeys = await _announcementRepository.getDeletedNotificationKeys();
+      final lastClearedStr = await _announcementRepository.getLastClearedTimestamp();
+      final lastClearedAt = lastClearedStr != null ? DateTime.tryParse(lastClearedStr) : null;
+
+      bool isFiltered(NotificationDetails n) {
+        final key = _getNotifKey(n);
+        // Cek apakah ada di blacklist
+        if (deletedKeys.contains(key)) return true;
+        
+        // Cek apakah dibuat sebelum waktu pembersihan terakhir
+        if (lastClearedAt != null && n.createdAt != null) {
+          final createdAt = DateTime.tryParse(n.createdAt!);
+          if (createdAt != null && createdAt.isBefore(lastClearedAt)) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // 1. Fetch from Local (Hive) first
       List<NotificationDetails> localNotifications = [];
       try {
-        localNotifications = await _announcementRepository.getLocalNotifications();
-        debugPrint("💾 [NOTIF-CUBIT] Local notifications count: ${localNotifications.length}");
+        final allLocal = await _announcementRepository.getLocalNotifications();
+        localNotifications = allLocal.where((n) => !isFiltered(n)).toList();
+        debugPrint("💾 [NOTIF-CUBIT] Local notifications (filtered) count: ${localNotifications.length}");
       } catch (e) {
         debugPrint("❌ [NOTIF-CUBIT] Error getting local notifications: $e");
       }
 
-      // ALWAYS emit success (either local data or empty list) 
-      // so the user doesn't see a stuck loader while waiting for server
       _sortNotifications(localNotifications);
-      emit(LocalNotificationsFetchSuccess(notifications: List.from(localNotifications)));
+      if (localNotifications.isNotEmpty) {
+        emit(LocalNotificationsFetchSuccess(notifications: List.from(localNotifications)));
+      }
 
       // 2. Fetch from Server
       List<NotificationDetails> serverNotifications = [];
       try {
         debugPrint("📡 [NOTIF-CUBIT] Fetching server notifications...");
         final serverResult = await _announcementRepository.getNotifications();
-        serverNotifications = serverResult.notifications;
-        debugPrint("📡 [NOTIF-CUBIT] Server notifications count: ${serverNotifications.length}");
+        serverNotifications = serverResult.notifications.where((n) => !isFiltered(n)).toList();
+        debugPrint("📡 [NOTIF-CUBIT] Server notifications (filtered) count: ${serverNotifications.length}");
       } catch (e) {
         debugPrint("⚠️ [NOTIF-CUBIT] Failed to fetch from server: $e");
       }
@@ -62,24 +84,13 @@ class LocalNotificationsCubit extends Cubit<LocalNotificationsState> {
       // 3. Merge and Deduplicate
       final Map<String, NotificationDetails> mergedMap = {};
       
-      // Start with local ones we already have
       for (var notif in localNotifications) {
-        final key = _getNotifKey(notif);
-        mergedMap[key] = notif;
+        mergedMap[_getNotifKey(notif)] = notif;
       }
       
-      // Add server ones, deduplicating
       for (var notif in serverNotifications) {
         final key = _getNotifKey(notif);
-        // If not present in map by key, check for title/message similarity
         if (!mergedMap.containsKey(key)) {
-          bool isDuplicate = mergedMap.values.any((existing) => 
-            existing.title == notif.title && existing.message == notif.message);
-          if (!isDuplicate) {
-            mergedMap[key] = notif;
-          }
-        } else {
-          // If already present, server data might have more info (like proper ID), so update it
           mergedMap[key] = notif;
         }
       }
@@ -97,7 +108,7 @@ class LocalNotificationsCubit extends Cubit<LocalNotificationsState> {
   }
 
   String _getNotifKey(NotificationDetails notif) {
-    return '${notif.title ?? ""}_${notif.message ?? ""}_${notif.createdAt ?? ""}';
+    return notif.createdAt.toString();
   }
 
   void _sortNotifications(List<NotificationDetails> list) {
@@ -119,6 +130,15 @@ class LocalNotificationsCubit extends Cubit<LocalNotificationsState> {
       getLocalNotifications();
     } catch (e) {
       emit(LocalNotificationsFetchFailure(e.toString()));
+    }
+  }
+
+  void removeNotification(String key) async {
+    try {
+      await _announcementRepository.deleteLocalNotification(key);
+      getLocalNotifications(); // Refresh list
+    } catch (e) {
+      debugPrint("Gagal hapus notifikasi di cubit: $e");
     }
   }
 }

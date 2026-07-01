@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/profilePreview.dart';
 import 'dart:math' as math;
 
 class AcademicsContainer extends StatefulWidget {
@@ -21,7 +22,12 @@ class AcademicsContainer extends StatefulWidget {
 }
 
 class _AcademicsContainerState extends State<AcademicsContainer>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+    with
+        TickerProviderStateMixin,
+        WidgetsBindingObserver,
+        AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   late AnimationController _glowAnimationController;
   late AnimationController _pulseAnimationController;
   late AnimationController _rotationAnimationController;
@@ -130,6 +136,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     // Set system UI overlay style to ensure status bar is properly handled
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -421,92 +428,8 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                           // Profile image with tap to zoom
                           GestureDetector(
                             onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Dialog(
-                                    backgroundColor: Colors.transparent,
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.9,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.7,
-                                      child: Stack(
-                                        children: [
-                                          InteractiveViewer(
-                                            minScale: 0.5,
-                                            maxScale: 4.0,
-                                            child: profileImage.isNotEmpty
-                                                ? CachedNetworkImage(
-                                                    imageUrl: profileImage,
-                                                    fit: BoxFit.contain,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            const Center(
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                    Color>(
-                                                                maroonPrimary),
-                                                      ),
-                                                    ),
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                            const Center(
-                                                      child: Icon(
-                                                        Icons.error,
-                                                        color: maroonPrimary,
-                                                        size: 50,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const Center(
-                                                    child: Icon(
-                                                      Icons.person,
-                                                      color: maroonPrimary,
-                                                      size: 100,
-                                                    ),
-                                                  ),
-                                          ),
-                                          Positioned(
-                                            top: 10,
-                                            right: 10,
-                                            child: Material(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.5),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: InkWell(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                onTap: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 24,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
+                              ProfileImagePreview.show(
+                                  context, profileImage, 'academics_avatar');
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -525,21 +448,24 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                 ],
                               ),
                               padding: const EdgeInsets.all(2),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 25,
-                                backgroundImage: profileImage.isNotEmpty
-                                    ? CachedNetworkImageProvider(
-                                        profileImage,
-                                      )
-                                    : null,
-                                child: profileImage.isEmpty
-                                    ? const Icon(
-                                        Icons.person,
-                                        color: maroonPrimary,
-                                        size: 30,
-                                      )
-                                    : null,
+                              child: Hero(
+                                tag: 'academics_avatar',
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: 25,
+                                  backgroundImage: profileImage.isNotEmpty
+                                      ? CachedNetworkImageProvider(
+                                          profileImage,
+                                        )
+                                      : null,
+                                  child: profileImage.isEmpty
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: maroonPrimary,
+                                          size: 30,
+                                        )
+                                      : null,
+                                ),
                               ),
                             ),
                           ),

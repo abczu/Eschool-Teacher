@@ -121,10 +121,30 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
   @override
   void dispose() {
+    // Clear any active SnackBars when leaving the screen to prevent them from persisting
+    // on the next screen (e.g., Academics/Home)
+    ScaffoldMessenger.of(context).clearSnackBars();
     _fadeController.dispose();
     _slideController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: maroonPrimary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2), // Shorter duration
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
   }
 
   void changeSelectedGradeLevel(GradeLevel? gradeLevel) {
@@ -1745,7 +1765,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
               titleIcon: Icons.menu_book_rounded,
               primaryColor: maroonPrimary,
               secondaryColor: maroonLight,
-              onBackPressed: () => Navigator.pop(context),
+              onBackPressed: () {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                Navigator.pop(context);
+              },
               firstFilterItem: gradeLevelFilter,
               secondFilterItem: classSectionFilter,
               thirdFilterItem: subjectFilter,
@@ -1754,20 +1777,6 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
           },
         );
       },
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: maroonPrimary,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
     );
   }
 

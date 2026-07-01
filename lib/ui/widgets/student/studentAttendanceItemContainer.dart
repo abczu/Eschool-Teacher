@@ -74,6 +74,25 @@ class _StudentAttendanceItemContainerState
   }
 
   @override
+  void didUpdateWidget(covariant StudentAttendanceItemContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isPresent != oldWidget.isPresent ||
+        widget.isSick != oldWidget.isSick ||
+        widget.isPermission != oldWidget.isPermission ||
+        widget.isAlpa != oldWidget.isAlpa) {
+      selectedValue = widget.isPresent
+          ? StudentAttendanceStatus.present
+          : widget.isSick
+              ? StudentAttendanceStatus.sick
+              : widget.isPermission
+                  ? StudentAttendanceStatus.permission
+                  : widget.isAlpa
+                      ? StudentAttendanceStatus.alpa
+                      : StudentAttendanceStatus.present;
+    }
+  }
+
+  @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
@@ -169,15 +188,16 @@ class _StudentAttendanceItemContainerState
           HapticFeedback.lightImpact();
 
           if (widget.onChangeAttendance != null) {
+            final newStatus = selectedValue == status
+                ? StudentAttendanceStatus.present
+                : status;
+            
             setState(() {
-              // Reset to present if tap same option again
-              selectedValue = selectedValue == status
-                  ? StudentAttendanceStatus.present
-                  : status;
+              selectedValue = newStatus;
             });
 
             _animationController.forward(from: 0);
-            widget.onChangeAttendance!(selectedValue);
+            widget.onChangeAttendance!(newStatus);
           }
         },
         splashColor: color.withValues(alpha: 0.2),

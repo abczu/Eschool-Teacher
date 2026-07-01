@@ -11,6 +11,7 @@ import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TeacherPermissionContainer extends StatelessWidget {
   const TeacherPermissionContainer({super.key});
@@ -37,13 +38,61 @@ class TeacherPermissionContainer extends StatelessWidget {
           ),
           todaysPermission.isEmpty
               ? Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: appContentHorizontalPadding),
-                  child: CustomTextContainer(
-                    textKey: noStudentPermissionKey,
-                    style: TextStyle(
-                      fontSize:
-                          Utils.getScaledValue(context, 11.5) / textScaleFactor,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: Container(
+                    width: double.maxFinite,
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.grey.shade100,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF800020).withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.event_available_rounded,
+                            color: const Color(0xFF800020).withValues(alpha: 0.6),
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Tidak Ada Surat Izin",
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1A1A1A),
+                            letterSpacing: 0.1,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Tidak ada surat izin hari ini",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 )

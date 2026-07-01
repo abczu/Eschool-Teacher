@@ -34,6 +34,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentSelectedBottomNavIndex = 0;
+  late final PageController _pageController = PageController();
 
   //
   @override
@@ -43,8 +44,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     loadTemporarilyStoredNotifications();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        // Commented out: Using centralized FCM setup in main.dart instead
-        // NotificationUtility.setUpNotificationService();
         context
             .read<StaffAllowedPermissionsAndModulesCubit>()
             .getPermissionAndAllowedModules();
@@ -54,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -61,18 +61,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void loadTemporarilyStoredNotifications() {
     AnnouncementRepository.getTemporarilyStoredNotifications()
         .then((notifications) {
-      //
       for (var notificationData in notifications) {
         AnnouncementRepository.addNotification(
             notificationDetails:
                 NotificationDetails.fromJson(Map.from(notificationData)));
       }
-      //
       if (notifications.isNotEmpty) {
         AnnouncementRepository.clearTemporarilyNotification();
       }
-
-      //
     });
   }
 
@@ -101,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   ];
 
   void changeCurrentBottomNavIndex(int index) {
+    _pageController.jumpToPage(index);
     setState(() {
       _currentSelectedBottomNavIndex = index;
     });
@@ -158,15 +155,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       alignment: Alignment.topCenter,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 120),
-                        child: IndexedStack(
-                          index: _currentSelectedBottomNavIndex,
+                        child: PageView(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentSelectedBottomNavIndex = index;
+                            });
+                          },
                           children: [
                             //two different containers for 2 different user types
-                            if (context.read<AuthCubit>().isTeacher()) ...[
-                              const TeacherHomeContainer(),
-                            ] else ...[
+                            if (context.read<AuthCubit>().isTeacher())
+                              const TeacherHomeContainer()
+                            else
                               HomeContainer(key: HomeContainer.widgetKey),
-                            ],
                             const AcademicsContainer(),
                             const ProfileContainer(),
                           ],

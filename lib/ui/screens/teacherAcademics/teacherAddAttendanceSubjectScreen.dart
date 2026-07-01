@@ -400,8 +400,9 @@ class _TeacherAddAttendanceScreenSubjectState
             onStatusChanged:
                 (List<({StudentAttendanceStatus status, int studentId})>
                     attendanceStatuses) {
-              attendanceReport = attendanceStatuses;
-              setState(() {});
+              setState(() {
+                attendanceReport = List.from(attendanceStatuses);
+              });
             },
           );
         } else if (state is StudentsByClassSectionFetchFailure) {
@@ -1452,19 +1453,34 @@ class _TeacherAddAttendanceScreenSubjectState
                         debugPrint('👥 Attendance Report:');
 
                         for (var attendance in attendanceReport) {
-                          String status = '';
+                          String statusStr = '';
+                          int type = 1; // Default
+                          
+                          // Map status to type for logging (mimics Cubit logic)
                           switch (attendance.status) {
                             case StudentAttendanceStatus.present:
-                              status = '✅ Present';
+                              statusStr = '✅ Present';
+                              type = 1;
                               break;
                             case StudentAttendanceStatus.absent:
-                              status = '❌ Absent';
+                              statusStr = '❌ Absent';
+                              type = 4;
                               break;
-                            default:
-                              status = '❓ Unknown';
+                            case StudentAttendanceStatus.sick:
+                              statusStr = '🤒 Sick';
+                              type = 2;
+                              break;
+                            case StudentAttendanceStatus.permission:
+                              statusStr = '📝 Permission';
+                              type = 3;
+                              break;
+                            case StudentAttendanceStatus.alpa:
+                              statusStr = '🔴 Alpa';
+                              type = 4;
+                              break;
                           }
                           debugPrint(
-                              '   Student ID: ${attendance.studentId} - Status: $status');
+                              '   Student ID: ${attendance.studentId} - Status: $statusStr (Type: $type)');
                         }
                         debugPrint(
                             '================================'); // Only send lampiran if it's a local file path, not a URL

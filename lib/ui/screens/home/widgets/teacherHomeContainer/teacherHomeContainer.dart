@@ -20,7 +20,10 @@ class TeacherHomeContainer extends StatefulWidget {
   State<TeacherHomeContainer> createState() => _TeacherHomeContainerState();
 }
 
-class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
+class _TeacherHomeContainerState extends State<TeacherHomeContainer>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   Widget _buildAppBar() {
     final profileImage =
         (context.read<AuthCubit>().getUserDetails().image ?? "");
@@ -50,6 +53,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(
       children: [
         BlocConsumer<StaffAllowedPermissionsAndModulesCubit,

@@ -70,8 +70,10 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                   MediaQuery.of(context).size.height),
               painter: BackgroundPatternPainter(
                 animation: _animation,
-                primaryColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.03),
-                accentColor: AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
+                primaryColor:
+                    AppColorPalette.primaryMaroon.withValues(alpha: 0.03),
+                accentColor:
+                    AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
               ),
             );
           },
@@ -104,7 +106,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           context: context,
                           title: "Kelas",
                           icon: Icons.class_outlined,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 0,
                           menus: [
                             _buildMenuItem(
@@ -125,7 +128,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           context: context,
                           title: "Tahun Ajaran",
                           icon: Icons.calendar_today,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 1,
                           menus: [
                             _buildMenuItem(
@@ -240,7 +244,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           context: context,
                           title: "Jadwal",
                           icon: Icons.schedule,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 4,
                           menus: [
                             _buildMenuItem(
@@ -328,7 +333,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           context: context,
                           title: "Ujian Offline",
                           icon: Icons.school,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 5,
                           menus: [
                             staffAllowedPermissionsAndModulesCubit
@@ -471,7 +477,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           context: context,
                           title: "Pengumuman",
                           icon: Icons.announcement,
-                          iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 8,
                           menus: [
                             (staffAllowedPermissionsAndModulesCubit
@@ -517,8 +524,9 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                   // Payment Section
                   (staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
                               permission: viewFeesPaidPermissionKey) ||
-                          staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
-                              permission: viewPayrollListPermissionKey))
+                          staffAllowedPermissionsAndModulesCubit
+                              .isPermissionGiven(
+                                  permission: viewPayrollListPermissionKey))
                       ? _buildMenuSection(
                           context: context,
                           title: "Pembayaran",
@@ -740,7 +748,8 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isHovered
-                            ? AppColorPalette.primaryMaroon.withValues(alpha: 0.1)
+                            ? AppColorPalette.primaryMaroon
+                                .withValues(alpha: 0.1)
                             : AppColorPalette.warmBeige.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                         boxShadow: isHovered

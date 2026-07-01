@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -36,7 +36,7 @@ class TimetableSlotContainer extends StatelessWidget {
         fontWeight: FontWeight.w600);
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-      height: Utils().getResponsiveHeight(context, 150),
+      height: Utils().getResponsiveHeight(context, 130),
       child: LayoutBuilder(builder: (context, boxConstraints) {
         return Row(
           children: [
@@ -65,7 +65,7 @@ class TimetableSlotContainer extends StatelessWidget {
                         )),
                     const Spacer(),
                     Container(
-                      height: Utils().getResponsiveHeight(context, 65),
+                      height: Utils().getResponsiveHeight(context, 40),
                       width: Utils.getScaledValue(context, 1.5),
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
@@ -125,7 +125,7 @@ class TimetableSlotContainer extends StatelessWidget {
                             CustomTextContainer(
                               textKey: subjectName,
                               style: valueTextStyle,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const Spacer(),

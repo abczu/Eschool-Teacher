@@ -28,9 +28,11 @@ class SignInFailure extends SignInState {
 }
 
 class SignInCubit extends Cubit<SignInState> {
-  final AuthRepository _authRepository = AuthRepository();
+  final AuthRepository _authRepository;
 
-  SignInCubit() : super(SignInInitial());
+  SignInCubit([AuthRepository? authRepository])
+      : _authRepository = authRepository ?? AuthRepository(),
+        super(SignInInitial());
   Future<void> signInUser({
     required String email,
     required String password,

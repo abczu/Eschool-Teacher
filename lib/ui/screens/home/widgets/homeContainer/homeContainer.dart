@@ -23,7 +23,10 @@ class HomeContainer extends StatefulWidget {
   State<HomeContainer> createState() => HomeContainerState();
 }
 
-class HomeContainerState extends State<HomeContainer> {
+class HomeContainerState extends State<HomeContainer>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   void getHomeScreenData() {
     final staffAllowedPermissionsAndModulesCubit =
         context.read<StaffAllowedPermissionsAndModulesCubit>();
@@ -53,6 +56,7 @@ class HomeContainerState extends State<HomeContainer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(
       children: [
         BlocConsumer<StaffAllowedPermissionsAndModulesCubit,

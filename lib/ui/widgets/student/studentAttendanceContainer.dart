@@ -36,22 +36,7 @@ class StudentAttendanceContainer extends StatefulWidget {
 
 class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     with SingleTickerProviderStateMixin {
-  late List<StudentAttendanceStatus> allAttendanceStatuses =
-      (widget.allStudentAttendances ?? widget.studentAttendances).map((e) {
-    if (e.isPresent()) {
-      return StudentAttendanceStatus.present;
-    } else if (e.isAbsent()) {
-      return StudentAttendanceStatus.absent;
-    } else if (e.isSick()) {
-      return StudentAttendanceStatus.sick;
-    } else if (e.isPermission()) {
-      return StudentAttendanceStatus.permission;
-    } else if (e.isAlpa()) {
-      return StudentAttendanceStatus.alpa;
-    } else {
-      return StudentAttendanceStatus.absent;
-    }
-  }).toList();
+  late Map<int, StudentAttendanceStatus> studentStatusesMap = {};
 
   // Colors for the maroon theme to match teacherAddAttendanceSubjectScreen.dart
   final Color _maroonPrimary = const Color(0xFF800020);
@@ -65,20 +50,12 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
 
   @override
   void initState() {
+    _initializeStatuses();
+
     if (widget.onStatusChanged != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          widget.onStatusChanged!(
-            List.generate(
-              widget.studentAttendances.length,
-              (index) => (
-                status: allAttendanceStatuses[index],
-                studentId: widget.studentAttendances[index].studentDetails
-                        ?.student?.userId ??
-                    0
-              ),
-            ),
-          );
+          _reportStatusesToParent();
         }
       });
     }
@@ -96,41 +73,66 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     super.initState();
   }
 
+  void _initializeStatuses() {
+    final students = widget.allStudentAttendances ?? widget.studentAttendances;
+    studentStatusesMap = {
+      for (var e in students)
+        (e.studentDetails?.id ?? e.studentId ?? 0): _getStatusFromAttendance(e)
+    };
+  }
+
+  StudentAttendanceStatus _getStatusFromAttendance(StudentAttendance e) {
+    if (e.isPresent()) return StudentAttendanceStatus.present;
+    if (e.isAbsent()) return StudentAttendanceStatus.absent;
+    if (e.isSick()) return StudentAttendanceStatus.sick;
+    if (e.isPermission()) return StudentAttendanceStatus.permission;
+    if (e.isAlpa()) return StudentAttendanceStatus.alpa;
+    return StudentAttendanceStatus.absent;
+  }
+
+  void _reportStatusesToParent() {
+    if (widget.onStatusChanged != null) {
+      final students = widget.allStudentAttendances ?? widget.studentAttendances;
+      widget.onStatusChanged!(
+        students.map((student) {
+          final id = student.studentDetails?.id ?? student.studentId ?? 0;
+          return (
+            status: studentStatusesMap[id] ?? StudentAttendanceStatus.present,
+            studentId: id,
+          );
+        }).toList(),
+      );
+    }
+  }
+
   @override
   void didUpdateWidget(covariant StudentAttendanceContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.studentAttendances != oldWidget.studentAttendances) {
-      // Re-initialize statuses if student list changed
-      allAttendanceStatuses =
-          (widget.allStudentAttendances ?? widget.studentAttendances).map((e) {
-        if (e.isPresent()) return StudentAttendanceStatus.present;
-        if (e.isAbsent()) return StudentAttendanceStatus.absent;
-        if (e.isSick()) return StudentAttendanceStatus.sick;
-        if (e.isPermission()) return StudentAttendanceStatus.permission;
-        if (e.isAlpa()) return StudentAttendanceStatus.alpa;
-        return StudentAttendanceStatus.absent;
-      }).toList();
-
-      _updateAttendanceStats();
-
-      // Report new status list to parent
-      if (widget.onStatusChanged != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            widget.onStatusChanged!(
-              List.generate(
-                widget.studentAttendances.length,
-                (index) => (
-                  status: allAttendanceStatuses[index],
-                  studentId: widget.studentAttendances[index].studentDetails
-                          ?.student?.userId ??
-                      0
-                ),
-              ),
-            );
-          }
-        });
+    
+    // Check if the actual list of students changed (not just reference)
+    final oldStudents = oldWidget.allStudentAttendances ?? oldWidget.studentAttendances;
+    final newStudents = widget.allStudentAttendances ?? widget.studentAttendances;
+    
+    bool studentsChanged = oldStudents.length != newStudents.length;
+    if (!studentsChanged) {
+      for (int i = 0; i < oldStudents.length; i++) {
+        final oldId = oldStudents[i].studentDetails?.id ?? oldStudents[i].studentId ?? 0;
+        final newId = newStudents[i].studentDetails?.id ?? newStudents[i].studentId ?? 0;
+        if (oldId != newId) {
+          studentsChanged = true;
+          break;
+        }
       }
+    }
+
+    if (studentsChanged) {
+      _initializeStatuses();
+      _updateAttendanceStats();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _reportStatusesToParent();
+        }
+      });
     }
   }
 
@@ -150,7 +152,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
       StudentAttendanceStatus.alpa: 0,
     };
 
-    for (var status in allAttendanceStatuses) {
+    for (var status in studentStatusesMap.values) {
       if (_attendanceStats.containsKey(status)) {
         _attendanceStats[status] = (_attendanceStats[status] ?? 0) + 1;
       }
@@ -447,40 +449,31 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
             child: Column(
               children:
                   List.generate(widget.studentAttendances.length, (index) {
+                final student = widget.studentAttendances[index];
+                final studentId = student.studentDetails?.id ?? student.studentId ?? 0;
+                final currentStatus = studentStatusesMap[studentId] ?? StudentAttendanceStatus.present;
+
                 return AbsorbPointer(
                   absorbing: widget.isReadOnly,
                   child: StudentAttendanceItemContainer(
-                    studentDetails:
-                        widget.studentAttendances[index].studentDetails ??
-                            StudentDetails.fromJson({}),
+                    studentDetails: student.studentDetails ?? StudentDetails.fromJson({}),
                     showStatusPicker: widget.isForAddAttendance,
-                    isPresent: widget.studentAttendances[index].isPresent(),
-                    isSick: widget.studentAttendances[index].isSick(),
-                    isPermission:
-                        widget.studentAttendances[index].isPermission(),
-                    isAlpa: widget.studentAttendances[index].isAlpa(),
+                    isPresent: currentStatus == StudentAttendanceStatus.present,
+                    isSick: currentStatus == StudentAttendanceStatus.sick,
+                    isPermission: currentStatus == StudentAttendanceStatus.permission,
+                    isAlpa: currentStatus == StudentAttendanceStatus.alpa,
                     onChangeAttendance: (StudentAttendanceStatus status) {
                       if (!widget.isReadOnly) {
-                        // Update animation controller to provide visual feedback
+                        // Update the internal map of statuses using studentId
+                        setState(() {
+                          studentStatusesMap[studentId] = status;
+                        });
+
+                        // Notify the parent with the updated full list
+                        _reportStatusesToParent();
+
+                        // Provide visual feedback
                         _animationController.forward(from: 0);
-
-                        allAttendanceStatuses[index] = status;
-                        // Update stats
-                        _updateAttendanceStats();
-
-                        if (widget.onStatusChanged != null) {
-                          widget.onStatusChanged!(
-                            List.generate(
-                              widget.studentAttendances.length,
-                              (index) => (
-                                status: allAttendanceStatuses[index],
-                                studentId: widget.studentAttendances[index]
-                                        .studentDetails?.student?.userId ??
-                                    0
-                              ),
-                            ),
-                          );
-                        }
                       }
                     },
                     index: index,

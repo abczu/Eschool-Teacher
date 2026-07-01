@@ -71,7 +71,8 @@ class StudentAttendance {
         date = json['date'] as String?,
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,
-        studentDetails = StudentDetails.fromJson(Map.from(json['user'] ?? {})..['status'] = json['type']),
+        studentDetails = StudentDetails.fromJson(Map.from(json['user'] ?? {}))
+            .copyWith(status: json['type'] == null ? null : int.tryParse(json['type'].toString())),
         updatedAt = json['updated_at'] as String?;
 
   Map<String, dynamic> toJson() => {

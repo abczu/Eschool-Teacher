@@ -36,14 +36,9 @@ class ContentTitleWithViewMoreButton extends StatelessWidget {
           if (showViewMoreButton ?? false)
             InkWell(
               onTap: () => viewMoreOnTap?.call(),
-              borderRadius: BorderRadius.circular(20),
-              splashColor: const Color(0xFF800020).withValues(alpha: 0.1),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: const Color(0xFF800020).withValues(alpha: 0.05),
-                ),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

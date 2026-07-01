@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/profilePreview.dart';
 import 'dart:math' as math;
 
 class HomeContainerAppbar extends StatefulWidget {
@@ -358,86 +359,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                     // Profile image with tap to zoom
                     GestureDetector(
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              backgroundColor: Colors.transparent,
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.9,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.7,
-                                child: Stack(
-                                  children: [
-                                    InteractiveViewer(
-                                      minScale: 0.5,
-                                      maxScale: 4.0,
-                                      child: widget.profileImage.isNotEmpty
-                                          ? CachedNetworkImage(
-                                              imageUrl: widget.profileImage,
-                                              fit: BoxFit.contain,
-                                              placeholder: (context, url) =>
-                                                  const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                          Color>(maroonPrimary),
-                                                ),
-                                              ),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      const Center(
-                                                child: Icon(
-                                                  Icons.error,
-                                                  color: maroonPrimary,
-                                                  size: 50,
-                                                ),
-                                              ),
-                                            )
-                                          : const Center(
-                                              child: Icon(
-                                                Icons.person,
-                                                color: maroonPrimary,
-                                                size: 100,
-                                              ),
-                                            ),
-                                    ),
-                                    Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Material(
-                                        color:
-                                            Colors.black.withValues(alpha: 0.5),
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: InkWell(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          onTap: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: const Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        ProfileImagePreview.show(
+                            context, widget.profileImage, 'home_avatar');
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -463,21 +386,24 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                     .getUserDetails()
                                     .image ??
                                 "";
-                            return CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 25,
-                              backgroundImage: userImage.isNotEmpty
-                                  ? CachedNetworkImageProvider(
-                                      userImage,
-                                    )
-                                  : null,
-                              child: userImage.isEmpty
-                                  ? const Icon(
-                                      Icons.person,
-                                      color: maroonPrimary,
-                                      size: 30,
-                                    )
-                                  : null,
+                            return Hero(
+                              tag: 'home_avatar',
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 25,
+                                backgroundImage: userImage.isNotEmpty
+                                    ? CachedNetworkImageProvider(
+                                        userImage,
+                                      )
+                                    : null,
+                                child: userImage.isEmpty
+                                    ? const Icon(
+                                        Icons.person,
+                                        color: maroonPrimary,
+                                        size: 30,
+                                      )
+                                    : null,
+                              ),
                             );
                           },
                         ),

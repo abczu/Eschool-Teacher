@@ -36,49 +36,56 @@ class TeacherLeavesContainer extends StatelessWidget {
           const SizedBox(height: 16),
           todaysLeave.isEmpty
               ? Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                   child: Container(
                     width: double.maxFinite,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF800020).withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF800020).withValues(alpha: 0.1),
+                        color: Colors.grey.shade100,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.calendar_month_rounded,
-                          color: const Color(0xFF800020).withValues(alpha: 0.4),
-                          size: 48,
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF800020).withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.event_available_rounded,
+                            color: const Color(0xFF800020).withValues(alpha: 0.6),
+                            size: 32,
+                          ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text(
                           "Tidak Ada Cuti",
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF800020),
-                            letterSpacing: 0.2,
+                            color: const Color(0xFF1A1A1A),
+                            letterSpacing: 0.1,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
-                        CustomTextContainer(
-                          textKey: everyoneIsPresentTodayKey,
+                        const SizedBox(height: 4),
+                        Text(
+                          "Tidak ada cuti hari ini",
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
                             height: 1.5,
                           ),
                           textAlign: TextAlign.center,

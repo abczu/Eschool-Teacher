@@ -144,6 +144,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
   @override
   void dispose() {
+    // Clear any active SnackBars when leaving the screen to prevent them from persisting
+    // on the next screen (e.g., Academics/Home)
+    ScaffoldMessenger.of(context).clearSnackBars();
     _scrollController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
@@ -220,11 +223,14 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   }
 
   void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2), // Shorter duration
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1446,6 +1452,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       lightColor: maroonLight,
       height: 260, // Adjusted height for new layout
       onBackPressed: () {
+        ScaffoldMessenger.of(context).clearSnackBars();
         Get.back(result: didCreateNewTopic);
       },
       tabBuilder: (context) => _buildFilterTabs(),

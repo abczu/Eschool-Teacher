@@ -15,6 +15,7 @@ import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 // 1. Tambahkan enum untuk status waktu
@@ -167,36 +168,33 @@ class _TeacherTodaysTimetableContainerState
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: SizedBox(
-          width: double.maxFinite,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomTextContainer(
-                textKey: isExpanded ? viewLessKey : viewMoreKey,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.5,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CustomTextContainer(
+              textKey: isExpanded ? viewLessKey : viewMoreKey,
+              style: GoogleFonts.poppins(
+                color: const Color(0xFF800020),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
-              AnimatedBuilder(
-                animation: _iconAngleAnimation,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: (pi * _iconAngleAnimation.value) / 180,
-                    child: Icon(
-                      Icons.arrow_drop_down,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 4),
+            AnimatedBuilder(
+              animation: _iconAngleAnimation,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: (pi * _iconAngleAnimation.value) / 180,
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFF800020),
+                    size: 20,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

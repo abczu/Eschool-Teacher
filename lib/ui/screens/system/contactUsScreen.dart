@@ -81,6 +81,14 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   }
 
   String parseCustomHtml(String input) {
+    // Strip standard HTML tags first
+    input = input
+        .replaceAll(RegExp(r'<[^>]*>'), ' ') // Replace tags with space
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll(RegExp(r'\s+'), ' ') // Clean extra spaces
+        .trim();
+
     String placeholderBold = generateRandomString(10);
     String placeholderItalic = generateRandomString(10);
 
@@ -277,7 +285,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                                   ],
                                                 ),
                                                 child: Text(
-                                                  rawData.trim(),
+                                                  data,
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 14,
                                                     color: AppColorPalette.secondaryMaroon,

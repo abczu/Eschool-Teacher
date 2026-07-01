@@ -13,7 +13,8 @@ import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/profilePreview.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' hide Transition;
 import 'package:get/route_manager.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -37,7 +38,12 @@ class ProfileContainer extends StatefulWidget {
 }
 
 class _ProfileContainerState extends State<ProfileContainer>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+    with
+        TickerProviderStateMixin,
+        WidgetsBindingObserver,
+        AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   int _hoveredMenuIndex = -1;
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -176,6 +182,7 @@ class _ProfileContainerState extends State<ProfileContainer>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authstate) {
         return Stack(
@@ -223,272 +230,275 @@ class _ProfileContainerState extends State<ProfileContainer>
                         child: FadeInAnimation(child: widget),
                       ),
                       children: <Widget>[
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
-                      // // Welcome message
-                      // _buildWelcomeSection(context),
+                        // // Welcome message
+                        // _buildWelcomeSection(context),
 
-                      // const SizedBox(height: 32),
+                        // const SizedBox(height: 32),
 
-                      _buildMenuSection(
-                        context: context,
-                        title: "Pengaturan Personal",
-                        icon: Icons.person_outline,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 0,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.edit,
-                            title: "Edit Profil",
-                            index: 0,
-                            onTap: () => Get.toNamed(Routes.editProfileScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.lock_outline,
-                            title: "Ubah Kata Sandi",
-                            index: 1,
-                            onTap: () =>
-                                Get.toNamed(Routes.changePasswordScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.notifications_active_outlined,
-                            title: "Pengaturan Notifikasi",
-                            index: 11,
-                            onTap: () =>
-                                _showNotificationSettingsBottomSheet(context),
-                          ),
-                        ],
-                      ),
+                        _buildMenuSection(
+                          context: context,
+                          title: "Pengaturan Personal",
+                          icon: Icons.person_outline,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 0,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.edit,
+                              title: "Edit Profil",
+                              index: 0,
+                              onTap: () =>
+                                  Get.toNamed(Routes.editProfileScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.lock_outline,
+                              title: "Ubah Kata Sandi",
+                              index: 1,
+                              onTap: () =>
+                                  Get.toNamed(Routes.changePasswordScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.notifications_active_outlined,
+                              title: "Pengaturan Notifikasi",
+                              index: 11,
+                              onTap: () =>
+                                  _showNotificationSettingsBottomSheet(context),
+                            ),
+                          ],
+                        ),
 
-                      _buildMenuSection(
-                        context: context,
-                        title: "Cuti",
-                        icon: Icons.event_available,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 1,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.add_circle_outline,
-                            title: "Ajukan Cuti",
-                            index: 2,
-                            onTap: () => Get.toNamed(Routes.applyLeaveScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.history,
-                            title: "Riwayat Cuti Saya",
-                            index: 3,
-                            onTap: () => Get.toNamed(Routes.leavesScreen,
-                                arguments: LeavesScreen.buildArguments(
-                                    showMyLeaves: true)),
-                          ),
-                        ],
-                      ),
+                        _buildMenuSection(
+                          context: context,
+                          title: "Cuti",
+                          icon: Icons.event_available,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 1,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.add_circle_outline,
+                              title: "Ajukan Cuti",
+                              index: 2,
+                              onTap: () => Get.toNamed(Routes.applyLeaveScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.history,
+                              title: "Riwayat Cuti Saya",
+                              index: 3,
+                              onTap: () => Get.toNamed(Routes.leavesScreen,
+                                  arguments: LeavesScreen.buildArguments(
+                                      showMyLeaves: true)),
+                            ),
+                          ],
+                        ),
 
-                      _buildMenuSection(
-                        context: context,
-                        title: "Penggajian",
-                        icon: Icons.account_balance_wallet,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 2,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.receipt_long,
-                            title: "Slip Gaji Saya",
-                            index: 4,
-                            onTap: () => Get.toNamed(Routes.myPayrollScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.monetization_on_outlined,
-                            title: "Tunjangan & Potongan",
-                            index: 5,
-                            onTap: () => Get.toNamed(
-                                Routes.allowancesAndDeductionsScreen),
-                          ),
-                        ],
-                      ),
+                        _buildMenuSection(
+                          context: context,
+                          title: "Penggajian",
+                          icon: Icons.account_balance_wallet,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 2,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.receipt_long,
+                              title: "Slip Gaji Saya",
+                              index: 4,
+                              onTap: () => Get.toNamed(Routes.myPayrollScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.monetization_on_outlined,
+                              title: "Tunjangan & Potongan",
+                              index: 5,
+                              onTap: () => Get.toNamed(
+                                  Routes.allowancesAndDeductionsScreen),
+                            ),
+                          ],
+                        ),
 
-                      _buildMenuSection(
-                        context: context,
-                        title: "Informasi",
-                        icon: Icons.info_outline,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 3,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.business,
-                            title: "Tentang Kami",
-                            index: 6,
-                            onTap: () => Get.toNamed(Routes.aboutUsScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.contact_mail,
-                            title: "Hubungi Kami",
-                            index: 7,
-                            onTap: () => Get.toNamed(Routes.contactUsScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.contact_support_rounded,
-                            title: "Kontak & Laporan",
-                            index: 71,
-                            onTap: () => Get.toNamed(Routes.contactListScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.privacy_tip_outlined,
-                            title: "Kebijakan Privasi",
-                            index: 8,
-                            onTap: () =>
-                                Get.toNamed(Routes.privacyPolicyScreen),
-                          ),
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.gavel_outlined,
-                            title: "Syarat & Ketentuan",
-                            index: 9,
-                            onTap: () =>
-                                Get.toNamed(Routes.termsAndConditionScreen),
-                          ),
-                        ],
-                      ),
+                        _buildMenuSection(
+                          context: context,
+                          title: "Informasi",
+                          icon: Icons.info_outline,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 3,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.business,
+                              title: "Tentang Kami",
+                              index: 6,
+                              onTap: () => Get.toNamed(Routes.aboutUsScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.contact_mail,
+                              title: "Hubungi Kami",
+                              index: 7,
+                              onTap: () => Get.toNamed(Routes.contactUsScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.contact_support_rounded,
+                              title: "Kontak & Laporan",
+                              index: 71,
+                              onTap: () =>
+                                  Get.toNamed(Routes.contactListScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.privacy_tip_outlined,
+                              title: "Kebijakan Privasi",
+                              index: 8,
+                              onTap: () =>
+                                  Get.toNamed(Routes.privacyPolicyScreen),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.gavel_outlined,
+                              title: "Syarat & Ketentuan",
+                              index: 9,
+                              onTap: () =>
+                                  Get.toNamed(Routes.termsAndConditionScreen),
+                            ),
+                          ],
+                        ),
 
-                      _buildMenuSection(
-                        context: context,
-                        title: "Sekolah",
-                        icon: Icons.school_outlined,
-                        iconColor:
-                            const Color(0xFF8B0000).withValues(alpha: 0.9),
-                        index: 4,
-                        menus: [
-                          _buildMenuItem(
-                            context: context,
-                            icon: Icons.swap_horiz,
-                            title: "Pindah Sekolah",
-                            index: 10,
-                            onTap: () async {
-                              // Show loading dialog
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return const Dialog(
-                                    backgroundColor: Colors.transparent,
-                                    elevation: 0,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Color(0xFF8B1F41),
+                        _buildMenuSection(
+                          context: context,
+                          title: "Sekolah",
+                          icon: Icons.school_outlined,
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
+                          index: 4,
+                          menus: [
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.swap_horiz,
+                              title: "Pindah Sekolah",
+                              index: 10,
+                              onTap: () async {
+                                // Show loading dialog
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return const Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      elevation: 0,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Color(0xFF8B1F41),
+                                          ),
                                         ),
+                                      ),
+                                    );
+                                  },
+                                );
+
+                                try {
+                                  final authCubit = context.read<AuthCubit>();
+                                  final userDetails =
+                                      authCubit.getUserDetails();
+
+                                  final schoolsData =
+                                      await authCubit.getSchoolsData();
+
+                                  debugPrint(
+                                      'DEBUG: schoolsData type: ${schoolsData.runtimeType}');
+                                  debugPrint(
+                                      'DEBUG: schoolsData length: ${schoolsData.length}');
+                                  if (schoolsData.isNotEmpty) {
+                                    debugPrint(
+                                        'DEBUG: first school type: ${schoolsData.first.runtimeType}');
+                                    debugPrint(
+                                        'DEBUG: first school keys: ${schoolsData.first.keys}');
+                                  }
+
+                                  // Validate schools data
+                                  if (schoolsData.isEmpty) {
+                                    throw Exception(
+                                        'Data sekolah tidak tersedia. Silakan coba lagi.');
+                                  }
+
+                                  final userData = {
+                                    'data': {
+                                      'first_name': userDetails.firstName,
+                                      'last_name': userDetails.lastName,
+                                      'email': userDetails.email,
+                                      'mobile': userDetails.mobile,
+                                      'image': userDetails.image,
+                                      'id': userDetails.id,
+                                      'schools': schoolsData,
+                                    },
+                                  };
+
+                                  debugPrint(
+                                      'DEBUG: userData created successfully');
+                                  debugPrint(
+                                      'DEBUG: userData[data][schools] type: ${userData['data']?['schools']?.runtimeType}');
+
+                                  if (!context.mounted) return;
+
+                                  // Close loading dialog
+                                  Navigator.of(context).pop();
+
+                                  // Navigate to school list
+                                  Get.to(() =>
+                                      SchoolListScreen(userData: userData));
+                                } catch (e) {
+                                  if (!context.mounted) return;
+
+                                  // Close loading dialog
+                                  Navigator.of(context).pop();
+
+                                  // Show error message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Terjadi kesalahan: ${e.toString()}',
+                                        style: GoogleFonts.poppins(),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: const Duration(seconds: 4),
+                                      action: SnackBarAction(
+                                        label: 'Tutup',
+                                        textColor: Colors.white,
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                        },
                                       ),
                                     ),
                                   );
-                                },
-                              );
 
-                              try {
-                                final authCubit = context.read<AuthCubit>();
-                                final userDetails = authCubit.getUserDetails();
-
-                                final schoolsData =
-                                    await authCubit.getSchoolsData();
-
-                                debugPrint(
-                                    'DEBUG: schoolsData type: ${schoolsData.runtimeType}');
-                                debugPrint(
-                                    'DEBUG: schoolsData length: ${schoolsData.length}');
-                                if (schoolsData.isNotEmpty) {
-                                  debugPrint(
-                                      'DEBUG: first school type: ${schoolsData.first.runtimeType}');
-                                  debugPrint(
-                                      'DEBUG: first school keys: ${schoolsData.first.keys}');
+                                  debugPrint('Error in Pindah Sekolah: $e');
                                 }
+                              },
+                            ),
+                          ],
+                        ),
 
-                                // Validate schools data
-                                if (schoolsData.isEmpty) {
-                                  throw Exception(
-                                      'Data sekolah tidak tersedia. Silakan coba lagi.');
-                                }
-
-                                final userData = {
-                                  'data': {
-                                    'first_name': userDetails.firstName,
-                                    'last_name': userDetails.lastName,
-                                    'email': userDetails.email,
-                                    'mobile': userDetails.mobile,
-                                    'image': userDetails.image,
-                                    'id': userDetails.id,
-                                    'schools': schoolsData,
-                                  },
-                                };
-
-                                debugPrint(
-                                    'DEBUG: userData created successfully');
-                                debugPrint(
-                                    'DEBUG: userData[data][schools] type: ${userData['data']?['schools']?.runtimeType}');
-
-                                if (!context.mounted) return;
-
-                                // Close loading dialog
-                                Navigator.of(context).pop();
-
-                                // Navigate to school list
-                                Get.to(
-                                    () => SchoolListScreen(userData: userData));
-                              } catch (e) {
-                                if (!context.mounted) return;
-
-                                // Close loading dialog
-                                Navigator.of(context).pop();
-
-                                // Show error message
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Terjadi kesalahan: ${e.toString()}',
-                                      style: GoogleFonts.poppins(),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 4),
-                                    action: SnackBarAction(
-                                      label: 'Tutup',
-                                      textColor: Colors.white,
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context)
-                                            .hideCurrentSnackBar();
-                                      },
-                                    ),
-                                  ),
-                                );
-
-                                debugPrint('Error in Pindah Sekolah: $e');
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-                      _buildLogoutButton(context),
-                    ],
+                        const SizedBox(height: 24),
+                        _buildLogoutButton(context),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
             // Enhanced Curved App Bar
             _buildDramaticCurvedAppBar(context: context),
@@ -585,13 +595,17 @@ class _ProfileContainerState extends State<ProfileContainer>
         verticalOffset: 40,
         child: FadeInAnimation(
           child: Container(
-            margin: const EdgeInsets.only(bottom: 25, left: 15, right: 15), // Membuat kotak lebih ramping sesuai Akademik
+            margin: const EdgeInsets.only(
+                bottom: 25,
+                left: 15,
+                right: 15), // Membuat kotak lebih ramping sesuai Akademik
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withValues(alpha: 0.12), // Sedikit lebih pekat
+                  color:
+                      iconColor.withValues(alpha: 0.12), // Sedikit lebih pekat
                   blurRadius: 20, // Samakan dengan akademik
                   offset: const Offset(0, 8), // Samakan dengan akademik
                 ),
@@ -955,14 +969,51 @@ class _ProfileContainerState extends State<ProfileContainer>
     );
   }
 
+  Widget _buildRoleBadge(BuildContext context) {
+    final bool isTeacher = context.read<AuthCubit>().isTeacher();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: maroonPrimary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: maroonPrimary.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isTeacher
+                ? Icons.assignment_ind_rounded
+                : Icons.work_outline_rounded,
+            size: 14,
+            color: maroonPrimary,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            isTeacher ? "Guru" : "Staff",
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: maroonPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDramaticCurvedAppBar({required BuildContext context}) {
     return Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
-        height: 210 +
+        height: 230 +
             MediaQuery.of(context)
                 .padding
-                .top, // Increased height to accommodate profile info
+                .top, // Increased height to accommodate role badge and avoid overflow
         width: MediaQuery.of(context).size.width,
         child: Stack(
           fit: StackFit.expand,
@@ -1134,55 +1185,42 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ),
 
-            // App bar title
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 15,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Text(
-                  "Profil",
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            // Removed "Profil" title as per user request
 
             // Profile card
             Positioned(
               bottom: 20,
               left: 8,
               right: 8,
-              child: Container(
-                height: 120,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: maroonPrimary.withValues(alpha: 0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                      spreadRadius: 0,
+              child: GestureDetector(
+                onTap: () => Get.toNamed(Routes.editProfileScreen),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: maroonPrimary.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                        spreadRadius: 0,
+                      ),
+                      BoxShadow(
+                        color: maroonLight.withValues(alpha: 0.15),
+                        blurRadius: 25,
+                        offset: const Offset(0, 10),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                    border: Border.all(
+                      color: maroonPrimary.withValues(alpha: 0.05),
+                      width: 1,
                     ),
-                    BoxShadow(
-                      color: maroonLight.withValues(alpha: 0.15),
-                      blurRadius: 25,
-                      offset: const Offset(0, 10),
-                      spreadRadius: 0,
-                    ),
-                  ],
-                  border: Border.all(
-                    color: maroonPrimary.withValues(alpha: 0.05),
-                    width: 1,
                   ),
+                  child: _buildProfileInfo(context),
                 ),
-                child: _buildProfileInfo(context),
               ),
             ),
           ],
@@ -1199,77 +1237,7 @@ class _ProfileContainerState extends State<ProfileContainer>
           onTap: () {
             final profileImage =
                 context.read<AuthCubit>().getUserDetails().image ?? "";
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: Stack(
-                      children: [
-                        InteractiveViewer(
-                          minScale: 0.5,
-                          maxScale: 4.0,
-                          child: profileImage.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: profileImage,
-                                  fit: BoxFit.contain,
-                                  placeholder: (context, url) => Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          maroonPrimary),
-                                    ),
-                                  ),
-                                  errorWidget: (context, url, error) => Center(
-                                    child: Icon(
-                                      Icons.error,
-                                      color: maroonPrimary,
-                                      size: 50,
-                                    ),
-                                  ),
-                                )
-                              : Center(
-                                  child: Icon(
-                                    Icons.person,
-                                    color: maroonPrimary,
-                                    size: 100,
-                                  ),
-                                ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Material(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(20),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
+            ProfileImagePreview.show(context, profileImage, 'profile_avatar');
           },
           child: Container(
             decoration: BoxDecoration(
@@ -1288,25 +1256,28 @@ class _ProfileContainerState extends State<ProfileContainer>
               ],
             ),
             padding: const EdgeInsets.all(2),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 35,
-              backgroundImage:
-                  (context.read<AuthCubit>().getUserDetails().image ?? "")
-                          .isNotEmpty
-                      ? CachedNetworkImageProvider(
-                          context.read<AuthCubit>().getUserDetails().image ??
-                              "",
-                        )
-                      : null,
-              child: (context.read<AuthCubit>().getUserDetails().image ?? "")
-                      .isEmpty
-                  ? Icon(
-                      Icons.person,
-                      color: maroonPrimary,
-                      size: 38,
-                    )
-                  : null,
+            child: Hero(
+              tag: 'profile_avatar',
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 35,
+                backgroundImage:
+                    (context.read<AuthCubit>().getUserDetails().image ?? "")
+                            .isNotEmpty
+                        ? CachedNetworkImageProvider(
+                            context.read<AuthCubit>().getUserDetails().image ??
+                                "",
+                          )
+                        : null,
+                child: (context.read<AuthCubit>().getUserDetails().image ?? "")
+                        .isEmpty
+                    ? Icon(
+                        Icons.person,
+                        color: maroonPrimary,
+                        size: 38,
+                      )
+                    : null,
+              ),
             ),
           ),
         ),
@@ -1322,8 +1293,6 @@ class _ProfileContainerState extends State<ProfileContainer>
                   final userDetails =
                       context.read<AuthCubit>().getUserDetails();
                   final fullName = (userDetails.firstName ?? "").trim();
-                  debugPrint(
-                      'DEBUG ProfileContainer: firstName="${userDetails.firstName}", email="${userDetails.email}", schoolName="${userDetails.school?.name}"');
                   return Text(
                     fullName.isEmpty ? "Pengguna" : fullName,
                     style: GoogleFonts.poppins(
@@ -1338,6 +1307,10 @@ class _ProfileContainerState extends State<ProfileContainer>
                 },
               ),
               const SizedBox(height: 4),
+
+              // Role Badge
+              _buildRoleBadge(context),
+              const SizedBox(height: 8),
 
               // School Info
               Row(

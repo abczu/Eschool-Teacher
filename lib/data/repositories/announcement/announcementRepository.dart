@@ -11,6 +11,11 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const String notificationsBoxKey = "notifications";
+const String deletedNotificationsBoxKey = "deleted_notifications";
+const String temporarilyStoredNotificationsKey =
+    "temporarilyStoredNotifications";
+
 class AnnouncementRepository {
   Future<
       ({
@@ -312,15 +317,83 @@ class AnnouncementRepository {
       }
       final userId = AuthRepository.getUserDetails().id ?? 0;
       final userBoxKey = "${notificationsBoxKey}_$userId";
+      final deletedBoxKey = "${deletedNotificationsBoxKey}_$userId";
       
       if (!Hive.isBoxOpen(userBoxKey)) {
         await Hive.openBox(userBoxKey);
       }
+      if (!Hive.isBoxOpen(deletedBoxKey)) {
+        await Hive.openBox(deletedBoxKey);
+      }
+
+      // Hapus data Hive
       await Hive.box(userBoxKey).clear();
       await clearTemporarilyNotification();
-      debugPrint("✅ [NOTIFICATION-REPO] Berhasil menghapus notifikasi lokal User: $userId");
+
+      // Catat waktu pembersihan terakhir
+      await Hive.box(deletedBoxKey).put('last_cleared_at', DateTime.now().toString());
+      
+      debugPrint("✅ [NOTIFICATION-REPO] Berhasil pembersihan total untuk User: $userId");
     } catch (e) {
       debugPrint("❌ [NOTIFICATION-REPO] Gagal menghapus notifikasi! Error: $e");
+    }
+  }
+
+  Future<String?> getLastClearedTimestamp() async {
+    try {
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final deletedBoxKey = "${deletedNotificationsBoxKey}_$userId";
+      
+      if (!Hive.isBoxOpen(deletedBoxKey)) {
+        await Hive.openBox(deletedBoxKey);
+      }
+      
+      return Hive.box(deletedBoxKey).get('last_cleared_at') as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> deleteLocalNotification(String notificationKey) async {
+    try {
+      if (!Hive.isBoxOpen(authBoxKey)) {
+        await Hive.openBox(authBoxKey);
+      }
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final userBoxKey = "${notificationsBoxKey}_$userId";
+      final deletedBoxKey = "${deletedNotificationsBoxKey}_$userId";
+
+      if (!Hive.isBoxOpen(userBoxKey)) {
+        await Hive.openBox(userBoxKey);
+      }
+      if (!Hive.isBoxOpen(deletedBoxKey)) {
+        await Hive.openBox(deletedBoxKey);
+      }
+      
+      // Hapus dari riwayat aktif
+      await Hive.box(userBoxKey).delete(notificationKey);
+      
+      // Masukkan ke daftar hitam agar tidak muncul lagi dari server
+      await Hive.box(deletedBoxKey).put(notificationKey, true);
+      
+      debugPrint("✅ [NOTIFICATION-REPO] Berhasil mem-blacklist notifikasi: $notificationKey");
+    } catch (e) {
+      debugPrint("❌ [NOTIFICATION-REPO] Gagal hapus notifikasi tunggal! Error: $e");
+    }
+  }
+
+  Future<List<String>> getDeletedNotificationKeys() async {
+    try {
+      final userId = AuthRepository.getUserDetails().id ?? 0;
+      final deletedBoxKey = "${deletedNotificationsBoxKey}_$userId";
+      
+      if (!Hive.isBoxOpen(deletedBoxKey)) {
+        await Hive.openBox(deletedBoxKey);
+      }
+      
+      return Hive.box(deletedBoxKey).keys.cast<String>().toList();
+    } catch (e) {
+      return [];
     }
   }
 }

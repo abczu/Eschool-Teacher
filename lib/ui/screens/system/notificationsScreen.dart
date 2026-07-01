@@ -62,8 +62,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     return Scaffold(
       appBar: CustomModernAppBar(
         title: Utils.getTranslatedLabel(notificationsKey),
+        onBackPressed: () => Navigator.of(context).pop(),
         icon: Icons.notifications_rounded,
-        fabAnimationController: _fabAnimationController, // Parameter wajib
+        fabAnimationController: _fabAnimationController,
         showArchiveButton: true,
         archiveIcon: Icons.delete_sweep_rounded,
         onArchivePressed: () {
@@ -118,9 +119,13 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    return NotificationItemContainer(
-                      notificationDetails: state.notifications[index],
-                      index: index,
+                    final notification = state.notifications[index];
+                    return GestureDetector(
+                      onLongPress: () => _showDeleteSingleConfirmation(context, notification),
+                      child: NotificationItemContainer(
+                        notificationDetails: notification,
+                        index: index,
+                      ),
                     );
                   },
                 ),
@@ -152,6 +157,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   }
 
   void _showClearConfirmationDialog(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -183,12 +189,38 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   .clearAllLocalNotifications();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: primaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text("Hapus Semua"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteSingleConfirmation(BuildContext context, NotificationDetails notification) {
+    showDialog(
+      context: context,
+      builder: (confirmContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Hapus Notifikasi?"),
+        content: const Text("Apakah Anda yakin ingin menghapus notifikasi ini saja?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(confirmContext),
+            child: const Text("Batal", style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<LocalNotificationsCubit>().removeNotification(
+                notification.createdAt.toString()
+              );
+              Navigator.pop(confirmContext);
+            },
+            child: const Text("Hapus", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

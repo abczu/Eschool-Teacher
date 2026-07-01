@@ -37,6 +37,22 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
   }) async {
     emit(SubmitAttendanceSubjectInProgress());
     try {
+      debugPrint('🚀 [SUBMIT_ATTENDANCE] Starting submission process');
+      debugPrint('   📅 Date: ${date.year}-${date.month}-${date.day}');
+      debugPrint('   🏫 Class: $classSectionId, Timetable: $timetableId');
+      
+      final attendanceList = attendanceReport.map(
+        (attendanceReport) {
+          final mappedType = _mapAttendanceStatusToType(attendanceReport.status);
+          debugPrint('   👤 Student ${attendanceReport.studentId}: ${attendanceReport.status} -> Type $mappedType');
+
+          return {
+            "student_id": attendanceReport.studentId,
+            "type": mappedType,
+          };
+        },
+      ).toList();
+
       await _subjectAttendanceRepository.submitSubjectAttendance(
         classSectionId: classSectionId,
         date: "${date.year}-${date.month}-${date.day}",
@@ -45,21 +61,7 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         materi: materi,
         lampiran: lampiran,
         gradeLevelId: gradeLevelId,
-        attendance: attendanceReport.map(
-          (attendanceReport) {
-            debugPrint('Mapping attendance report:');
-            debugPrint('Student ID: ${attendanceReport.studentId}');
-            debugPrint('Original Status: ${attendanceReport.status}');
-            final mappedType =
-                _mapAttendanceStatusToType(attendanceReport.status);
-            debugPrint('Mapped Type: $mappedType');
-
-            return {
-              "student_id": attendanceReport.studentId,
-              "type": mappedType,
-            };
-          },
-        ).toList(),
+        attendance: attendanceList,
       );
       emit(SubmitAttendanceSubjectSuccess());
     } catch (e) {

@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
@@ -15,6 +15,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customImageCropper.dart';
+import 'package:path_provider/path_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -167,8 +169,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       allowMultiple: false,
                       type: FileType.image);
                   if (result != null) {
-                    uploadedPicture = result.files.first.path;
-                    setState(() {});
+                    final croppedPath =
+                        await _cropImage(result.files.first.path!);
+                    if (croppedPath != null) {
+                      uploadedPicture = croppedPath;
+                      setState(() {});
+                    }
                   }
                 },
               ),
@@ -184,8 +190,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   final XFile? image =
                       await picker.pickImage(source: ImageSource.camera);
                   if (image != null) {
-                    uploadedPicture = image.path;
-                    setState(() {});
+                    final croppedPath = await _cropImage(image.path);
+                    if (croppedPath != null) {
+                      uploadedPicture = croppedPath;
+                      setState(() {});
+                    }
                   }
                 },
               ),
@@ -208,6 +217,25 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         );
       },
     );
+  }
+
+  Future<String?> _cropImage(String path) async {
+    final bytes = await File(path).readAsBytes();
+    final editedImage = await Navigator.push<Uint8List?>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CustomImageCropper(image: bytes),
+      ),
+    );
+
+    if (editedImage != null) {
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File(
+          '${tempDir.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await tempFile.writeAsBytes(editedImage);
+      return tempFile.path;
+    }
+    return null;
   }
 
   Widget _buildLabelWithTextEditingController(

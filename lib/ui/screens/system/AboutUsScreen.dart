@@ -38,7 +38,11 @@ class _AboutUsScreenState extends State<AboutUsScreen>
   late AnimationController _controller;
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
-  final Color _maroonPrimary = AppColorPalette.primaryMaroon;
+
+  // Warna tema utama aplikasi (sama dengan AppBar)
+  static const Color _themePrimary = Color(0xFF800020);
+  static const Color _themeLight = Color(0xFFAA6976);
+  static const Color _themeBackground = Color(0xFFF5E6E8);
 
   @override
   void initState() {
@@ -91,6 +95,14 @@ class _AboutUsScreenState extends State<AboutUsScreen>
   }
 
   String parseCustomHtml(String input) {
+    // Strip standard HTML tags first
+    input = input
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
     String placeholderBold = generateRandomString(10);
     String placeholderItalic = generateRandomString(10);
 
@@ -134,375 +146,193 @@ class _AboutUsScreenState extends State<AboutUsScreen>
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppColorPalette.primaryMaroon,
-              secondary: AppColorPalette.secondaryMaroon,
-              surface: AppColorPalette.warmBeige,
+              primary: _themePrimary,
+              secondary: _themeLight,
+              surface: _themeBackground,
             ),
       ),
       child: Scaffold(
-        backgroundColor: AppColorPalette.warmBeige,
+        backgroundColor: _themeBackground,
         appBar: CustomModernAppBar(
           title: Utils.getTranslatedLabel(aboutUsKey),
           icon: Icons.info_outline,
           fabAnimationController: _fabAnimationController,
-          primaryColor: AppColorPalette.primaryMaroon,
-          lightColor: AppColorPalette.secondaryMaroon,
+          primaryColor: _themePrimary,
+          lightColor: _themeLight,
           onBackPressed: () => Navigator.of(context).pop(),
         ),
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
-            return Stack(
-              children: [
-                // Animated Background Pattern
-                AnimatedPositioned(
-                  duration: const Duration(seconds: 2),
-                  curve: Curves.easeInOut,
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: size.height,
-                  child: AnimatedOpacity(
-                    duration: const Duration(seconds: 1),
-                    opacity: 0.1,
-                    child: CustomPaint(
-                      painter: BackgroundPainter(
-                        color: AppColorPalette.primaryMaroon,
+            return SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  // Hero Section - Simple & Clean
+                  FadeInDown(
+                    duration: const Duration(milliseconds: 800),
+                    child: Container(
+                      margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            _themePrimary,    // 0xFF800020
+                            _themeLight,      // 0xFFAA6976
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _themePrimary.withValues(alpha: 0.3),
+                            blurRadius: 25,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // School Icon
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              size: 55,
+                              color: _themePrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Title
+                          Text(
+                            'eSchool SaaS',
+                            style: GoogleFonts.poppins(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Tagline
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Transformasi Pendidikan Melalui Teknologi',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
 
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      // Hero Section with glassmorphism
-                      FadeInDown(
-                        duration: const Duration(milliseconds: 800),
-                        child: Container(
-                          height: size.height * 0.4,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColorPalette.primaryMaroon,
-                                AppColorPalette.secondaryMaroon,
-                              ],
-                            ),
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(30),
-                              bottomRight: Radius.circular(30),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColorPalette.primaryMaroon
-                                    .withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            children: [
-                              // Animated background pattern
-                              Positioned.fill(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(30),
-                                    bottomRight: Radius.circular(30),
-                                  ),
-                                  child: CustomPaint(
-                                    painter: BackgroundPainter(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.1),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // Content
-                              Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SlideInDown(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.white,
-                                              Colors.white
-                                                  .withValues(alpha: 0.9),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: AppColorPalette
-                                                  .primaryMaroon
-                                                  .withValues(alpha: 0.3),
-                                              blurRadius: 20,
-                                              spreadRadius: 2,
-                                              offset: const Offset(0, 8),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ShaderMask(
-                                          blendMode: BlendMode.srcIn,
-                                          shaderCallback: (bounds) =>
-                                              const LinearGradient(
-                                            colors: [
-                                              AppColorPalette.primaryMaroon,
-                                              AppColorPalette.secondaryMaroon,
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ).createShader(bounds),
-                                          child: const Icon(
-                                            Icons.school,
-                                            size: 65,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    FadeIn(
-                                      duration:
-                                          const Duration(milliseconds: 800),
-                                      child: Text(
-                                        'eSchool SaaS',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 36,
-                                          fontWeight: FontWeight.bold,
-                                          foreground: Paint()
-                                            ..shader = LinearGradient(
-                                              colors: [
-                                                Colors.white,
-                                                Colors.white
-                                                    .withValues(alpha: 0.85),
-                                              ],
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                            ).createShader(const Rect.fromLTWH(
-                                                0, 0, 200, 70)),
-                                          shadows: [
-                                            Shadow(
-                                              blurRadius: 10,
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.3),
-                                              offset: const Offset(0, 5),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    FadeIn(
-                                      delay: const Duration(milliseconds: 400),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.white
-                                                  .withValues(alpha: 0.25),
-                                              Colors.white
-                                                  .withValues(alpha: 0.15),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(25),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.1),
-                                              blurRadius: 8,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                          border: Border.all(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.3),
-                                            width: 1,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Transformasi Pendidikan Melalui Teknologi',
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white,
-                                            letterSpacing: 0.5,
-                                            shadows: [
-                                              Shadow(
-                                                blurRadius: 3,
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.3),
-                                                offset: const Offset(0, 1),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                  // ═══════════════════════════════════════════
+                  // FEATURE CARDS
+                  // ═══════════════════════════════════════════
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        _buildFeatureCard(
+                          icon: Icons.computer,
+                          title: 'Pembelajaran Modern',
+                          description: 'Platform pembelajaran digital yang modern',
+                          gradient: [
+                            _themeBackground,
+                            _themeLight.withValues(alpha: 0.15),
+                          ],
                         ),
-                      ),
+                        _buildFeatureCard(
+                          icon: Icons.analytics,
+                          title: 'Analisis Cerdas',
+                          description: 'Pemantauan kinerja dan wawasan secara langsung',
+                          gradient: [
+                            _themeBackground,
+                            const Color(0xFFF4D0D9).withValues(alpha: 0.3),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
 
-                      // Stats Section with new design
-
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(vertical: 20),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      //     children: [
-                      //       _buildStatCard(
-                      //         icon: Icons.people,
-                      //         label: 'Students',
-                      //         value: '1000+',
-                      //         gradient: [
-                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-                      //           AppColorPalette.secondaryMaroon
-                      //               .withValues(alpha: 0.2),
-                      //         ],
-                      //       ),
-                      //       _buildStatCard(
-                      //         icon: Icons.school,
-                      //         label: 'Schools',
-                      //         value: '50+',
-                      //         gradient: [
-                      //           AppColorPalette.secondaryMaroon
-                      //               .withValues(alpha: 0.1),
-                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
-                      //         ],
-                      //       ),
-                      //       _buildStatCard(
-                      //         icon: Icons.star,
-                      //         label: 'Rating',
-                      //         value: '4.8',
-                      //         gradient: [
-                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-                      //           AppColorPalette.secondaryMaroon
-                      //               .withValues(alpha: 0.2),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
-                      // Feature Cards with new design
-
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            _buildFeatureCard(
-                              icon: Icons.computer,
-                              title: 'Pembelajaran Modern',
-                              description:
-                                  'Platform pembelajaran digital yang modern',
-                              gradient: [
-                                AppColorPalette.warmBeige,
-                                AppColorPalette.lightMaroon
-                                    .withValues(alpha: 0.3),
-                              ],
-                            ),
-                            _buildFeatureCard(
-                              icon: Icons.analytics,
-                              title: 'Analisis Cerdas',
-                              description:
-                                  'Pemantauan kinerja dan wawasan secara langsung',
-                              gradient: [
-                                AppColorPalette.warmBeige,
-                                AppColorPalette.accentPink
-                                    .withValues(alpha: 0.3),
-                              ],
+                  // ═══════════════════════════════════════════
+                  // CONTENT CARD
+                  // ═══════════════════════════════════════════
+                  if (state is SettingsSuccess)
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 800),
+                      child: Container(
+                        margin: const EdgeInsets.all(20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _themePrimary.withValues(alpha: 0.08),
+                              blurRadius: 25,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                      ),
-
-                      // Main Content with glassmorphism
-
-                      if (state is SettingsSuccess)
-                        Container(
-                          margin: const EdgeInsets.all(16),
+                        child: Padding(
                           padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColorPalette.primaryMaroon
-                                    .withValues(alpha: 0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
                           child: HtmlWidget(
                             parseCustomHtml(state.data),
                             textStyle: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: AppColorPalette.primaryMaroon
-                                  .withValues(alpha: 0.8),
+                              fontSize: 15,
+                              color: _themePrimary.withValues(alpha: 0.75),
+                              height: 1.6,
                             ),
-                            customStylesBuilder: (element) {
-                              if (element.localName == 'b') {
-                                return {
-                                  'color':
-                                      AppColorPalette.primaryMaroon.toString(),
-                                  'font-weight': 'bold',
-                                };
-                              }
-                              if (element.localName == 'i') {
-                                return {
-                                  'color': AppColorPalette.secondaryMaroon
-                                      .toString(),
-                                  'font-style': 'italic',
-                                };
-                              }
-                              return null;
-                            },
                           ),
-                        )
-                      else if (state is SettingsFailure)
-                        Center(
-                          child: CustomErrorWidget(
-                            message: ErrorMessageUtils.getReadableErrorMessage(
-                                state.errorMessage),
-                            onRetry: () {
-                              context
-                                  .read<SettingsCubit>()
-                                  .getSettings("about_us");
-                            },
-                            primaryColor: _maroonPrimary,
-                          ),
-                        )
-                      else
-                        const Center(
-                          child: CustomCircularProgressIndicator(),
                         ),
-                    ],
-                  ),
-                ),
-              ],
+                      ),
+                    )
+                  else if (state is SettingsFailure)
+                    Center(
+                      child: CustomErrorWidget(
+                        message: ErrorMessageUtils.getReadableErrorMessage(
+                            state.errorMessage),
+                        onRetry: () {
+                          context
+                              .read<SettingsCubit>()
+                              .getSettings("about_us");
+                        },
+                        primaryColor: _themePrimary,
+                      ),
+                    )
+                  else
+                    const Center(
+                      child: CustomCircularProgressIndicator(),
+                    ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
             );
           },
         ),
@@ -510,7 +340,6 @@ class _AboutUsScreenState extends State<AboutUsScreen>
     );
   }
 
-  // Helper widgets implementation...
   Widget _buildFeatureCard({
     required IconData icon,
     required String title,
@@ -527,24 +356,31 @@ class _AboutUsScreenState extends State<AboutUsScreen>
             end: Alignment.bottomRight,
             colors: gradient,
           ),
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: _themePrimary.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: _themePrimary.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(icon, size: 30, color: AppColorPalette.primaryMaroon),
+              child: Icon(icon, size: 28, color: _themePrimary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -554,17 +390,17 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                   Text(
                     title,
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColorPalette.primaryMaroon,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: _themePrimary,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     description,
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color:
-                          AppColorPalette.primaryMaroon.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      color: _themePrimary.withValues(alpha: 0.65),
                     ),
                   ),
                 ],
@@ -577,74 +413,40 @@ class _AboutUsScreenState extends State<AboutUsScreen>
   }
 }
 
-class AppColorPalette {
-  static const Color primaryMaroon = Color(0xFF8B1F41);
-  static const Color secondaryMaroon = Color(0xFFA84B5C);
-  static const Color lightMaroon = Color(0xFFE7C8CD);
-  static const Color accentPink = Color(0xFFF4D0D9);
-  static const Color warmBeige = Color(0xFFF5E6E8);
-}
-
-class BackgroundPainter extends CustomPainter {
-  final Color color;
-
-  BackgroundPainter({required this.color});
-
+/// Custom Clipper that creates a smooth wave curve at the bottom
+/// while keeping the top edge perfectly straight/horizontal
+class _WaveCurveClipper extends CustomClipper<Path> {
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+  Path getClip(Size size) {
+    final path = Path();
 
-    for (var i = 0; i < size.width; i += 20) {
-      for (var j = 0; j < size.height; j += 20) {
-        canvas.drawCircle(Offset(i.toDouble(), j.toDouble()), 1, paint);
-      }
-    }
+    // Start at top-left (straight horizontal top)
+    path.lineTo(0, 0);
+
+    // Go straight down on the left side
+    path.lineTo(0, size.height - 60);
+
+    // Create smooth wave curve at bottom
+    path.quadraticBezierTo(
+      size.width * 0.25, // control point x
+      size.height,       // control point y (dips down)
+      size.width * 0.5,  // end point x (middle)
+      size.height - 40,  // end point y
+    );
+    path.quadraticBezierTo(
+      size.width * 0.75, // control point x
+      size.height - 80,  // control point y (lifts up)
+      size.width,        // end point x (right edge)
+      size.height - 50,  // end point y
+    );
+
+    // Go straight up on the right side
+    path.lineTo(size.width, 0);
+
+    path.close();
+    return path;
   }
 
   @override
-  bool shouldRepaint(BackgroundPainter oldDelegate) => false;
-}
-
-// Custom painter for decorative elements in the app bar
-class AppBarDecorationPainter extends CustomPainter {
-  final Color color;
-
-  AppBarDecorationPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Draw decorative circles
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 30, paint);
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 20, paint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.15), 15, paint);
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.7), 10, paint);
-    canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.4), 8, paint);
-
-    // Draw arc
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final arcRect = Rect.fromLTRB(size.width * 0.1, size.height * 0.2,
-        size.width * 0.6, size.height * 0.6);
-    canvas.drawArc(arcRect, 0.2, 1.5, false, arcPaint);
-
-    // Draw another arc
-    final arcRect2 = Rect.fromLTRB(size.width * 0.5, size.height * 0.4,
-        size.width * 0.9, size.height * 0.8);
-    canvas.drawArc(arcRect2, 3, 1.5, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }

@@ -156,10 +156,30 @@ class _TeacherManageAnnouncementScreenState
 
   @override
   void dispose() {
+    // Clear any active SnackBars when leaving the screen to prevent them from persisting
+    // on the next screen (e.g., Academics/Home)
+    ScaffoldMessenger.of(context).clearSnackBars();
     _fadeController.dispose();
     _slideController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: maroonPrimary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2), // Shorter duration to avoid persisting after back
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
   }
 
   void scrollListener() {
@@ -1717,13 +1737,7 @@ class _TeacherManageAnnouncementScreenState
         icon: Icons.school_rounded,
         onTap: () {
           if (gradeLevelState.gradeLevels.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Tidak ada tingkatan yang tersedia"),
-                backgroundColor: maroonPrimary,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
+            _showSnackBar("Tidak ada tingkatan yang tersedia");
             return;
           }
 
@@ -1770,15 +1784,9 @@ class _TeacherManageAnnouncementScreenState
         icon: Icons.class_rounded,
         onTap: () {
           if (filteredClassSections.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_selectedGradeLevel != null
-                    ? "Tidak ada kelas yang tersedia untuk tingkatan ${_selectedGradeLevel!.name}"
-                    : "Tidak ada kelas yang tersedia untuk guru ini"),
-                backgroundColor: maroonPrimary,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
+            _showSnackBar(_selectedGradeLevel != null
+                ? "Tidak ada kelas yang tersedia untuk tingkatan ${_selectedGradeLevel!.name}"
+                : "Tidak ada kelas yang tersedia untuk guru ini");
             return;
           }
 
@@ -1813,14 +1821,7 @@ class _TeacherManageAnnouncementScreenState
         icon: Icons.announcement_rounded,
         onTap: () {
           if (state.subjects.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                    "Tidak ada mata pelajaran yang tersedia untuk guru ini"),
-                backgroundColor: maroonPrimary,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
+            _showSnackBar("Tidak ada mata pelajaran yang tersedia untuk guru ini");
             return;
           }
 
@@ -1856,7 +1857,10 @@ class _TeacherManageAnnouncementScreenState
       titleIcon: Icons.campaign_rounded,
       primaryColor: maroonPrimary,
       secondaryColor: maroonLight,
-      onBackPressed: () => Navigator.pop(context),
+      onBackPressed: () {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        Navigator.pop(context);
+      },
       firstFilterItem: gradeLevelFilter,
       secondFilterItem: classSectionFilter,
       thirdFilterItem: subjectFilter,

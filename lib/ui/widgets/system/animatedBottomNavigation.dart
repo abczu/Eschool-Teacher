@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/system/bottomNavItem.dart';
+import 'package:eschool_saas_staff/data/models/system/bottomNavItem.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/appBarPainter.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -9,12 +9,14 @@ class AnimatedBottomNavigation extends StatefulWidget {
   final List<BottomNavItem> items;
   final int selectedIndex;
   final Function(int) onItemSelected;
+  final Color? navigationBarColor;
 
   const AnimatedBottomNavigation({
     super.key,
     required this.items,
     required this.selectedIndex,
     required this.onItemSelected,
+    this.navigationBarColor,
   });
 
   @override
@@ -103,7 +105,7 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
             animation.value,
             circleColor:
                 maroonPrimary, // Use maroon primary color for the circle
-            navigationBarColor: Colors.white,
+            navigationBarColor: Theme.of(context).colorScheme.surface,
             selectedIndex: widget.selectedIndex,
           ),
           size: Size(MediaQuery.of(context).size.width - (2 * horizontalMargin),
@@ -157,9 +159,10 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                                   colorFilter: ColorFilter.mode(
                                     isSelected
                                         ? Colors.white
-                                        : maroonPrimary.withValues(
-                                            alpha:
-                                                0.7), // Use maroon color for unselected icons
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.6),
                                     BlendMode.srcIn,
                                   ),
                                 ),
@@ -173,8 +176,10 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                               style: TextStyle(
                                 fontSize: Utils.getScaledValue(context, 14.0),
                                 fontWeight: FontWeight.w500,
-                                color: maroonPrimary.withValues(
-                                    alpha: 0.8), // Use maroon color for text
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.8),
                               ),
                             ),
                           ],

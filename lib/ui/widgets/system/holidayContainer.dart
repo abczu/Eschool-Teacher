@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/system/holiday.dart';
+import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
@@ -7,6 +7,7 @@ import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:ui';
 
 class HolidayContainer extends StatefulWidget {
   final Holiday holiday;
@@ -31,12 +32,13 @@ class _HolidayContainerState extends State<HolidayContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final holidayStartDate = DateTime.parse(widget.holiday.startDate ?? "");
     final holidayEndDate = widget.holiday.endDate != null
         ? DateTime.parse(widget.holiday.endDate!)
         : holidayStartDate;
-    const maroonColor = Color(0xFF800020);
-    const maroonLight = Color(0xFFAA6976);
+    final Color maroonColor = isDark ? const Color(0xFF5A101B) : const Color(0xFF800020);
+    final Color maroonLight = isDark ? const Color(0xFF7D2027) : const Color(0xFFAA6976);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -58,50 +60,67 @@ class _HolidayContainerState extends State<HolidayContainer> {
           width: widget.width,
           constraints: const BoxConstraints(minHeight: 150),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16.0),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(24.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
             border: Border.all(
-              color: _isHovered ? maroonLight : Colors.grey.shade200,
-              width: 1.0,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : (_isHovered
+                      ? maroonLight
+                      : Colors.grey.shade200),
+              width: isDark ? 0.5 : 1.0,
             ),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    width: 110,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          maroonColor,
-                          maroonLight,
-                        ],
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: -5,
-                          right: -5,
-                          child: Icon(
-                            FontAwesomeIcons.calendar,
-                            size: 30,
-                            color: Colors.white.withValues(alpha: 0.1),
-                          ),
+            borderRadius: BorderRadius.circular(24.0),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: isDark ? 12 : 0,
+                sigmaY: isDark ? 12 : 0,
+              ),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 110,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            maroonColor,
+                            maroonLight,
+                          ],
                         ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Center(
-                                child: CustomTextContainer(
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: -5,
+                            right: -5,
+                            child: Icon(
+                              FontAwesomeIcons.calendar,
+                              size: 30,
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CustomTextContainer(
                                   textKey: holidayStartDate.day.toString(),
                                   style: TextStyle(
                                     fontSize: Utils.getScaledValue(context, 34),
@@ -111,11 +130,8 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ),
-                              Center(
-                                child: Text(
-                                  Utils.getMonthFullName(
-                                      holidayStartDate.month),
+                                Text(
+                                  Utils.getMonthFullName(holidayStartDate.month),
                                   style: TextStyle(
                                     height: 1.2,
                                     fontSize: Utils.getScaledValue(context, 18),
@@ -124,10 +140,8 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Center(
-                                child: Container(
+                                const SizedBox(height: 4),
+                                Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 2),
                                   decoration: BoxDecoration(
@@ -144,98 +158,98 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12.0, horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3.0),
-                                child: Icon(
-                                  FontAwesomeIcons.tag,
-                                  size: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: CustomTextContainer(
-                                  textKey: widget.holiday.title ?? "",
-                                  style: TextStyle(
-                                    height: 1.2,
-                                    fontSize: Utils.getScaledValue(context, 16),
-                                    color: Colors.grey.shade800,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          if (widget.holiday.endDate != null)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  FontAwesomeIcons.calendar,
-                                  size: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    holidayStartDate == holidayEndDate
-                                        ? "1 hari"
-                                        : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${Utils.getMonthFullName(holidayEndDate.month)})",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade700,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
-                          const Spacer(),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                'Lihat Detail',
-                                style: TextStyle(
-                                  color: maroonColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 10,
-                                color: maroonColor,
-                              ),
-                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3.0),
+                                  child: Icon(
+                                    FontAwesomeIcons.tag,
+                                    size: 14,
+                                    color: isDark ? Colors.white60 : Colors.grey.shade600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: CustomTextContainer(
+                                    textKey: widget.holiday.title ?? "",
+                                    style: TextStyle(
+                                      height: 1.2,
+                                      fontSize: Utils.getScaledValue(context, 16),
+                                      color: isDark ? Colors.white : Colors.grey.shade800,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            if (widget.holiday.endDate != null)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    FontAwesomeIcons.calendar,
+                                    size: 12,
+                                    color: isDark ? Colors.white54 : Colors.grey.shade600,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      holidayStartDate == holidayEndDate
+                                          ? "1 hari"
+                                          : "${holidayEndDate.difference(holidayStartDate).inDays + 1} hari (sampai ${holidayEndDate.day} ${Utils.getMonthFullName(holidayEndDate.month)})",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Lihat Detail',
+                                  style: TextStyle(
+                                    color: isDark ? const Color(0xFFFF3D60) : maroonColor,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 10,
+                                  color: isDark ? const Color(0xFFFF3D60) : maroonColor,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -272,14 +286,11 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
         padding: EdgeInsets.only(
           left: appContentHorizontalPadding,
           right: appContentHorizontalPadding,
-          bottom: MediaQuery.of(context).padding.bottom +
-              24, // Add safe area padding
+          bottom: MediaQuery.of(context).padding.bottom + 24,
         ),
-        // Ensure we have a ConstrainedBox with unconstrained height for the scroll view
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight:
-                MediaQuery.of(context).size.height * 0.85, // Limit max height
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -287,7 +298,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20, bottom: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // Use minimum size
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,7 +455,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 100), // Extra padding at bottom
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -455,4 +466,3 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
     );
   }
 }
-

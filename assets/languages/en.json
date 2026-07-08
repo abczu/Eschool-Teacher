@@ -402,5 +402,10 @@
   "noStaffsFound": "No staffs found",
   "noParentsFound": "No parents found",
   "noStudentsFound": "No students found",
-  "noSearchResults": "No search results found"
+  "noSearchResults": "No search results found",
+  "appAppearance": "App Appearance",
+  "theme": "Theme",
+  "darkTheme": "Dark",
+  "lightTheme": "Light",
+  "systemTheme": "System"
 }

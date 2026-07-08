@@ -486,3 +486,11 @@ const String noExamsFoundKey = "No Exams Found";
 const String tryDifferentFiltersKey = "Try different filters or refresh";
 const String refreshKey = "Refresh";
 const String loadingExamsKey = "Loading Exams...";
+
+// Theme keys
+const String appAppearanceKey = "appAppearance";
+const String themeKey = "theme";
+const String darkThemeKey = "darkTheme";
+const String lightThemeKey = "lightTheme";
+const String systemThemeKey = "systemTheme";
+

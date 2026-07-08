@@ -100,9 +100,10 @@ class TimetableSlotContainer extends StatelessWidget {
                       horizontal: appContentHorizontalPadding, vertical: 10),
                   decoration: BoxDecoration(
                       border: Border.all(
-                          color: Theme.of(context).colorScheme.tertiary),
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Theme.of(context).colorScheme.onSurface),
                       borderRadius: BorderRadius.circular(8),
-                      color: Theme.of(context).scaffoldBackgroundColor),
+                      color: backgroundColor ??
+                          Theme.of(context).scaffoldBackgroundColor),
                   child: note.isNotEmpty
                       ? Center(
                           child: CustomTextContainer(

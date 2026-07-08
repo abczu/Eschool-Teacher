@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/profilePreview.dart';
 import 'dart:math' as math;
+import 'dart:ui';
 
 class HomeContainerAppbar extends StatefulWidget {
   final String profileImage;
@@ -32,11 +33,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
   @override
   void initState() {
     super.initState();
-
-    // Add lifecycle observer
     WidgetsBinding.instance.addObserver(this);
 
-    // Refined glow animation - more subtle and elegant
     _glowAnimationController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
@@ -44,11 +42,10 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
     _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _glowAnimationController,
-        curve: Curves.easeInOutSine, // Smoother curve
+        curve: Curves.easeInOutSine,
       ),
     );
 
-    // Gentle pulse animation - less aggressive
     _pulseAnimationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -56,11 +53,10 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(
         parent: _pulseAnimationController,
-        curve: Curves.easeInOutCubic, // More elegant curve
+        curve: Curves.easeInOutCubic,
       ),
     );
 
-    // Slower, more graceful rotation
     _rotationAnimationController = AnimationController(
       duration: const Duration(seconds: 30),
       vsync: this,
@@ -72,54 +68,25 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
       ),
     );
 
-    // Start animations with delays for more natural feel
     _glowAnimationController.repeat(reverse: true);
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        _pulseAnimationController.repeat(reverse: true);
-      }
+      if (mounted) _pulseAnimationController.repeat(reverse: true);
     });
     Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) {
-        _rotationAnimationController.repeat();
-      }
+      if (mounted) _rotationAnimationController.repeat();
     });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.paused:
-        _glowAnimationController.stop();
-        _pulseAnimationController.stop();
-        _rotationAnimationController.stop();
-        break;
-      case AppLifecycleState.resumed:
-        if (!_glowAnimationController.isAnimating) {
-          _glowAnimationController.repeat(reverse: true);
-        }
-        if (!_pulseAnimationController.isAnimating) {
-          _pulseAnimationController.repeat(reverse: true);
-        }
-        if (!_rotationAnimationController.isAnimating) {
-          _rotationAnimationController.repeat();
-        }
-        break;
-      case AppLifecycleState.inactive:
-        _glowAnimationController.stop();
-        _pulseAnimationController.stop();
-        _rotationAnimationController.stop();
-        break;
-      case AppLifecycleState.detached:
-        _glowAnimationController.stop();
-        _pulseAnimationController.stop();
-        _rotationAnimationController.stop();
-        break;
-      case AppLifecycleState.hidden:
-        _glowAnimationController.stop();
-        _pulseAnimationController.stop();
-        _rotationAnimationController.stop();
-        break;
+    if (state == AppLifecycleState.resumed) {
+      if (!_glowAnimationController.isAnimating) _glowAnimationController.repeat(reverse: true);
+      if (!_pulseAnimationController.isAnimating) _pulseAnimationController.repeat(reverse: true);
+      if (!_rotationAnimationController.isAnimating) _rotationAnimationController.repeat();
+    } else {
+      _glowAnimationController.stop();
+      _pulseAnimationController.stop();
+      _rotationAnimationController.stop();
     }
   }
 
@@ -134,46 +101,44 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
 
   @override
   Widget build(BuildContext context) {
-    // Set system UI overlay style to ensure status bar is properly handled
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
 
-    // Maroon color palette from TeacherAddAttendanceSubjectScreen
-    const Color maroonPrimary = Color(0xFF800020); // Deep maroon
-    const Color maroonLight = Color(0xFFAA6976); // Light maroon
-    const Color maroonDark = Color.fromARGB(255, 124, 9, 31); // Darker variant
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color maroonPrimary = isDark ? const Color(0xFF8B1F41) : const Color(0xFF800020);
+    final Color maroonLight = isDark ? const Color(0xFFA84B5C) : const Color(0xFFAA6976);
+    final Color maroonDark = isDark ? const Color(0xFF4A0E17) : const Color.fromARGB(255, 124, 9, 31);
 
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
       return SizedBox(
         height: 140 + MediaQuery.of(context).padding.top,
         width: MediaQuery.of(context).size.width,
-        // Remove top padding here to allow full extension to status bar
         child: Stack(
-          fit: StackFit.expand, // Ensure stack fills entire container
-          clipBehavior: Clip.none, // Allow content to overflow for curves
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
           children: [
-            // Background with dramatically curved bottom that extends to the top edge
-            Positioned(
-              top: 0, // Start from very top
-              left: 0,
-              right: 0,
-              bottom: 0,
+            // Solid foundation to ensure only cards are transparent to decoration, not the scaffold
+            Positioned.fill(
+              child: Container(
+                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+              ),
+            ),
+            Positioned.fill(
               child: CustomPaint(
                 painter: DramaticCurvedGradientPainter(
                   colors: [
                     maroonDark,
                     maroonPrimary,
-                    const Color(0xFF9A1E3C),
-                    maroonLight,
+                    isDark ? const Color(0xFF4A0E17) : const Color(0xFF9A1E3C),
+                    isDark ? const Color(0xFF121212) : maroonLight,
                   ],
                   stops: [0.0, 0.3, 0.6, 1.0],
                 ),
               ),
             ),
-
-            // Decorative design elements with enhanced animations
+            
             Positioned.fill(
               child: AnimatedBuilder(
                 animation: Listenable.merge([
@@ -181,17 +146,14 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                   _pulseAnimationController,
                   _rotationAnimationController,
                 ]),
-                builder: (context, _) {
-                  return CustomPaint(
-                    painter: AnimatedAppBarDecorationPainter(
-                      color: Colors.white.withValues(
-                          alpha: 0.07 + (_glowAnimation.value * 0.05)),
-                      glowValue: _glowAnimation.value,
-                      pulseValue: _pulseAnimation.value,
-                      rotationValue: _rotationAnimation.value,
-                    ),
-                  );
-                },
+                builder: (context, _) => CustomPaint(
+                  painter: AnimatedAppBarDecorationPainter(
+                    color: Colors.white.withValues(alpha: 0.07 + (_glowAnimation.value * 0.05)),
+                    glowValue: _glowAnimation.value,
+                    pulseValue: _pulseAnimation.value,
+                    rotationValue: _rotationAnimation.value,
+                  ),
+                ),
               ),
             ),
 
@@ -204,13 +166,12 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
               builder: (context, _) {
                 return Stack(
                   children: [
-                    // Primary glow circle - softer movement
+                    // Primary glow circle
                     Positioned(
                       top: MediaQuery.of(context).padding.top -
                           100 +
                           (math.sin(_glowAnimation.value * 2 * math.pi) * 5),
-                      right: -60 +
-                          (math.cos(_glowAnimation.value * 2 * math.pi) * 3),
+                      right: -60 + (math.cos(_glowAnimation.value * 2 * math.pi) * 3),
                       child: Transform.scale(
                         scale: 0.95 + (_pulseAnimation.value * 0.1),
                         child: Container(
@@ -221,11 +182,9 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                             gradient: RadialGradient(
                               colors: [
                                 Colors.white.withValues(
-                                    alpha:
-                                        0.15 + (_glowAnimation.value * 0.05)),
+                                    alpha: 0.15 + (_glowAnimation.value * 0.05)),
                                 Colors.white.withValues(
-                                    alpha:
-                                        0.08 + (_glowAnimation.value * 0.03)),
+                                    alpha: 0.08 + (_glowAnimation.value * 0.03)),
                                 Colors.white.withValues(alpha: 0.0),
                               ],
                               stops: const [0.0, 0.6, 1.0],
@@ -235,18 +194,14 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                       ),
                     ),
 
-                    // Secondary glow circle - gentle floating
+                    // Secondary glow circle
                     Positioned(
                       top: MediaQuery.of(context).padding.top -
                           70 +
-                          (math.sin(_glowAnimation.value * 2 * math.pi + 1.5) *
-                              4),
-                      left: -30 +
-                          (math.cos(_glowAnimation.value * 2 * math.pi + 1.5) *
-                              2),
+                          (math.sin(_glowAnimation.value * 2 * math.pi + 1.5) * 4),
+                      left: -30 + (math.cos(_glowAnimation.value * 2 * math.pi + 1.5) * 2),
                       child: Transform.scale(
-                        scale: 1.0 +
-                            (math.sin(_pulseAnimation.value * math.pi) * 0.05),
+                        scale: 1.0 + (math.sin(_pulseAnimation.value * math.pi) * 0.05),
                         child: Container(
                           width: 100,
                           height: 100,
@@ -255,11 +210,9 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                             gradient: RadialGradient(
                               colors: [
                                 Colors.white.withValues(
-                                    alpha:
-                                        0.12 + (_glowAnimation.value * 0.04)),
+                                    alpha: 0.12 + (_glowAnimation.value * 0.04)),
                                 Colors.white.withValues(
-                                    alpha:
-                                        0.06 + (_glowAnimation.value * 0.02)),
+                                    alpha: 0.06 + (_glowAnimation.value * 0.02)),
                                 Colors.white.withValues(alpha: 0.0),
                               ],
                               stops: const [0.0, 0.7, 1.0],
@@ -269,21 +222,16 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                       ),
                     ),
 
-                    // Tertiary glow circle - micro floating animation
+                    // Tertiary glow circle
                     Positioned(
                       top: MediaQuery.of(context).padding.top +
                           25 +
-                          (math.sin(_glowAnimation.value * 2 * math.pi + 3) *
-                              3),
-                      right: -15 +
-                          (math.cos(_glowAnimation.value * 2 * math.pi + 3) *
-                              2),
+                          (math.sin(_glowAnimation.value * 2 * math.pi + 3) * 3),
+                      right: -15 + (math.cos(_glowAnimation.value * 2 * math.pi + 3) * 2),
                       child: Transform.rotate(
                         angle: _rotationAnimation.value * 0.3,
                         child: Transform.scale(
-                          scale: 0.9 +
-                              (math.sin(_pulseAnimation.value * math.pi + 2) *
-                                  0.08),
+                          scale: 0.9 + (math.sin(_pulseAnimation.value * math.pi + 2) * 0.08),
                           child: Container(
                             width: 60,
                             height: 60,
@@ -292,11 +240,9 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                               gradient: RadialGradient(
                                 colors: [
                                   Colors.white.withValues(
-                                      alpha:
-                                          0.08 + (_glowAnimation.value * 0.03)),
+                                      alpha: 0.1 + (_glowAnimation.value * 0.03)),
                                   Colors.white.withValues(
-                                      alpha: 0.04 +
-                                          (_glowAnimation.value * 0.015)),
+                                      alpha: 0.05 + (_glowAnimation.value * 0.02)),
                                   Colors.white.withValues(alpha: 0.0),
                                 ],
                                 stops: const [0.0, 0.8, 1.0],
@@ -311,224 +257,118 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
               },
             ),
 
-            // Enhanced static wave pattern
             Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: CustomPaint(
-                painter: EnhancedWavePatternPainter(
-                  color1: Colors.white.withValues(alpha: 0.1),
-                  color2: Colors.white.withValues(alpha: 0.07),
-                ),
-                child: SizedBox(
-                  height: 80,
-                  width: MediaQuery.of(context).size.width,
-                ),
-              ),
-            ),
-
-            // Main content container - static without animations
-            Positioned(
-              bottom: 10,
+              bottom: 30,
               left: 16,
               right: 16,
               child: Container(
-                height: 75,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                height: 95,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
+                  border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5) : null,
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withValues(alpha: 0.3),
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                       blurRadius: 15,
-                      offset: const Offset(0, 5),
-                      spreadRadius: 0,
-                    ),
-                    BoxShadow(
-                      color: maroonLight.withValues(alpha: 0.15),
-                      blurRadius: 25,
-                      offset: const Offset(0, 10),
-                      spreadRadius: 0,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    // Profile image with tap to zoom
-                    GestureDetector(
-                      onTap: () {
-                        ProfileImagePreview.show(
-                            context, widget.profileImage, 'home_avatar');
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [maroonPrimary, maroonDark],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: maroonPrimary.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(2),
-                        child: BlocBuilder<AuthCubit, AuthState>(
-                          builder: (context, state) {
-                            final userImage = context
-                                    .read<AuthCubit>()
-                                    .getUserDetails()
-                                    .image ??
-                                "";
-                            return Hero(
-                              tag: 'home_avatar',
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 25,
-                                backgroundImage: userImage.isNotEmpty
-                                    ? CachedNetworkImageProvider(
-                                        userImage,
-                                      )
-                                    : null,
-                                child: userImage.isEmpty
-                                    ? const Icon(
-                                        Icons.person,
-                                        color: maroonPrimary,
-                                        size: 30,
-                                      )
-                                    : null,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 15.0),
-                    // Welcome text without animations
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: isDark ? 12 : 0, sigmaY: isDark ? 12 : 0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
                         children: [
-                          Text(
-                            Utils.getTranslatedLabel(hiWelcomebackKey),
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
+                          GestureDetector(
+                            onTap: () => ProfileImagePreview.show(context, widget.profileImage, 'home_avatar'),
+                            child: Hero(
+                              tag: 'home_avatar',
+                              child: Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: maroonPrimary.withValues(alpha: 0.3),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: widget.profileImage.isEmpty
+                                      ? Icon(Icons.person, color: maroonPrimary, size: 30)
+                                      : CachedNetworkImage(
+                                          imageUrl: widget.profileImage,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                          errorWidget: (context, url, error) => Icon(Icons.person, color: maroonPrimary, size: 30),
+                                        ),
+                                ),
+                              ),
                             ),
                           ),
-                          Text(
-                            context
-                                    .read<AuthCubit>()
-                                    .getUserDetails()
-                                    .firstName ??
-                                "",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                              height: 1.1,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: maroonPrimary,
+                          const SizedBox(width: 14),
+                          Expanded(
+                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Hai, selamat datang kembali!",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.read<AuthCubit>().getUserDetails().fullName ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.poppins(
+                                    color: isDark ? const Color(0xFFFF3D60) : maroonPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          BlocBuilder<StaffAllowedPermissionsAndModulesCubit, StaffAllowedPermissionsAndModulesState>(
+                            builder: (context, state) {
+                              if (state is StaffAllowedPermissionsAndModulesFetchSuccess) {
+                                return _buildHeaderButton(
+                                  icon: Icons.notifications_active_rounded,
+                                  onTap: () => Get.toNamed(Routes.notificationsScreen),
+                                );
+                              }
+                              if (state is StaffAllowedPermissionsAndModulesFetchFailure) {
+                                return _buildHeaderButton(
+                                  icon: Icons.login_outlined,
+                                  onTap: () {
+                                    context.read<AuthCubit>().signOut();
+                                    Get.offNamed(Routes.loginScreen);
+                                  },
+                                );
+                              }
+                              return const SizedBox(width: 48, height: 48);
+                            },
                           ),
                         ],
                       ),
                     ),
-                    // Notifications button without animations
-                    BlocBuilder<StaffAllowedPermissionsAndModulesCubit,
-                        StaffAllowedPermissionsAndModulesState>(
-                      builder: (context, state) {
-                        if (state
-                            is StaffAllowedPermissionsAndModulesFetchSuccess) {
-                          return Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(15),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(15),
-                              onTap: () {
-                                Get.toNamed(Routes.notificationsScreen);
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [maroonPrimary, maroonDark],
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          maroonPrimary.withValues(alpha: 0.25),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.notifications_active_rounded,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        if (state
-                            is StaffAllowedPermissionsAndModulesFetchFailure) {
-                          return Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(15),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(15),
-                              onTap: () {
-                                context.read<AuthCubit>().signOut();
-                                Get.offNamed(Routes.loginScreen);
-                              },
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [maroonPrimary, maroonDark],
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          maroonPrimary.withValues(alpha: 0.25),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.login_outlined,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        return const SizedBox();
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -537,57 +377,77 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
       );
     });
   }
+
+  String _getGreeting() {
+    return 'Selamat Datang ✨';
+  }
+
+  Widget _buildHeaderButton({required IconData icon, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+  }
 }
 
-// Custom painter for dramatically curved gradient background with a double-wave effect
 class DramaticCurvedGradientPainter extends CustomPainter {
   final List<Color> colors;
   final List<double> stops;
-
-  DramaticCurvedGradientPainter({
-    required this.colors,
-    required this.stops,
-  });
+  DramaticCurvedGradientPainter({required this.colors, required this.stops});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: colors,
+        stops: stops,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    // Create gradient
-    paint.shader = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: colors,
-      stops: stops,
-    ).createShader(rect);
-
-    // Create dramatic double-curved path with deep valleys
     final path = Path();
-    path.lineTo(
-        0, size.height - 60); // Start from bottom-left with larger offset
+    path.lineTo(0, size.height - 60);
 
-    // First dramatic curve
-    final firstControlPoint = Offset(
-        size.width * 0.25, size.height + 30); // Control point below the bottom
+    // Primary dramatic curve set
+    final firstControlPoint = Offset(size.width * 0.25, size.height + 30);
     final firstEndPoint = Offset(size.width * 0.5, size.height - 40);
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstEndPoint.dx, firstEndPoint.dy);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
 
-    // Second dramatic curve
-    final secondControlPoint = Offset(size.width * 0.75,
-        size.height - 110); // Higher control point for deeper curve
+    final secondControlPoint = Offset(size.width * 0.75, size.height - 110);
     final secondEndPoint = Offset(size.width, size.height - 50);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondEndPoint.dx, secondEndPoint.dy);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy, secondEndPoint.dx, secondEndPoint.dy);
 
-    // Complete the path
     path.lineTo(size.width, 0);
     path.close();
-
     canvas.drawPath(path, paint);
 
-    // Add more dramatic highlights for enhanced depth
+    // Dynamic highlights
     final highlightPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
@@ -595,10 +455,8 @@ class DramaticCurvedGradientPainter extends CustomPainter {
 
     final highlightPath = Path();
     highlightPath.moveTo(0, size.height - 58);
-    highlightPath.quadraticBezierTo(firstControlPoint.dx,
-        firstControlPoint.dy - 4, firstEndPoint.dx, firstEndPoint.dy - 3);
-    highlightPath.quadraticBezierTo(secondControlPoint.dx,
-        secondControlPoint.dy - 3, secondEndPoint.dx, secondEndPoint.dy - 3);
+    highlightPath.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy - 4, firstEndPoint.dx, firstEndPoint.dy - 3);
+    highlightPath.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy - 3, secondEndPoint.dx, secondEndPoint.dy - 3);
 
     canvas.drawPath(highlightPath, highlightPaint);
   }
@@ -607,82 +465,6 @@ class DramaticCurvedGradientPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Enhanced wave pattern for more visual impact
-class EnhancedWavePatternPainter extends CustomPainter {
-  final Color color1;
-  final Color color2;
-
-  EnhancedWavePatternPainter({
-    required this.color1,
-    required this.color2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()..style = PaintingStyle.fill;
-
-    // First enhanced wave with more dramatic peaks and valleys
-    final path = Path();
-    path.moveTo(0, size.height * 0.3);
-
-    // First dramatic curve set - more pronounced waves
-    path.cubicTo(size.width * 0.15, size.height * 0.1, size.width * 0.35,
-        size.height * 0.6, size.width * 0.5, size.height * 0.2);
-
-    // Second dramatic curve set
-    path.cubicTo(
-        size.width * 0.65,
-        size.height * -0.2, // Negative value for more extreme peak
-        size.width * 0.85,
-        size.height * 0.4,
-        size.width,
-        size.height * 0.3);
-
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    paint.color = color1;
-    canvas.drawPath(path, paint);
-
-    // Second enhanced wave with different pattern
-    final secondPath = Path();
-    secondPath.moveTo(0, size.height * 0.5);
-
-    // First dramatic curve
-    secondPath.cubicTo(size.width * 0.2, size.height * 0.3, size.width * 0.4,
-        size.height * 0.8, size.width * 0.6, size.height * 0.4);
-
-    // Second dramatic curve
-    secondPath.cubicTo(size.width * 0.75, size.height * 0.1, size.width * 0.9,
-        size.height * 0.6, size.width, size.height * 0.35);
-
-    secondPath.lineTo(size.width, size.height);
-    secondPath.lineTo(0, size.height);
-    secondPath.close();
-
-    paint.color = color2;
-    canvas.drawPath(secondPath, paint);
-
-    // Add more dramatic decorative elements
-    final circlePaint = Paint()
-      ..color = color1
-      ..style = PaintingStyle.fill;
-
-    // Larger circles for better visibility
-    canvas.drawCircle(
-        Offset(size.width * 0.85, size.height * 0.2), 25, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.15, size.height * 0.7), 20, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.6, size.height * 0.6), 15, circlePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// Enhanced custom painter for animated decorative elements in the app bar
 class AnimatedAppBarDecorationPainter extends CustomPainter {
   final Color color;
   final double glowValue;
@@ -707,132 +489,38 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
 
-    // Refined animated decorative circles - more subtle movement
+    // Refined animated decorative circles
     final circles = [
       {
-        'center': Offset(
-            size.width * (0.88 + math.sin(glowValue * 2 * math.pi) * 0.01),
+        'center': Offset(size.width * (0.88 + math.sin(glowValue * 2 * math.pi) * 0.01),
             size.height * (0.22 + math.cos(glowValue * 2 * math.pi) * 0.008)),
         'radius': 25 * (0.9 + math.sin(pulseValue * math.pi) * 0.15),
         'hasGlow': true,
       },
       {
-        'center': Offset(
-            size.width *
-                (0.12 + math.cos(glowValue * 2 * math.pi + 1.5) * 0.008),
-            size.height *
-                (0.78 + math.sin(glowValue * 2 * math.pi + 1.5) * 0.01)),
+        'center': Offset(size.width * (0.12 + math.cos(glowValue * 2 * math.pi + 1.5) * 0.008),
+            size.height * (0.78 + math.sin(glowValue * 2 * math.pi + 1.5) * 0.01)),
         'radius': 18 * (0.95 + math.sin(pulseValue * math.pi + 0.5) * 0.1),
         'hasGlow': false,
       },
       {
-        'center': Offset(
-            size.width * (0.52 + math.sin(glowValue * 2 * math.pi + 3) * 0.012),
-            size.height *
-                (0.18 + math.cos(glowValue * 2 * math.pi + 3) * 0.006)),
+        'center': Offset(size.width * (0.52 + math.sin(glowValue * 2 * math.pi + 3) * 0.012),
+            size.height * (0.18 + math.cos(glowValue * 2 * math.pi + 3) * 0.006)),
         'radius': 12 * (1.0 + math.sin(pulseValue * math.pi + 1) * 0.2),
-        'hasGlow': true,
-      },
-      {
-        'center': Offset(
-            size.width *
-                (0.72 + math.cos(glowValue * 2 * math.pi + 4.5) * 0.008),
-            size.height *
-                (0.68 + math.sin(glowValue * 2 * math.pi + 4.5) * 0.01)),
-        'radius': 8 * (0.8 + math.sin(pulseValue * math.pi + 1.5) * 0.3),
-        'hasGlow': false,
-      },
-      {
-        'center': Offset(
-            size.width * (0.25 + math.sin(glowValue * 2 * math.pi + 6) * 0.01),
-            size.height *
-                (0.42 + math.cos(glowValue * 2 * math.pi + 6) * 0.008)),
-        'radius': 6 * (1.0 + math.sin(pulseValue * math.pi + 2) * 0.15),
         'hasGlow': true,
       },
     ];
 
-    // Draw refined animated circles
     for (var circle in circles) {
       final center = circle['center'] as Offset;
       final radius = circle['radius'] as double;
-      final hasGlow = circle['hasGlow'] as bool;
-
-      if (hasGlow) {
-        // Draw subtle glow effect
+      if (circle['hasGlow'] as bool) {
         canvas.drawCircle(center, radius * 1.3, glowPaint);
       }
-      // Draw main circle
       canvas.drawCircle(center, radius, paint);
-    }
-
-    // Refined animated arcs - smoother movement
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5 + glowValue * 0.5;
-
-    final glowArcPaint = Paint()
-      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3 + glowValue * 1
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
-
-    // First refined animated arc
-    final arcRect = Rect.fromLTRB(
-        size.width * (0.12 + math.sin(glowValue * 2 * math.pi) * 0.02),
-        size.height * (0.25 + math.cos(glowValue * 2 * math.pi) * 0.015),
-        size.width * (0.58 + math.sin(glowValue * 2 * math.pi + 1) * 0.025),
-        size.height * (0.58 + math.cos(glowValue * 2 * math.pi + 1) * 0.02));
-
-    final arcSweep = 1.2 + math.sin(glowValue * 2 * math.pi) * 0.2;
-    final arcStart = 0.3 + rotationValue * 0.05;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, arcPaint);
-
-    // Second refined animated arc
-    final arcRect2 = Rect.fromLTRB(
-        size.width * (0.48 + math.cos(glowValue * 2 * math.pi + 2) * 0.015),
-        size.height * (0.42 + math.sin(glowValue * 2 * math.pi + 2) * 0.01),
-        size.width * (0.88 + math.cos(glowValue * 2 * math.pi + 3) * 0.02),
-        size.height * (0.78 + math.sin(glowValue * 2 * math.pi + 3) * 0.015));
-
-    final arcSweep2 = 1.3 + math.sin(glowValue * 2 * math.pi + 1) * 0.15;
-    final arcStart2 = 2.8 - rotationValue * 0.08;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, arcPaint);
-
-    // Refined floating particles - gentler movement
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 1.047) + rotationValue * 0.3; // 1.047 = 2π/6
-      final baseDistance = 25 + math.sin(glowValue * 2 * math.pi + i) * 8;
-      final particleSize =
-          1.5 + math.sin(glowValue * 2 * math.pi + i * 1.5) * 0.8;
-
-      final particleCenter = Offset(
-        size.width * 0.5 + (baseDistance * math.cos(angle)),
-        size.height * 0.5 + (baseDistance * math.sin(angle)),
-      );
-
-      final particlePaint = Paint()
-        ..color = color.withValues(
-            alpha: 0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawCircle(particleCenter, particleSize, particlePaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant AnimatedAppBarDecorationPainter oldDelegate) {
-    return oldDelegate.glowValue != glowValue ||
-        oldDelegate.pulseValue != pulseValue ||
-        oldDelegate.rotationValue != rotationValue;
-  }
+  bool shouldRepaint(covariant AnimatedAppBarDecorationPainter oldDelegate) => true;
 }

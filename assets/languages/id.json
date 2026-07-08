@@ -429,5 +429,10 @@
   "noSearchResults": "Tidak ada hasil pencarian yang ditemukan",
   "male": "Laki-Laki",
   "female": "Perempuan",
-  "noAttachment": "Tidak Ada Lampiran"
+  "noAttachment": "Tidak Ada Lampiran",
+  "appAppearance": "Tampilan Aplikasi",
+  "theme": "Tema",
+  "darkTheme": "Gelap",
+  "lightTheme": "Terang",
+  "systemTheme": "Sistem"
 }

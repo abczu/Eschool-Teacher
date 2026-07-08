@@ -144,18 +144,20 @@ class _AcademicsContainerState extends State<AcademicsContainer>
     ));
 
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
-      // Get profile image from AuthCubit state or details
-      final profileImage =
-          context.read<AuthCubit>().getUserDetails().image ?? "";
-
-      // Maroon color palette matching the homeContainerAppbar
-      const Color maroonPrimary = Color(0xFF800020); // Deep maroon
-      const Color maroonLight = Color(0xFFAA6976); // Light maroon
-      const Color maroonDark =
-          Color.fromARGB(255, 124, 9, 31); // Darker variant
+      final bool isDark = Theme.of(context).brightness == Brightness.dark;
+      final Color maroonPrimary = isDark ? const Color(0xFF8B1F41) : const Color(0xFF800020);
+      final Color maroonLight = isDark ? const Color(0xFFA84B5C) : const Color(0xFFAA6976);
+      final Color maroonDark = isDark ? const Color(0xFF4A0E17) : const Color.fromARGB(255, 124, 9, 31);
+      final profileImage = context.read<AuthCubit>().getUserDetails().image ?? "";
 
       return Stack(
         children: [
+          // Background color
+          Positioned.fill(
+            child: Container(
+              color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+            ),
+          ),
           Align(
             alignment: Alignment.topCenter,
             child: BlocBuilder<StaffAllowedPermissionsAndModulesCubit,
@@ -215,21 +217,22 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                 fit: StackFit.expand,
                 clipBehavior: Clip.none,
                 children: [
-                  // Background with dramatically curved bottom that extends to the top edge
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                  // Solid foundation to ensure content scroll under the curves is hidden
+                  Positioned.fill(
+                    child: Container(
+                      color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+                    ),
+                  ),
+                   Positioned.fill(
                     child: CustomPaint(
                       painter: DramaticCurvedGradientPainter(
                         colors: [
                           maroonDark,
                           maroonPrimary,
-                          const Color(0xFF9A1E3C),
-                          maroonLight,
+                          isDark ? const Color(0xFF4A0E17) : const Color(0xFF9A1E3C),
+                          isDark ? const Color(0xFF121212) : maroonLight,
                         ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
                       ),
                     ),
                   ),
@@ -380,33 +383,16 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                     },
                   ),
 
-                  // Enhanced static wave pattern
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: CustomPaint(
-                      painter: EnhancedWavePatternPainter(
-                        color1: Colors.white.withValues(alpha: 0.1),
-                        color2: Colors.white.withValues(alpha: 0.07),
-                      ),
-                      child: SizedBox(
-                        height: 80,
-                        width: MediaQuery.of(context).size.width,
-                      ),
-                    ),
-                  ),
-
                   // Animated main content container with elevation and smooth entrance
                   Positioned(
-                    bottom: 10,
+                    bottom: 30,
                     left: 16,
                     right: 16,
                     child: Container(
-                      height: 75,
+                      height: 95,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
@@ -434,7 +420,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [maroonPrimary, maroonDark],
@@ -451,7 +437,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                               child: Hero(
                                 tag: 'academics_avatar',
                                 child: CircleAvatar(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: Theme.of(context).colorScheme.surface,
                                   radius: 25,
                                   backgroundImage: profileImage.isNotEmpty
                                       ? CachedNetworkImageProvider(
@@ -459,7 +445,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                         )
                                       : null,
                                   child: profileImage.isEmpty
-                                      ? const Icon(
+                                      ? Icon(
                                           Icons.person,
                                           color: maroonPrimary,
                                           size: 30,
@@ -482,7 +468,9 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                     height: 1.1,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w700,
-                                    color: maroonPrimary,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? const Color(0xFFFF3D60)
+                                        : maroonPrimary,
                                   ),
                                 ),
                                 Text(
@@ -490,7 +478,9 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                   style: GoogleFonts.poppins(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.white
+                                        : Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -509,7 +499,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
+                                  gradient: LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [maroonPrimary, maroonDark],
@@ -615,80 +605,6 @@ class DramaticCurvedGradientPainter extends CustomPainter {
 }
 
 // Enhanced wave pattern for more visual impact
-class EnhancedWavePatternPainter extends CustomPainter {
-  final Color color1;
-  final Color color2;
-
-  EnhancedWavePatternPainter({
-    required this.color1,
-    required this.color2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()..style = PaintingStyle.fill;
-
-    // First enhanced wave with more dramatic peaks and valleys
-    final path = Path();
-    path.moveTo(0, size.height * 0.3);
-
-    // First dramatic curve set - more pronounced waves
-    path.cubicTo(size.width * 0.15, size.height * 0.1, size.width * 0.35,
-        size.height * 0.6, size.width * 0.5, size.height * 0.2);
-
-    // Second dramatic curve set
-    path.cubicTo(
-        size.width * 0.65,
-        size.height * -0.2, // Negative value for more extreme peak
-        size.width * 0.85,
-        size.height * 0.4,
-        size.width,
-        size.height * 0.3);
-
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    paint.color = color1;
-    canvas.drawPath(path, paint);
-
-    // Second enhanced wave with different pattern
-    final secondPath = Path();
-    secondPath.moveTo(0, size.height * 0.5);
-
-    // First dramatic curve
-    secondPath.cubicTo(size.width * 0.2, size.height * 0.3, size.width * 0.4,
-        size.height * 0.8, size.width * 0.6, size.height * 0.4);
-
-    // Second dramatic curve
-    secondPath.cubicTo(size.width * 0.75, size.height * 0.1, size.width * 0.9,
-        size.height * 0.6, size.width, size.height * 0.35);
-
-    secondPath.lineTo(size.width, size.height);
-    secondPath.lineTo(0, size.height);
-    secondPath.close();
-
-    paint.color = color2;
-    canvas.drawPath(secondPath, paint);
-
-    // Add more dramatic decorative elements
-    final circlePaint = Paint()
-      ..color = color1
-      ..style = PaintingStyle.fill;
-
-    // Larger circles for better visibility
-    canvas.drawCircle(
-        Offset(size.width * 0.85, size.height * 0.2), 25, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.15, size.height * 0.7), 20, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.6, size.height * 0.6), 15, circlePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 // Enhanced custom painter for animated decorative elements in the app bar
 class AnimatedAppBarDecorationPainter extends CustomPainter {
   final Color color;
@@ -771,68 +687,6 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       }
       // Draw main circle
       canvas.drawCircle(center, radius, paint);
-    }
-
-    // Refined animated arcs - smoother movement
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5 + glowValue * 0.5;
-
-    final glowArcPaint = Paint()
-      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3 + glowValue * 1
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
-
-    // First refined animated arc
-    final arcRect = Rect.fromLTRB(
-        size.width * (0.12 + math.sin(glowValue * 2 * math.pi) * 0.02),
-        size.height * (0.25 + math.cos(glowValue * 2 * math.pi) * 0.015),
-        size.width * (0.58 + math.sin(glowValue * 2 * math.pi + 1) * 0.025),
-        size.height * (0.58 + math.cos(glowValue * 2 * math.pi + 1) * 0.02));
-
-    final arcSweep = 1.2 + math.sin(glowValue * 2 * math.pi) * 0.2;
-    final arcStart = 0.3 + rotationValue * 0.05;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, arcPaint);
-
-    // Second refined animated arc
-    final arcRect2 = Rect.fromLTRB(
-        size.width * (0.48 + math.cos(glowValue * 2 * math.pi + 2) * 0.015),
-        size.height * (0.42 + math.sin(glowValue * 2 * math.pi + 2) * 0.01),
-        size.width * (0.88 + math.cos(glowValue * 2 * math.pi + 3) * 0.02),
-        size.height * (0.78 + math.sin(glowValue * 2 * math.pi + 3) * 0.015));
-
-    final arcSweep2 = 1.3 + math.sin(glowValue * 2 * math.pi + 1) * 0.15;
-    final arcStart2 = 2.8 - rotationValue * 0.08;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, arcPaint);
-
-    // Refined floating particles - gentler movement
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 1.047) + rotationValue * 0.3; // 1.047 = 2π/6
-      final baseDistance = 25 + math.sin(glowValue * 2 * math.pi + i) * 8;
-      final particleSize =
-          1.5 + math.sin(glowValue * 2 * math.pi + i * 1.5) * 0.8;
-
-      final particleCenter = Offset(
-        size.width * 0.5 + (baseDistance * math.cos(angle)),
-        size.height * 0.5 + (baseDistance * math.sin(angle)),
-      );
-
-      final particlePaint = Paint()
-        ..color = color.withValues(
-            alpha: 0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawCircle(particleCenter, particleSize, particlePaint);
     }
   }
 

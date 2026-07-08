@@ -175,7 +175,7 @@ class _TeacherTodaysTimetableContainerState
             CustomTextContainer(
               textKey: isExpanded ? viewLessKey : viewMoreKey,
               style: GoogleFonts.poppins(
-                color: const Color(0xFF800020),
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -188,7 +188,7 @@ class _TeacherTodaysTimetableContainerState
                   angle: (pi * _iconAngleAnimation.value) / 180,
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: const Color(0xFF800020),
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                 );
@@ -228,15 +228,15 @@ class _TeacherTodaysTimetableContainerState
                       vertical: 20.0, horizontal: 16.0),
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12.0),
                     border: Border.all(
-                      color: Colors.grey[200]!,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Theme.of(context).dividerColor,
                       width: 1.0,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -248,7 +248,7 @@ class _TeacherTodaysTimetableContainerState
                       Icon(
                         Icons.calendar_today_outlined,
                         size: 48.0,
-                        color: Colors.grey[400],
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                       const SizedBox(height: 12.0),
                       Text(
@@ -256,7 +256,7 @@ class _TeacherTodaysTimetableContainerState
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
+                          color: Theme.of(context).colorScheme.onSurface,
                           letterSpacing: 0.2,
                         ),
                         textAlign: TextAlign.center,
@@ -266,7 +266,7 @@ class _TeacherTodaysTimetableContainerState
                         'Anda tidak memiliki jadwal mengajar untuk hari ini',
                         style: TextStyle(
                           fontSize: 14.0,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
@@ -341,8 +341,8 @@ class _TeacherTodaysTimetableContainerState
                               classSectionName: getClassSectionName(
                                   timeTableSlot.classSectionId),
                               backgroundColor: isWithinSlot
-                                  ? Theme.of(context).scaffoldBackgroundColor
-                                  : Colors.grey[300],
+                                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                                  : Theme.of(context).colorScheme.surface,
                             ),
                           );
                         },

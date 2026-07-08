@@ -28,7 +28,7 @@ class ContentTitleWithViewMoreButton extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 17,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1A1A1A),
+              color: Theme.of(context).colorScheme.onSurface,
               letterSpacing: 0.2,
             ),
           ),
@@ -47,14 +47,14 @@ class ContentTitleWithViewMoreButton extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF800020),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_rounded,
                       size: 16,
-                      color: Color(0xFF800020),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),

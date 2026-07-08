@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'dart:ui';
 
 class AppColorPalette {
   static const Color primaryMaroon = Color(0xFF8B1F41);
@@ -451,30 +452,36 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  Colors.white.withValues(alpha: 0.95),
-                ],
-              ),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withValues(alpha: 0.1),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : iconColor.withValues(alpha: 0.1),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
               ],
               border: Border.all(
-                color: iconColor.withValues(alpha: 0.05),
-                width: 1,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : iconColor.withValues(alpha: 0.05),
+                width: Theme.of(context).brightness == Brightness.dark ? 0.5 : 1,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: Theme.of(context).brightness == Brightness.dark ? 12 : 0,
+                  sigmaY: Theme.of(context).brightness == Brightness.dark ? 12 : 0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                 Padding(
                   padding: const EdgeInsets.all(18),
                   child: Row(
@@ -501,7 +508,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         ),
                         child: Icon(
                           icon,
-                          color: iconColor,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFFFF3D60)
+                              : iconColor,
                           size: 24,
                         ),
                       ),
@@ -511,7 +520,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black, // Changed to black
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -533,7 +542,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                 ),
                 ...menus,
                 const SizedBox(height: 4),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -596,7 +607,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         color: isHovered
                             ? AppColorPalette.primaryMaroon
                                 .withValues(alpha: 0.1)
-                            : AppColorPalette.warmBeige.withValues(alpha: 0.5),
+                            : (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.5)),
                         shape: BoxShape.circle,
                         boxShadow: isHovered
                             ? [
@@ -611,9 +624,11 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       ),
                       child: Icon(
                         icon,
-                        color: isHovered
-                            ? AppColorPalette.primaryMaroon
-                            : AppColorPalette.secondaryMaroon,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFFF3D60)
+                            : (isHovered
+                                ? AppColorPalette.primaryMaroon
+                                : AppColorPalette.secondaryMaroon),
                         size: 20,
                       ),
                     ),
@@ -625,7 +640,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           fontSize: 16,
                           fontWeight:
                               isHovered ? FontWeight.w600 : FontWeight.w500,
-                          color: Colors.black, // Changed to black
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -635,8 +650,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           isHovered ? 8.0 : 0.0, 0.0, 0.0),
                       child: Icon(
                         Icons.arrow_forward_ios,
-                        color: Colors.black.withValues(
-                            alpha: 0.5), // Changed to black with opacity
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFFF3D60).withValues(alpha: 0.6)
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         size: 16,
                       ),
                     ),

@@ -41,10 +41,10 @@ class TeacherLeavesContainer extends StatelessWidget {
                     width: double.maxFinite,
                     padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.grey.shade100,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.grey.shade100,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -68,7 +68,7 @@ class TeacherLeavesContainer extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A1A),
+                            color: Theme.of(context).colorScheme.onSurface,
                             letterSpacing: 0.1,
                           ),
                           textAlign: TextAlign.center,

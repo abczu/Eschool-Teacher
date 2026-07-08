@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/system/holiday.dart';
+import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:eschool_saas_staff/utils/system/appLanguages.dart';
 import 'package:eschool_saas_staff/utils/system/hiveBoxKeys.dart';
@@ -41,6 +41,14 @@ class SettingsRepository {
 
   bool getVibrationEnabled() {
     return Hive.box(settingsBoxKey).get(vibrationEnabledKey) ?? true;
+  }
+
+  Future<void> setThemeMode(String value) async {
+    Hive.box(settingsBoxKey).put(themeModeKey, value);
+  }
+
+  String getThemeMode() {
+    return Hive.box(settingsBoxKey).get(themeModeKey) ?? "system";
   }
 
   Future<List<Holiday>> getHolidays() async {

@@ -403,6 +403,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
   Widget _buildSuccessUI() {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovering = true),
@@ -416,27 +417,34 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: Colors.white,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: _isHovering
-                  ? _maroonPrimary.withValues(alpha: 0.25)
-                  : Colors.black.withValues(alpha: 0.06),
-              blurRadius: _isHovering ? 18 : 8,
-              offset: Offset(0, _isHovering ? 6 : 4),
-              spreadRadius: _isHovering ? 2 : 0,
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+              blurRadius: _isHovering ? 20 : 10,
+              offset: Offset(0, _isHovering ? 8 : 4),
+              spreadRadius: isDark ? 1 : 0,
             ),
           ],
           border: Border.all(
-            color: _isHovering
-                ? _maroonPrimary.withValues(alpha: 0.3)
-                : _maroonLight.withValues(alpha: 0.15),
-            width: 1.5,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : (_isHovering
+                    ? _maroonPrimary.withValues(alpha: 0.3)
+                    : _maroonLight.withValues(alpha: 0.15)),
+            width: isDark ? 0.5 : 1.5,
           ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: Stack(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: isDark ? 12 : 0,
+              sigmaY: isDark ? 12 : 0,
+            ),
+            child: Stack(
             children: [
               // Background pattern and decorative elements
               Positioned(
@@ -527,7 +535,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                 style: TextStyle(
                                   fontSize: isSmallScreen ? 20 : 22,
                                   fontWeight: FontWeight.bold,
-                                  color: _maroonDark,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   letterSpacing: 0.3,
                                   height: 1.2,
                                 ),
@@ -609,7 +617,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: _maroonDark,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -801,14 +809,15 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                       ),
                     ),
                     // Status chip
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                  ],       // children: [ (Column)
+                ),         // Column
+              ),           // Container
+            ],             // children: [ (Stack)
+          ),               // Stack
+        ),                 // BackdropFilter
+      ),                   // ClipRRect
+    ),                     // AnimatedContainer
+  );                       // MouseRegion (return)
   }
 
   Color getStatusColor(int? status) {

@@ -20,7 +20,9 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eschool_saas_staff/cubits/settings/themeCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
+
 
 class AppColorPalette {
   static const Color primaryMaroon = Color(0xFF8B1F41);
@@ -56,11 +58,15 @@ class _ProfileContainerState extends State<ProfileContainer>
   late Animation<double> _pulseAnimation;
   late Animation<double> _rotationAnimation;
 
-  // Maroon color palette for app bar
-  final Color maroonPrimary = const Color(0xFF800020); // Deep maroon
-  final Color maroonLight = const Color(0xFFAA6976); // Light maroon
-  final Color maroonDark =
-      const Color.fromARGB(255, 124, 9, 31); // Darker variant
+
+  // Responsive maroon color palette - Brightened for vibrancy
+  Color get maroonPrimary => Theme.of(context).brightness == Brightness.dark 
+      ? const Color(0xFF8B1F41) : const Color(0xFF800020);
+  Color get maroonLight => Theme.of(context).brightness == Brightness.dark 
+      ? const Color(0xFFA84B5C) : const Color(0xFFAA6976);
+  Color get maroonDark => Theme.of(context).brightness == Brightness.dark 
+      ? const Color(0xFF4A0E17) : const Color.fromARGB(255, 124, 9, 31);
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
   @override
   void initState() {
@@ -187,22 +193,11 @@ class _ProfileContainerState extends State<ProfileContainer>
       builder: (context, authstate) {
         return Stack(
           children: [
-            // Animated Background Pattern
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return CustomPaint(
-                  size: Size(MediaQuery.of(context).size.width,
-                      MediaQuery.of(context).size.height),
-                  painter: BackgroundPatternPainter(
-                    animation: _animation,
-                    primaryColor:
-                        AppColorPalette.primaryMaroon.withValues(alpha: 0.03),
-                    accentColor:
-                        AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
-                  ),
-                );
-              },
+            // Background color
+            Positioned.fill(
+              child: Container(
+                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+              ),
             ),
 
             AnimationLimiter(
@@ -217,7 +212,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsetsDirectional.only(
                     top: Utils.appContentTopScrollPadding(context: context) +
-                        190,
+                        110,
                     end: 16, // Samakan dengan Akademik
                     start: 16, // Samakan dengan Akademik
                     bottom: 100,
@@ -268,6 +263,13 @@ class _ProfileContainerState extends State<ProfileContainer>
                               index: 11,
                               onTap: () =>
                                   _showNotificationSettingsBottomSheet(context),
+                            ),
+                            _buildMenuItem(
+                              context: context,
+                              icon: Icons.palette_outlined,
+                              title: "Tampilan Aplikasi",
+                              index: 12,
+                              onTap: () => _showThemeSelectionBottomSheet(context),
                             ),
                           ],
                         ),
@@ -600,7 +602,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                 left: 15,
                 right: 15), // Membuat kotak lebih ramping sesuai Akademik
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
+
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -640,7 +643,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                         ),
                         child: Icon(
                           icon,
-                          color: iconColor,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFFFF3D60)
+                              : iconColor,
                           size: 24,
                         ),
                       ),
@@ -650,7 +655,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black, // Changed to black
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -735,7 +740,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                         color: isHovered
                             ? AppColorPalette.primaryMaroon
                                 .withValues(alpha: 0.1)
-                            : AppColorPalette.warmBeige.withValues(alpha: 0.5),
+                            : (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : AppColorPalette.warmBeige.withValues(alpha: 0.5)),
                         shape: BoxShape.circle,
                         boxShadow: isHovered
                             ? [
@@ -750,9 +757,11 @@ class _ProfileContainerState extends State<ProfileContainer>
                       ),
                       child: Icon(
                         icon,
-                        color: isHovered
-                            ? AppColorPalette.primaryMaroon
-                            : AppColorPalette.secondaryMaroon,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFFF3D60)
+                            : (isHovered
+                                ? AppColorPalette.primaryMaroon
+                                : AppColorPalette.secondaryMaroon),
                         size: 20,
                       ),
                     ),
@@ -765,8 +774,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                           fontWeight:
                               isHovered ? FontWeight.w600 : FontWeight.w500,
                           color: isHovered
-                              ? Colors.black
-                              : Colors.black
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface
                                   .withValues(alpha: 0.8), // Changed to black
                         ),
                       ),
@@ -777,10 +786,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                           isHovered ? 8.0 : 0.0, 0.0, 0.0),
                       child: Icon(
                         Icons.arrow_forward_ios,
-                        color: isHovered
-                            ? AppColorPalette.primaryMaroon
-                            : AppColorPalette.secondaryMaroon
-                                .withValues(alpha: 0.5),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFFF3D60).withValues(alpha: 0.6)
+                            : (isHovered
+                                ? AppColorPalette.primaryMaroon
+                                : AppColorPalette.secondaryMaroon
+                                    .withValues(alpha: 0.5)),
                         size: 16,
                       ),
                     ),
@@ -807,8 +818,8 @@ class _ProfileContainerState extends State<ProfileContainer>
           builder: (context, setState) {
             return Container(
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -973,12 +984,12 @@ class _ProfileContainerState extends State<ProfileContainer>
     final bool isTeacher = context.read<AuthCubit>().isTeacher();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: maroonPrimary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? Colors.white.withValues(alpha: 0.15) : maroonPrimary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: maroonPrimary.withValues(alpha: 0.2),
+          color: isDark ? Colors.white.withValues(alpha: 0.2) : maroonPrimary.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -989,16 +1000,16 @@ class _ProfileContainerState extends State<ProfileContainer>
             isTeacher
                 ? Icons.assignment_ind_rounded
                 : Icons.work_outline_rounded,
-            size: 14,
-            color: maroonPrimary,
+            size: 11,
+            color: isDark ? Colors.white : maroonPrimary,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           Text(
             isTeacher ? "Guru" : "Staff",
             style: GoogleFonts.poppins(
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: maroonPrimary,
+              color: isDark ? Colors.white : maroonPrimary,
             ),
           ),
         ],
@@ -1010,15 +1021,21 @@ class _ProfileContainerState extends State<ProfileContainer>
     return Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
-        height: 230 +
+        height: 140 +
             MediaQuery.of(context)
                 .padding
-                .top, // Increased height to accommodate role badge and avoid overflow
+                .top, // Matching Academics and Beranda height
         width: MediaQuery.of(context).size.width,
         child: Stack(
           fit: StackFit.expand,
           clipBehavior: Clip.none,
           children: [
+            // Solid foundation to ensure content scroll under the curves is hidden
+            Positioned.fill(
+              child: Container(
+                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+              ),
+            ),
             // Background with dramatically curved bottom
             Positioned(
               top: 0,
@@ -1030,10 +1047,14 @@ class _ProfileContainerState extends State<ProfileContainer>
                   colors: [
                     maroonDark,
                     maroonPrimary,
-                    const Color(0xFF9A1E3C),
-                    maroonLight,
+                    Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF4A0E17)
+                        : const Color(0xFF9A1E3C),
+                    Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF121212)
+                        : maroonLight,
                   ],
-                  stops: [0.0, 0.3, 0.6, 1.0],
+                  stops: const [0.0, 0.3, 0.6, 1.0],
                 ),
               ),
             ),
@@ -1168,37 +1189,18 @@ class _ProfileContainerState extends State<ProfileContainer>
               },
             ),
 
-            // Enhanced static wave pattern
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: CustomPaint(
-                painter: EnhancedWavePatternPainter(
-                  color1: Colors.white.withValues(alpha: 0.1),
-                  color2: Colors.white.withValues(alpha: 0.07),
-                ),
-                child: SizedBox(
-                  height: 80,
-                  width: MediaQuery.of(context).size.width,
-                ),
-              ),
-            ),
-
-            // Removed "Profil" title as per user request
-
             // Profile card
             Positioned(
-              bottom: 20,
-              left: 8,
-              right: 8,
+              bottom: 10,
+              left: 16,
+              right: 16,
               child: GestureDetector(
                 onTap: () => Get.toNamed(Routes.editProfileScreen),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -1259,8 +1261,8 @@ class _ProfileContainerState extends State<ProfileContainer>
             child: Hero(
               tag: 'profile_avatar',
               child: CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 35,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                radius: 28,
                 backgroundImage:
                     (context.read<AuthCubit>().getUserDetails().image ?? "")
                             .isNotEmpty
@@ -1274,7 +1276,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ? Icon(
                         Icons.person,
                         color: maroonPrimary,
-                        size: 38,
+                        size: 30,
                       )
                     : null,
               ),
@@ -1296,10 +1298,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                   return Text(
                     fullName.isEmpty ? "Pengguna" : fullName,
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: maroonPrimary,
-                      height: 1.3,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFFFF3D60)
+                          : maroonPrimary,
+                      height: 1.1,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1310,7 +1314,7 @@ class _ProfileContainerState extends State<ProfileContainer>
 
               // Role Badge
               _buildRoleBadge(context),
-              const SizedBox(height: 8),
+              const SizedBox(height: 5),
 
               // School Info
               Row(
@@ -1323,8 +1327,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ),
                     child: Icon(
                       Icons.school_outlined,
-                      size: 14,
-                      color: maroonPrimary,
+                      size: 11,
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : maroonPrimary,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1334,9 +1338,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                           "Belum ada sekolah",
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
-                        height: 1.2,
+                        height: 1.1,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1357,8 +1361,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ),
                     child: Icon(
                       Icons.email_outlined,
-                      size: 14,
-                      color: maroonPrimary,
+                      size: 11,
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : maroonPrimary,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1368,9 +1372,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                           "Belum ada email",
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
-                        height: 1.2,
+                        height: 1.1,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1384,7 +1388,114 @@ class _ProfileContainerState extends State<ProfileContainer>
       ],
     );
   }
+  void _showThemeSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Pilih Tampilan",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 24),
+            BlocBuilder<ThemeCubit, ThemeState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    _buildThemeTile(
+                      context,
+                      title: "Terang",
+                      icon: Icons.light_mode_outlined,
+                      mode: ThemeMode.light,
+                      isSelected: state.themeMode == ThemeMode.light,
+                    ),
+                    _buildThemeTile(
+                      context,
+                      title: "Gelap",
+                      icon: Icons.dark_mode_outlined,
+                      mode: ThemeMode.dark,
+                      isSelected: state.themeMode == ThemeMode.dark,
+                    ),
+                    _buildThemeTile(
+                      context,
+                      title: "Ikuti Sistem",
+                      icon: Icons.settings_brightness_outlined,
+                      mode: ThemeMode.system,
+                      isSelected: state.themeMode == ThemeMode.system,
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeTile(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required ThemeMode mode,
+    required bool isSelected,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? maroonPrimary.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? maroonPrimary : Colors.grey,
+          size: 24,
+        ),
+      ),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          color: isSelected ? maroonPrimary : null,
+        ),
+      ),
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: maroonPrimary)
+          : const Icon(Icons.circle_outlined, color: Colors.grey),
+      onTap: () {
+        context.read<ThemeCubit>().changeTheme(mode);
+        Navigator.pop(context);
+      },
+    );
+  }
 }
+
 
 class BackgroundPatternPainter extends CustomPainter {
   final Animation<double> animation;
@@ -1491,7 +1602,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white,
+                Theme.of(context).colorScheme.surface,
                 AppColorPalette.warmBeige.withValues(alpha: 0.9),
               ],
             ),
@@ -1538,7 +1649,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                 "Apakah Anda yakin ingin keluar dari aplikasi?",
                 style: GoogleFonts.poppins(
                   fontSize: 16,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -1555,7 +1666,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                       onPressed: () => Get.back(result: false),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.black87,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -1675,76 +1786,6 @@ class DramaticCurvedGradientPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Enhanced wave pattern for more visual impact
-class EnhancedWavePatternPainter extends CustomPainter {
-  final Color color1;
-  final Color color2;
-
-  EnhancedWavePatternPainter({
-    required this.color1,
-    required this.color2,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()..style = PaintingStyle.fill;
-
-    // First enhanced wave with more dramatic peaks and valleys
-    final path = Path();
-    path.moveTo(0, size.height * 0.3);
-
-    // First dramatic curve set - more pronounced waves
-    path.cubicTo(size.width * 0.15, size.height * 0.1, size.width * 0.35,
-        size.height * 0.6, size.width * 0.5, size.height * 0.2);
-
-    // Second dramatic curve set
-    path.cubicTo(size.width * 0.65, size.height * -0.2, size.width * 0.85,
-        size.height * 0.4, size.width, size.height * 0.3);
-
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    paint.color = color1;
-    canvas.drawPath(path, paint);
-
-    // Second enhanced wave with different pattern
-    final secondPath = Path();
-    secondPath.moveTo(0, size.height * 0.5);
-
-    // First dramatic curve
-    secondPath.cubicTo(size.width * 0.2, size.height * 0.3, size.width * 0.4,
-        size.height * 0.8, size.width * 0.6, size.height * 0.4);
-
-    // Second dramatic curve
-    secondPath.cubicTo(size.width * 0.75, size.height * 0.1, size.width * 0.9,
-        size.height * 0.6, size.width, size.height * 0.35);
-
-    secondPath.lineTo(size.width, size.height);
-    secondPath.lineTo(0, size.height);
-    secondPath.close();
-
-    paint.color = color2;
-    canvas.drawPath(secondPath, paint);
-
-    // Add more dramatic decorative elements
-    final circlePaint = Paint()
-      ..color = color1
-      ..style = PaintingStyle.fill;
-
-    // Larger circles for better visibility
-    canvas.drawCircle(
-        Offset(size.width * 0.85, size.height * 0.2), 25, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.15, size.height * 0.7), 20, circlePaint);
-    canvas.drawCircle(
-        Offset(size.width * 0.6, size.height * 0.6), 15, circlePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 // Enhanced custom painter for animated decorative elements in the app bar
 class AnimatedAppBarDecorationPainter extends CustomPainter {
   final Color color;
@@ -1820,67 +1861,6 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       }
       // Draw main circle
       canvas.drawCircle(center, radius, paint);
-    }
-
-    // Refined animated arcs - smoother movement
-    final arcPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5 + glowValue * 0.5;
-
-    final glowArcPaint = Paint()
-      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3 + glowValue * 1
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
-
-    // First refined animated arc
-    final arcRect = Rect.fromLTRB(
-        size.width * (0.12 + sin(glowValue * 2 * pi) * 0.02),
-        size.height * (0.25 + cos(glowValue * 2 * pi) * 0.015),
-        size.width * (0.58 + sin(glowValue * 2 * pi + 1) * 0.025),
-        size.height * (0.58 + cos(glowValue * 2 * pi + 1) * 0.02));
-
-    final arcSweep = 1.2 + sin(glowValue * 2 * pi) * 0.2;
-    final arcStart = 0.3 + rotationValue * 0.05;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect, arcStart, arcSweep, false, arcPaint);
-
-    // Second refined animated arc
-    final arcRect2 = Rect.fromLTRB(
-        size.width * (0.48 + cos(glowValue * 2 * pi + 2) * 0.015),
-        size.height * (0.42 + sin(glowValue * 2 * pi + 2) * 0.01),
-        size.width * (0.88 + cos(glowValue * 2 * pi + 3) * 0.02),
-        size.height * (0.78 + sin(glowValue * 2 * pi + 3) * 0.015));
-
-    final arcSweep2 = 1.3 + sin(glowValue * 2 * pi + 1) * 0.15;
-    final arcStart2 = 2.8 - rotationValue * 0.08;
-
-    // Draw subtle glow arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, glowArcPaint);
-    // Draw main arc
-    canvas.drawArc(arcRect2, arcStart2, arcSweep2, false, arcPaint);
-
-    // Refined floating particles - gentler movement
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 1.047) + rotationValue * 0.3; // 1.047 = 2π/6
-      final baseDistance = 25 + sin(glowValue * 2 * pi + i) * 8;
-      final particleSize = 1.5 + sin(glowValue * 2 * pi + i * 1.5) * 0.8;
-
-      final particleCenter = Offset(
-        size.width * 0.5 + (baseDistance * cos(angle)),
-        size.height * 0.5 + (baseDistance * sin(angle)),
-      );
-
-      final particlePaint = Paint()
-        ..color =
-            color.withValues(alpha: 0.4 + sin(glowValue * 2 * pi + i * 2) * 0.3)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawCircle(particleCenter, particleSize, particlePaint);
     }
   }
 

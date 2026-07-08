@@ -331,7 +331,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -447,7 +447,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                             return Container(
                                               height: 240,
                                               decoration: BoxDecoration(
-                                                color: Colors.grey.shade50,
+                                                color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
                                                 borderRadius:
                                                     BorderRadius.circular(16),
                                               ),
@@ -481,7 +481,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                     Text(
                                                       "Memuat lampiran...",
                                                       style: TextStyle(
-                                                        color: _maroonPrimary,
+                                                        color: Theme.of(context).colorScheme.onSurface,
                                                         fontWeight:
                                                             FontWeight.w500,
                                                       ),
@@ -513,14 +513,14 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                     Icon(
                                                       Icons
                                                           .broken_image_rounded,
-                                                      color: _maroonPrimary,
+                                                      color: Theme.of(context).colorScheme.onSurface,
                                                       size: 48,
                                                     ),
                                                     const SizedBox(height: 16),
                                                     Text(
                                                       "Tidak dapat memuat gambar",
                                                       style: TextStyle(
-                                                        color: _maroonPrimary,
+                                                        color: Theme.of(context).colorScheme.onSurface,
                                                         fontWeight:
                                                             FontWeight.w500,
                                                         fontSize: 15,
@@ -727,6 +727,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   Widget _buildSuccessUI() {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovering = true),
@@ -740,27 +741,34 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: Colors.white,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: _isHovering
-                  ? _maroonPrimary.withValues(alpha: 0.25)
-                  : Colors.black.withValues(alpha: 0.06),
-              blurRadius: _isHovering ? 18 : 8,
-              offset: Offset(0, _isHovering ? 6 : 4),
-              spreadRadius: _isHovering ? 2 : 0,
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+              blurRadius: _isHovering ? 20 : 10,
+              offset: Offset(0, _isHovering ? 8 : 4),
+              spreadRadius: isDark ? 1 : 0,
             ),
           ],
           border: Border.all(
-            color: _isHovering
-                ? _maroonPrimary.withValues(alpha: 0.3)
-                : _maroonLight.withValues(alpha: 0.15),
-            width: 1.5,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : (_isHovering
+                    ? _maroonPrimary.withValues(alpha: 0.3)
+                    : _maroonLight.withValues(alpha: 0.15)),
+            width: isDark ? 0.5 : 1.5,
           ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: Stack(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: isDark ? 12 : 0,
+              sigmaY: isDark ? 12 : 0,
+            ),
+            child: Stack(
             children: [
               // Background pattern and decorative elements
               Positioned(
@@ -901,7 +909,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 style: TextStyle(
                                   fontSize: isSmallScreen ? 20 : 22,
                                   fontWeight: FontWeight.bold,
-                                  color: _maroonDark,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   letterSpacing: 0.3,
                                   height: 1.2,
                                 ),
@@ -932,9 +940,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Flexible(
                                       child: Text(
                                         'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.black87,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           fontWeight: FontWeight.w500,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -966,10 +974,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     const SizedBox(width: 8),
                                     Text(
                                       'Absen: ${widget.permissionDetails.rollNumber}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1042,7 +1050,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: _maroonPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -1118,7 +1126,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Icon(
                                       Icons.calendar_today_rounded,
                                       size: 16,
-                                      color: _maroonDark,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                     SizedBox(width: isSmallScreen ? 6 : 10),
                                     Flexible(
@@ -1126,7 +1134,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                         safeLastLeave?.fromDate ?? '',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: _maroonDark,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                           fontWeight: FontWeight.w600,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -1142,14 +1150,15 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
 
                     // Action buttons section
                     _buildActionButtons(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                  ],       // children: [ (Column)
+                ),         // Column
+              ),           // Container
+            ],             // children: [ (Stack)
+          ),               // Stack
+        ),                 // BackdropFilter
+      ),                   // ClipRRect
+    ),                     // AnimatedContainer
+  );                       // MouseRegion (return)
   }
 
   Widget _buildErrorUI() {
@@ -1193,7 +1202,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.surface,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -1823,10 +1832,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         "Memproses...",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.surface,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                           letterSpacing: 0.3,
@@ -1835,8 +1844,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ] else ...[
                       Text(
                         label,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.surface,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                           letterSpacing: 0.3,

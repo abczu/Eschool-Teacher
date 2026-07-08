@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
@@ -22,8 +22,10 @@ class LeavesContainer extends StatelessWidget {
           horizontal: appContentHorizontalPadding,
           vertical: appContentHorizontalPadding),
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(2.5)),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.transparent
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(24)),
       padding: EdgeInsets.symmetric(vertical: appContentHorizontalPadding),
       child: Column(
         children: [

@@ -59,6 +59,14 @@ class HomeContainerState extends State<HomeContainer>
     super.build(context);
     return Stack(
       children: [
+        // Background color
+        Positioned.fill(
+          child: Container(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF121212)
+                : Colors.grey[50],
+          ),
+        ),
         BlocConsumer<StaffAllowedPermissionsAndModulesCubit,
             StaffAllowedPermissionsAndModulesState>(
           listener: (context, state) {

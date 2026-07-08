@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:eschool_saas_staff/app/appTranslation.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
@@ -10,7 +10,9 @@ import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/themeCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/system/settingsRepository.dart';
+
 import 'package:eschool_saas_staff/firebase_options.dart';
 import 'package:eschool_saas_staff/ui/styles/colors.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/globalEnvFab.dart';
@@ -109,50 +111,93 @@ class _MyAppState extends State<MyApp> {
             create: (context) => HomeScreenDataCubit(),
           ),
           BlocProvider<SocketSettingCubit>(create: (_) => SocketSettingCubit()),
+          BlocProvider<ThemeCubit>(
+            create: (_) => ThemeCubit(SettingsRepository()),
+          ),
           BlocProvider<QuestionOnlineExamCubit>(
             create: (context) => QuestionOnlineExamCubit(
               OnlineExamRepository(),
             ),
           ),
         ],
-        child: Builder(builder: (context) {
-          return GetMaterialApp(
-            builder: (context, child) {
-              return Stack(
-                textDirection: TextDirection.ltr,
-                children: [
-                  if (child != null) child,
-                  const GlobalEnvFab(),
-                ],
-              );
-            },
-            title: 'eSchool - Guru & Staff',
-            debugShowCheckedModeBanner: false,
-            translationsKeys: AppTranslation.translationsKeys,
-            theme: Theme.of(context).copyWith(
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, state) {
+            return GetMaterialApp(
+              builder: (context, child) {
+                return Stack(
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    if (child != null) child,
+                    const GlobalEnvFab(),
+                  ],
+                );
+              },
+              title: 'eSchool - Guru & Staff',
+              debugShowCheckedModeBanner: false,
+              translationsKeys: AppTranslation.translationsKeys,
+              theme: ThemeData(
+                brightness: Brightness.light,
+                useMaterial3: true,
+                extensions: <ThemeExtension<dynamic>>[customColorsExtension],
+                textTheme: GoogleFonts.poppinsTextTheme(),
+                scaffoldBackgroundColor: pageBackgroundColor,
+                colorScheme: ColorScheme.fromSeed(
+                  brightness: Brightness.light,
+                  seedColor: primaryColor,
+                  primary: primaryColor,
+                  secondary: secondaryColor,
+                  surface: backgroundColor,
+                  error: errorColor,
+                ),
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                useMaterial3: true,
                 extensions: <ThemeExtension<dynamic>>[customColorsExtension],
                 textTheme:
-                    GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-                scaffoldBackgroundColor: pageBackgroundColor,
-                colorScheme: Theme.of(context).colorScheme.copyWith(
-                    primary: primaryColor,
-                    secondary: secondaryColor,
-                    surface: backgroundColor,
-                    error: errorColor,
-                    tertiary: tertiaryColor)),
-            getPages: Routes.getPages,
-            initialRoute: Routes.splashScreen,
-            locale: context.read<AppLocalizationCubit>().state.language,
-            fallbackLocale: const Locale("id"),
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('id', 'ID'),
-            ],
-          );
-        }));
+                    GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
+                scaffoldBackgroundColor: darkMainBackgroundColor,
+                cardTheme: CardThemeData(
+                  color: darkCardBackgroundColor,
+                  elevation: 4,
+                  shadowColor: Colors.black.withValues(alpha: 0.5),
+                  margin: EdgeInsets.zero,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                  backgroundColor: darkBottomNavBackgroundColor,
+                  selectedItemColor: darkPrimaryColor,
+                  unselectedItemColor: darkUnselectedIconColor,
+                  elevation: 8,
+                  type: BottomNavigationBarType.fixed,
+                ),
+                colorScheme: const ColorScheme.dark(
+                  primary: darkPrimaryColor,
+                  secondary: darkSecondaryColor,
+                  surface: darkCardBackgroundColor,
+                  onPrimary: Colors.white,
+                  onSurface: darkTextPrimaryColor,
+                  onSurfaceVariant: darkTextSecondaryColor,
+                  error: Color(0xFFCF6679),
+                ),
+              ),
+              themeMode: state.themeMode,
+              getPages: Routes.getPages,
+              initialRoute: Routes.splashScreen,
+              locale: context.read<AppLocalizationCubit>().state.language,
+              fallbackLocale: const Locale("id"),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('id', 'ID'),
+              ],
+            );
+          },
+        ));
   }
 }

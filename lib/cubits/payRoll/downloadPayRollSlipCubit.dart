@@ -38,9 +38,13 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
       debugPrint("Payroll ID: $payRollId");
       debugPrint("Payroll Title: $payRollSlipTitle");
 
-      String filePath = "";
-      final path = await Utils.getSharableDirectory();
-      filePath = "$path/Salary-Slips/$payRollSlipTitle-$payRollId.pdf";
+      // Check permissions
+      if (!await Utils.hasStoragePermissionGiven()) {
+        throw Exception("Izin penyimpanan diperlukan untuk mengunduh berkas");
+      }
+
+      final directoryPath = await Utils.getPublicDownloadsDirectory();
+      final String filePath = "$directoryPath/Salary-Slips/$payRollSlipTitle-$payRollId.pdf";
 
       debugPrint("Target file path: $filePath");
 

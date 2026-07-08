@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 
 abstract class DownloadFileState {}
 
@@ -43,33 +44,71 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
     emit(DownloadFileInProgress(percentage));
   }
 
-  /// Mendapatkan direktori downloads untuk Android atau dokumen untuk platform lain
-  Future<String> _getDownloadsDirectory() async {
-    if (Platform.isAndroid) {
-      // Untuk Android, gunakan direktori eksternal
-      try {
-        final directory = await getExternalStorageDirectory();
-        if (directory != null) {
-          // Membuat path ke folder Downloads
-          const downloadsPath = '/storage/emulated/0/Download';
-          final downloadsDir = Directory(downloadsPath);
-          if (await downloadsDir.exists()) {
-            return downloadsPath;
-          } else {
-            // Fallback ke external storage directory
-            return directory.path;
-          }
-        }
-      } catch (e) {
-        debugPrint("Error getting external storage: $e");
+  Future<void> downloadFile({
+    required StudyMaterial studyMaterial,
+  }) async {
+    emit(DownloadFileInProgress(0.0));
+    try {
+      // Check permissions
+      if (!await Utils.hasStoragePermissionGiven()) {
+        throw Exception("Izin penyimpanan diperlukan untuk mengunduh berkas");
       }
-      // Fallback ke application documents directory
-      final appDir = await getApplicationDocumentsDirectory();
-      return appDir.path;
-    } else {
-      // Untuk platform lain (iOS, etc)
-      final directory = await getApplicationDocumentsDirectory();
-      return directory.path;
+
+      // Simpan file sementara
+      final Directory tempDir = await getTemporaryDirectory();
+      final tempFileSavePath =
+          "${tempDir.path}/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
+
+      if (await File(tempFileSavePath).exists()) {
+        debugPrint("File temp sudah ada: $tempFileSavePath");
+        final fileSize = await File(tempFileSavePath).length();
+        if (fileSize > 0) {
+          String downloadFilePath = await Utils.getPublicDownloadsDirectory();
+
+          downloadFilePath =
+              "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
+
+          await writeFileFromTempStorage(
+            sourcePath: tempFileSavePath,
+            destinationPath: downloadFilePath,
+          );
+
+          emit(DownloadFileSuccess(downloadFilePath));
+          return;
+        } else {
+          debugPrint("File temp kosong, menghapus dan mengunduh ulang");
+          await File(tempFileSavePath).delete();
+        }
+      }
+
+      debugPrint("Mulai mengunduh file dari: ${studyMaterial.fileUrl}");
+      await _studyMaterialRepository.downloadStudyMaterialFile(
+        cancelToken: _cancelToken,
+        savePath: tempFileSavePath,
+        updateDownloadedPercentage: _downloadedFilePercentage,
+        url: studyMaterial.fileUrl,
+      );
+
+      // Selalu simpan ke memori eksternal untuk Android
+      String downloadFilePath = await Utils.getPublicDownloadsDirectory();
+
+      downloadFilePath =
+          "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
+
+      await writeFileFromTempStorage(
+        sourcePath: tempFileSavePath,
+        destinationPath: downloadFilePath,
+      );
+
+      emit(DownloadFileSuccess(downloadFilePath));
+    } catch (e) {
+      if (_cancelToken.isCancelled) {
+        debugPrint("Proses unduhan dibatalkan");
+        emit(DownloadFileProcessCanceled());
+      } else {
+        debugPrint("Error saat mengunduh file: $e");
+        emit(DownloadFileFailure(e.toString())); // Gunakan pesan error spesifik
+      }
     }
   }
 
@@ -101,83 +140,6 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
     } catch (e) {
       debugPrint("Error saat menulis file dari temp: $e");
       rethrow;
-    }
-  }
-
-  Future<void> downloadFile({
-    required StudyMaterial studyMaterial,
-  }) async {
-    emit(DownloadFileInProgress(0.0));
-    try {
-      // Cek izin berdasarkan versi Android
-      if (Platform.isAndroid) {
-        final androidVersion = await _getAndroidVersion();
-        if (androidVersion < 13) {  // Android 12L (API 32) dan di bawahnya
-          final permission = await Permission.storage.request();
-          if (!permission.isGranted) {
-            debugPrint("Izin penyimpanan ditolak");
-            throw Exception("Izin untuk mengakses penyimpanan ditolak");
-          }
-          debugPrint("Izin penyimpanan diberikan");
-        }
-        // Untuk Android 13+ tidak perlu permission khusus karena menggunakan MediaStore
-      }
-
-      // Simpan file sementara
-      final Directory tempDir = await getTemporaryDirectory();
-      final tempFileSavePath =
-          "${tempDir.path}/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
-
-      if (await File(tempFileSavePath).exists()) {
-        debugPrint("File temp sudah ada: $tempFileSavePath");
-        final fileSize = await File(tempFileSavePath).length();
-        if (fileSize > 0) {
-          String downloadFilePath = await _getDownloadsDirectory();
-
-          downloadFilePath =
-              "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
-
-          await writeFileFromTempStorage(
-            sourcePath: tempFileSavePath,
-            destinationPath: downloadFilePath,
-          );
-
-          emit(DownloadFileSuccess(downloadFilePath));
-          return;
-        } else {
-          debugPrint("File temp kosong, menghapus dan mengunduh ulang");
-          await File(tempFileSavePath).delete();
-        }
-      }
-
-      debugPrint("Mulai mengunduh file dari: ${studyMaterial.fileUrl}");
-      await _studyMaterialRepository.downloadStudyMaterialFile(
-        cancelToken: _cancelToken,
-        savePath: tempFileSavePath,
-        updateDownloadedPercentage: _downloadedFilePercentage,
-        url: studyMaterial.fileUrl,
-      );
-
-      // Selalu simpan ke memori eksternal untuk Android
-      String downloadFilePath = await _getDownloadsDirectory();
-
-      downloadFilePath =
-          "$downloadFilePath/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
-
-      await writeFileFromTempStorage(
-        sourcePath: tempFileSavePath,
-        destinationPath: downloadFilePath,
-      );
-
-      emit(DownloadFileSuccess(downloadFilePath));
-    } catch (e) {
-      if (_cancelToken.isCancelled) {
-        debugPrint("Proses unduhan dibatalkan");
-        emit(DownloadFileProcessCanceled());
-      } else {
-        debugPrint("Error saat mengunduh file: $e");
-        emit(DownloadFileFailure(e.toString())); // Gunakan pesan error spesifik
-      }
     }
   }
 

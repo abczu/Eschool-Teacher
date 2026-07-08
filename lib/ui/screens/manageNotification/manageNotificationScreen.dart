@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/notificationsCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
@@ -24,14 +24,9 @@ class ManageNotificationScreen extends StatefulWidget {
   static Widget getRouteInstance() {
     return BlocProvider(
       create: (context) => NotificationsCubit(),
-      child: ManageNotificationScreen(
-        key: screenKey,
-      ),
+      child: const ManageNotificationScreen(),
     );
   }
-
-  static GlobalKey<ManageNotificationScreenState> screenKey =
-      GlobalKey<ManageNotificationScreenState>();
 
   static Map<String, dynamic> buildArguments() {
     return {};
@@ -627,7 +622,9 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
         fabAnimationController: _fabAnimationController,
         primaryColor: _maroonPrimary,
         lightColor: _maroonLight,
-        onBackPressed: () => Navigator.of(context).pop(),
+        onBackPressed: () {
+          Get.offAllNamed(Routes.homeScreen, arguments: 1);
+        },
         showSearchButton: true,
         onSearchPressed: () {
           setState(() {
@@ -648,164 +645,99 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
               children: [
                 BlocBuilder<NotificationsCubit, NotificationsState>(
                   builder: (context, state) {
+                    debugPrint('🎨 [NOTIFICATION SCREEN] Building UI with state: ${state.runtimeType}');
+                    
                     if (state is NotificationsFetchSuccess) {
-                      // Filter notifications based on search query if active
+                      debugPrint('✅ [NOTIFICATION SCREEN] Success state detected, items: ${state.notifications.length}');
+                      
                       final notifications = _searchQuery.isEmpty
                           ? state.notifications
                           : state.notifications
                               .where((notification) =>
-                                  (notification.title ?? "")
-                                      .toLowerCase()
-                                      .contains(_searchQuery.toLowerCase()) ||
-                                  (notification.message ?? "")
-                                      .toLowerCase()
-                                      .contains(_searchQuery.toLowerCase()))
+                                  (notification.title ?? "").toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                                  (notification.message ?? "").toLowerCase().contains(_searchQuery.toLowerCase()))
                               .toList();
 
+                      if (notifications.isEmpty && _searchQuery.isNotEmpty) {
+                        return NoSearchResultsWidget(
+                          searchQuery: _searchQuery,
+                          onClearSearch: () {
+                            setState(() {
+                              _searchQuery = "";
+                              _searchController.clear();
+                              _isSearchActive = false;
+                              _hasSearchText = false;
+                            });
+                          },
+                          primaryColor: _maroonPrimary,
+                          accentColor: _maroonLight,
+                          title: 'Notifikasi Tidak Ditemukan',
+                          description: 'Tidak ditemukan notifikasi yang sesuai dengan pencarian Anda.',
+                          icon: Icons.notifications_outlined,
+                        );
+                      }
+
                       return RefreshIndicator(
-                        onRefresh: () async {
-                          getNotifications();
-                        },
+                        onRefresh: () async => getNotifications(),
                         color: _maroonPrimary,
-                        displacement: 25,
-                        child: Column(
+                        child: ListView(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
                           children: [
                             _buildHeader(),
-                            Expanded(
-                              child: notifications.isEmpty &&
-                                      _searchQuery.isNotEmpty
-                                  ? NoSearchResultsWidget(
-                                      searchQuery: _searchQuery,
-                                      onClearSearch: () {
-                                        setState(() {
-                                          _searchQuery = "";
-                                          _searchController.clear();
-                                          _isSearchActive = false;
-                                          _hasSearchText = false;
-                                        });
-                                      },
-                                      primaryColor: _maroonPrimary,
-                                      accentColor: _maroonLight,
-                                      title: 'Notifikasi Tidak Ditemukan',
-                                      description:
-                                          'Tidak ditemukan notifikasi yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda.',
-                                      icon: Icons.notifications_outlined,
-                                    ).animate().fadeIn(delay: 300.ms)
-                                  : ListView(
-                                      controller: _scrollController,
-                                      padding: const EdgeInsets.only(
-                                        bottom: 100,
-                                        top: 0,
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  // Header Row
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: _maroonPrimary.withValues(alpha: 0.08),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(16),
+                                        topRight: Radius.circular(16),
                                       ),
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.05),
-                                                blurRadius: 10,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              // Header Row
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 16,
-                                                        vertical: 12),
-                                                decoration: BoxDecoration(
-                                                  color: _maroonPrimary
-                                                      .withValues(alpha: 0.08),
-                                                  borderRadius:
-                                                      const BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(16),
-                                                    topRight:
-                                                        Radius.circular(16),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 40,
-                                                      child: Text(
-                                                        "#",
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 14,
-                                                          color: _maroonPrimary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Text(
-                                                        Utils
-                                                            .getTranslatedLabel(
-                                                                nameKey),
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 14,
-                                                          color: _maroonPrimary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-
-                                              // Notification Items
-                                              Container(
-                                                decoration: const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    bottomLeft:
-                                                        Radius.circular(16),
-                                                    bottomRight:
-                                                        Radius.circular(16),
-                                                  ),
-                                                  color: Colors.white,
-                                                ),
-                                                child: Column(
-                                                  children:
-                                                      _buildNotificationItems(
-                                                          notifications, state),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                        SizedBox(
+                                          width: 40,
+                                          child: Text("#", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14, color: _maroonPrimary)),
+                                        ),
+                                        Expanded(
+                                          child: Text("Judul/Pesan", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14, color: _maroonPrimary)),
                                         ),
                                       ],
                                     ),
+                                  ),
+                                  // Notification Items
+                                  ..._buildNotificationItems(notifications, state),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       );
                     }
+
                     if (state is NotificationsFetchFailure) {
-                      return Center(
-                        child: CustomErrorWidget(
-                          message: state.errorMessage,
-                          onRetry: () {
-                            getNotifications();
-                          },
-                          primaryColor: _maroonPrimary,
-                        ),
-                      );
+                      debugPrint('❌ [NOTIFICATION SCREEN] Failure state detected: ${state.errorMessage}');
+                      return Center(child: CustomErrorWidget(message: state.errorMessage, onRetry: getNotifications, primaryColor: _maroonPrimary));
                     }
 
+                    debugPrint('⏳ [NOTIFICATION SCREEN] Showing skeleton (state is ${state.runtimeType})');
                     return _buildManageNotificationSkeleton();
                   },
                 ),

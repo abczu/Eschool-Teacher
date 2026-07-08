@@ -19,6 +19,7 @@ import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,6 +43,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     loadTemporarilyStoredNotifications();
+
+    // Check for initial tab index from arguments
+    if (Get.arguments != null && Get.arguments is int) {
+      _currentSelectedBottomNavIndex = Get.arguments;
+      // Use post frame callback to jump after PageView is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_pageController.hasClients) {
+          _pageController.jumpToPage(_currentSelectedBottomNavIndex);
+        }
+      });
+    }
+
     Future.delayed(Duration.zero, () {
       if (mounted) {
         context

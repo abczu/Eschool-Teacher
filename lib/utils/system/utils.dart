@@ -654,6 +654,27 @@ class Utils {
     // This is the most compatible way for Android 11+ and iOS.
     return (await getTemporaryDirectory()).path;
   }
+
+  /// Returns the public Downloads directory on Android or Documents on iOS.
+  static Future<String> getPublicDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      try {
+        const downloadsPath = '/storage/emulated/0/Download';
+        final downloadsDir = Directory(downloadsPath);
+        if (await downloadsDir.exists()) {
+          return downloadsPath;
+        }
+        // Fallback to external storage directory
+        final directory = await getExternalStorageDirectory();
+        return directory?.path ?? (await getApplicationDocumentsDirectory()).path;
+      } catch (e) {
+        return (await getApplicationDocumentsDirectory()).path;
+      }
+    } else {
+      // For iOS, use application documents directory
+      return (await getApplicationDocumentsDirectory()).path;
+    }
+  }
 }
 
 extension DateTimeExtension on DateTime {

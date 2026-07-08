@@ -59,17 +59,10 @@ class TeacherPermissionContainer extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF800020).withValues(alpha: 0.05),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.event_available_rounded,
-                            color: const Color(0xFF800020).withValues(alpha: 0.6),
-                            size: 32,
-                          ),
+                        Icon(
+                          Icons.event_available_rounded,
+                          color: Colors.grey[400],
+                          size: 48,
                         ),
                         const SizedBox(height: 16),
                         Text(

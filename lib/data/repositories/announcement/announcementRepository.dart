@@ -24,9 +24,13 @@ class AnnouncementRepository {
         int totalPage
       })> getNotifications({int? page}) async {
     try {
+      debugPrint('📡 [NOTIFICATION REPO] Fetching notifications, page: ${page ?? 1}');
       final result = await Api.get(url: Api.getNotifications, queryParameters: {
         "page": page ?? 1,
       });
+      
+      debugPrint('📡 [NOTIFICATION REPO] Raw response received');
+      
       dynamic notificationsData = result['data'];
       List notificationsList = [];
       int currentPage = 1;
@@ -42,6 +46,8 @@ class AnnouncementRepository {
         notificationsList = notificationsData;
       }
 
+      debugPrint('✅ [NOTIFICATION REPO] Parsed ${notificationsList.length} items');
+
       return (
         notifications: notificationsList
             .map((notification) =>
@@ -51,6 +57,7 @@ class AnnouncementRepository {
         totalPage: totalPage,
       );
     } catch (e) {
+      debugPrint('❌ [NOTIFICATION REPO] Error: $e');
       throw ApiException(e.toString());
     }
   }

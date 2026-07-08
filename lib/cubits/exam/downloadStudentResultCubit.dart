@@ -34,9 +34,13 @@ class DownloadStudentResultCubit extends Cubit<DownloadStudentResultState> {
     try {
       emit(DownloadStudentResultInProgress());
 
-      String filePath = "";
-      final path = await Utils.getSharableDirectory();
-      filePath = "$path/Results/$childId-$examId.pdf";
+      // Check permissions
+      if (!await Utils.hasStoragePermissionGiven()) {
+        throw Exception("Izin penyimpanan diperlukan untuk mengunduh berkas");
+      }
+
+      final directoryPath = await Utils.getPublicDownloadsDirectory();
+      final String filePath = "$directoryPath/Results/$childId-$examId.pdf";
 
       final File file = File(filePath);
 

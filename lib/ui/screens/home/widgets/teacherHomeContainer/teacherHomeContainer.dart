@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
@@ -34,6 +35,9 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
   void getHomeScreenData() {
     final staffAllowedPermissionsAndModulesCubit =
         context.read<StaffAllowedPermissionsAndModulesCubit>();
+
+    // Fetch classes data to ensure class names are available for timetable
+    context.read<ClassesCubit>().getClasses();
 
     context.read<HomeScreenDataCubit>().getHomeScreenData(
         holidayModuleEnabled: staffAllowedPermissionsAndModulesCubit

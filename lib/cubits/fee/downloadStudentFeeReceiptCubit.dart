@@ -51,8 +51,15 @@ class DownloadStudentFeeReceiptCubit
 
       // Generate unique filename incorporating timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final path = await Utils.getSharableDirectory();
-      final filePath = "$path/Student-Fees/$studentName-receipt-$timestamp.pdf";
+
+      // Check permissions
+      if (!await Utils.hasStoragePermissionGiven()) {
+        throw Exception("Izin penyimpanan diperlukan untuk mengunduh berkas");
+      }
+
+      final directoryPath = await Utils.getPublicDownloadsDirectory();
+      final filePath =
+          "$directoryPath/Student-Fees/$studentName-receipt-$timestamp.pdf";
       debugPrint('Target File Path: $filePath');
 
       // Create directory if it doesn't exist

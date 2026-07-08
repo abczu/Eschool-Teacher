@@ -28,8 +28,13 @@ class DownloadAttendanceRecapCubit extends Cubit<DownloadAttendanceRecapState> {
     try {
       emit(DownloadAttendanceRecapInProgress());
 
-      final directory = await getApplicationDocumentsDirectory();
-      final String savePath = "${directory.path}/$fileName.pdf";
+      // Check permissions
+      if (!await Utils.hasStoragePermissionGiven()) {
+        throw Exception("Izin penyimpanan diperlukan untuk mengunduh berkas");
+      }
+
+      final directoryPath = await Utils.getPublicDownloadsDirectory();
+      final String savePath = "$directoryPath/$fileName.pdf";
       
       final dio = Dio();
       final response = await dio.get(

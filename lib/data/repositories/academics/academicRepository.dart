@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/classTimetableSlot.dart';
 import 'package:eschool_saas_staff/data/models/academic/medium.dart';
 import 'package:eschool_saas_staff/data/models/auth/role.dart';
@@ -11,7 +11,8 @@ class AcademicRepository {
   Future<({List<ClassSection> classes, List<ClassSection> primaryClasses})>
       getClasses({bool? modeAll, int? gradeLevelId}) async {
     try {
-      debugPrint("AcademicRepository: Fetching classes with mode=all parameter");
+      debugPrint(
+          "AcademicRepository: Fetching classes with mode=all parameter");
 
       Map<String, dynamic> queryParameters = {};
       if (modeAll == true) {
@@ -157,4 +158,3 @@ class AcademicRepository {
     }
   }
 }
-

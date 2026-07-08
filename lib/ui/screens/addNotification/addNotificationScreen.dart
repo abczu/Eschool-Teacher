@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/sendNotificationCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/rolesCubit.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
@@ -177,14 +177,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   }
 
   void onTapSubmitButton() {
-    debugPrint('🔍 [NOTIFICATION SUBMIT] Starting submit validation...');
+    debugPrint('🚀 [NOTIFICATION SUBMIT] onTapSubmitButton triggered');
     debugPrint('   📝 Title: "${_titleTextEditingController.text.trim()}"');
     debugPrint('   💬 Message: "${_messageTextEditingController.text.trim()}"');
-    debugPrint('   👥 Send To: "$_sendToUserValue"');
-    debugPrint('   🎭 Selected Roles: $_selectedRoles');
-    debugPrint(
-        '   👤 Selected Users: ${_selectedUsers.map((u) => u.fullName).toList()}');
-    debugPrint('   📎 File: ${_pickedFile?.name ?? "No file"}');
+    debugPrint('   👥 Selected Recipient: "$_sendToUserValue"');
 
     if (_titleTextEditingController.text.trim().isEmpty) {
       debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: Title is empty');
@@ -196,36 +192,38 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
       Utils.showSnackBar(message: pleaseEnterMessageKey, context: context);
       return;
     }
-    if (_sendToUserValue.isEmpty) {
-      debugPrint(
-          '❌ [NOTIFICATION SUBMIT] Validation failed: Send to value is empty');
+    if (_sendToUserValue == null || _sendToUserValue.isEmpty) {
+      debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: Recipient not selected');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificRolesKey && _selectedRoles.isEmpty) {
-      debugPrint(
-          '❌ [NOTIFICATION SUBMIT] Validation failed: Specific roles selected but no roles chosen');
+      debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: No roles selected');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificUsersKey && _selectedUsers.isEmpty) {
-      debugPrint(
-          '❌ [NOTIFICATION SUBMIT] Validation failed: Specific users selected but no users chosen');
+      debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: No users selected');
       Utils.showSnackBar(message: pleaseSelectUserKey, context: context);
       return;
     }
 
-    debugPrint(
-        '✅ [NOTIFICATION SUBMIT] All validations passed, sending notification...');
-    context.read<SendNotificationCubit>().sendNotification(
-        title: _titleTextEditingController.text.trim(),
-        userIds: _selectedUsers.map((e) => e.id ?? 0).toList(),
-        filePath: _pickedFile?.path,
-        message: _messageTextEditingController.text.trim(),
-        roles: _selectedRoles,
-        sendToType: _sendToUserValue);
+    debugPrint('✅ [NOTIFICATION SUBMIT] Validation passed! Calling Cubit...');
+    try {
+      context.read<SendNotificationCubit>().sendNotification(
+          title: _titleTextEditingController.text.trim(),
+          userIds: _selectedUsers.isNotEmpty ? _selectedUsers.map((e) => e.id ?? 0).toList() : null,
+          filePath: _pickedFile?.path,
+          message: _messageTextEditingController.text.trim(),
+          roles: _selectedRoles.isNotEmpty ? _selectedRoles : null,
+          sendToType: _sendToUserValue);
+      debugPrint('📨 [NOTIFICATION SUBMIT] Cubit.sendNotification called');
+    } catch (e) {
+      debugPrint('❌ [NOTIFICATION SUBMIT] Error calling Cubit: $e');
+      Utils.showSnackBar(message: e.toString(), context: context);
+    }
   }
 
   // Metode untuk membuat TextField beranimasi yang identical dengan createOnlineExam.dart
@@ -808,8 +806,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                     context: context,
                   );
                 } else if (sendNotificationState is SendNotificationSuccess) {
-                  ManageNotificationScreen.screenKey.currentState
-                      ?.getNotifications();
+                  debugPrint('✅ [NOTIFICATION STATE] SendNotificationSuccess reached');
                   // Show success dialog
                   Get.dialog(
                     Dialog(
@@ -843,7 +840,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                             ElevatedButton(
                               onPressed: () {
                                 Get.back(); // Close dialog
-                                Get.offAllNamed(Routes
+                                Get.offNamed(Routes
                                     .manageNotificationScreen); // Navigate to notification list
                               },
                               style: ElevatedButton.styleFrom(
@@ -870,65 +867,56 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   _selectedRoles.clear();
                   _selectedUsers.clear();
                   _pickedFile = null;
-                  setState(() {});
+                  if (mounted) setState(() {});
                 }
               },
               builder: (context, sendNotificationState) {
-                return PopScope(
-                  canPop: sendNotificationState is! SendNotificationInProgress,
-                  child: InkWell(
-                    onTap: () {
-                      debugPrint(
-                          '🔘 [NOTIFICATION BUTTON] Submit button tapped, current state: ${sendNotificationState.runtimeType}');
-                      if (sendNotificationState is SendNotificationInProgress) {
-                        debugPrint(
-                            '⏳ [NOTIFICATION BUTTON] Ignoring tap - already in progress');
-                        return;
-                      }
-                      debugPrint(
-                          '🚀 [NOTIFICATION BUTTON] Calling onTapSubmitButton');
-                      onTapSubmitButton();
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    splashColor: Colors.white.withValues(alpha: 0.2),
-                    highlightColor: Colors.white.withValues(alpha: 0.1),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Center(
-                        child:
-                            sendNotificationState is SendNotificationInProgress
-                                ? const CustomCircularProgressIndicator(
-                                    indicatorColor: Colors.white,
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Kirim Notifikasi',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: Colors.white,
-                                        size: 22,
-                                      ).animate(onPlay: (controller) {
-                                        controller.repeat(reverse: true);
-                                      }).slideX(
-                                        begin: 0,
-                                        end: 0.3,
-                                        duration:
-                                            const Duration(milliseconds: 1000),
-                                        curve: Curves.easeInOut,
-                                      ),
-                                    ],
+                final bool isInProgress = sendNotificationState is SendNotificationInProgress;
+                return InkWell(
+                  onTap: isInProgress ? null : () {
+                    debugPrint('🔘 [NOTIFICATION BUTTON] Kirim Button Clicked');
+                    onTapSubmitButton();
+                  },
+                  borderRadius: BorderRadius.circular(15),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Center(
+                      child: isInProgress
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Kirim Notifikasi',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
                                   ),
-                      ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ).animate(onPlay: (controller) {
+                                  controller.repeat(reverse: true);
+                                }).slideX(
+                                  begin: 0,
+                                  end: 0.3,
+                                  duration: const Duration(milliseconds: 1000),
+                                  curve: Curves.easeInOut,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 );

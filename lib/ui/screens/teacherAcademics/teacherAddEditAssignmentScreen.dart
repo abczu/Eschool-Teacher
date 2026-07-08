@@ -2315,4 +2315,3 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 }
-

@@ -1,5 +1,6 @@
-﻿import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
+import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/announcement/announcementRepository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class NotificationsState {}
@@ -51,9 +52,11 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   NotificationsCubit() : super(NotificationsInitial());
 
   void getNotifications() async {
+    debugPrint('⏳ [NOTIFICATIONS CUBIT] Fetching notifications started...');
     emit(NotificationsFetchInProgress());
     try {
       final result = await _announcementRepository.getNotifications();
+      debugPrint('✅ [NOTIFICATIONS CUBIT] Fetch success: ${result.notifications.length} items');
       emit(NotificationsFetchSuccess(
           currentPage: result.currentPage,
           notifications: result.notifications,
@@ -61,6 +64,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
           fetchMoreInProgress: false,
           totalPage: result.totalPage));
     } catch (e) {
+      debugPrint('❌ [NOTIFICATIONS CUBIT] Fetch failed: $e');
       emit(NotificationsFetchFailure(e.toString()));
     }
   }

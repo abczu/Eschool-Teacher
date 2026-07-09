@@ -155,7 +155,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
           // Background color
           Positioned.fill(
             child: Container(
-              color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
             ),
           ),
           Align(
@@ -220,7 +220,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                   // Solid foundation to ensure content scroll under the curves is hidden
                   Positioned.fill(
                     child: Container(
-                      color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+                      color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
                     ),
                   ),
                    Positioned.fill(
@@ -230,7 +230,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                           maroonDark,
                           maroonPrimary,
                           isDark ? const Color(0xFF4A0E17) : const Color(0xFF9A1E3C),
-                          isDark ? const Color(0xFF121212) : maroonLight,
+                          isDark ? Theme.of(context).scaffoldBackgroundColor : maroonLight,
                         ],
                         stops: const [0.0, 0.3, 0.6, 1.0],
                       ),

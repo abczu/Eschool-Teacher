@@ -223,55 +223,40 @@ class _TeacherTodaysTimetableContainerState
                 });
 
               if (slots.isEmpty) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Theme.of(context).dividerColor,
-                      width: 1.0,
+                return Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: RoundedBackgroundContainer(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 48.0,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                        ),
+                        const SizedBox(height: 12.0),
+                        Text(
+                          'Tidak Ada Jadwal Hari Ini',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            letterSpacing: 0.2,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Anda tidak memiliki jadwal mengajar untuk hari ini',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 48.0,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Tidak Ada Jadwal Hari Ini',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          letterSpacing: 0.2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        'Anda tidak memiliki jadwal mengajar untuk hari ini',
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
                   ),
                 );
               }

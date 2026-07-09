@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/authentication/changePasswordCubic.dart';
+import 'package:eschool_saas_staff/cubits/authentication/changePasswordCubic.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -32,6 +32,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final FocusNode _currentPasswordFocus = FocusNode();
+  final FocusNode _newPasswordFocus = FocusNode();
+  final FocusNode _confirmPasswordFocus = FocusNode();
 
   bool _hideCurrent = true;
   bool _hideNew = true;
@@ -79,6 +83,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     _currentPasswordController.addListener(_updateFormState);
     _newPasswordController.addListener(_updateFormState);
     _confirmPasswordController.addListener(_updateFormState);
+
+    _currentPasswordFocus.addListener(_updateFormState);
+    _newPasswordFocus.addListener(_updateFormState);
+    _confirmPasswordFocus.addListener(_updateFormState);
   }
 
   void _updateFormState() {
@@ -104,6 +112,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
+    _currentPasswordFocus.dispose();
+    _newPasswordFocus.dispose();
+    _confirmPasswordFocus.dispose();
     _animationController.dispose();
     _fabAnimationController.dispose();
     _formAnimController.dispose();
@@ -198,6 +209,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   }
 
   Widget _buildModernPasswordStrengthIndicator() {
+    final colorScheme = Theme.of(context).colorScheme;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(16),
@@ -240,7 +252,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -275,7 +287,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           Container(
             height: 8,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: colorScheme.brightness == Brightness.dark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Stack(
@@ -339,14 +353,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           const SizedBox(height: 8),
           // PERBAIKAN: Update pesan berdasarkan validasi yang diperbaiki
           if (_newPasswordController.text.isEmpty)
-            Text(
-              'Masukkan password baru untuk melihat tingkat keamanan',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
-              ),
-            )
+              Text(
+                'Masukkan password baru untuk melihat tingkat keamanan',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              )
           else if (!_isPasswordValid && _passwordStrengthPercentage > 0)
             Text(
               'Password memerlukan minimal 8 karakter, huruf besar, huruf kecil, dan angka',
@@ -377,6 +391,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
 
   // PERBAIKAN: Tambahkan checklist requirements
   Widget _buildPasswordRequirements() {
+    final colorScheme = Theme.of(context).colorScheme;
     final validation = _passwordValidation;
     final requirements = [
       {'key': 'length', 'text': 'Minimal 8 karakter'},
@@ -395,7 +410,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 8),
@@ -408,7 +423,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 Icon(
                   isValid ? Icons.check_circle : Icons.radio_button_unchecked,
                   size: 14,
-                  color: isValid ? Colors.green : Colors.grey.shade400,
+                  color: isValid 
+                      ? Colors.green 
+                      : colorScheme.brightness == Brightness.dark
+                          ? const Color(0xFF94A3B8).withOpacity(0.5)
+                          : colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -416,7 +435,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: isValid ? Colors.green : Colors.grey.shade600,
+                    color: isValid 
+                        ? Colors.green 
+                        : colorScheme.brightness == Brightness.dark
+                            ? const Color(0xFFE2E8F0).withOpacity(0.7)
+                            : colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -428,6 +451,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   }
 
   Widget _buildProgressStep(String label, double threshold) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isActive = _passwordStrengthPercentage >= threshold;
     return Column(
       children: [
@@ -435,7 +459,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? _passwordStrengthColor : Colors.grey.shade300,
+            color: isActive 
+                ? _passwordStrengthColor 
+                : colorScheme.brightness == Brightness.dark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade300,
             shape: BoxShape.circle,
             boxShadow: isActive
                 ? [
@@ -538,7 +566,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: CustomModernAppBar(
         title: "Ubah Kata Sandi",
         icon: Icons.password_rounded,
@@ -620,7 +648,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -635,7 +663,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                       ),
                     ],
                     border: Border.all(
-                      color: Colors.grey.shade200,
+                      color: colorScheme.brightness == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.grey.shade200,
                       width: 1,
                     ),
                   ),
@@ -647,6 +677,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         duration: const Duration(milliseconds: 500),
                         child: _buildEnhancedTextField(
                           controller: _currentPasswordController,
+                          focusNode: _currentPasswordFocus,
                           hintKey: "Kata Sandi Saat Ini",
                           hideText: _hideCurrent,
                           toggleVisibility: () =>
@@ -662,6 +693,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         duration: const Duration(milliseconds: 600),
                         child: _buildEnhancedTextField(
                           controller: _newPasswordController,
+                          focusNode: _newPasswordFocus,
                           hintKey: "Kata Sandi Baru",
                           hideText: _hideNew,
                           toggleVisibility: () =>
@@ -683,6 +715,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         duration: const Duration(milliseconds: 700),
                         child: _buildEnhancedTextField(
                           controller: _confirmPasswordController,
+                          focusNode: _confirmPasswordFocus,
                           hintKey: "Konfirmasi Kata Sandi Baru",
                           hideText: _hideConfirm,
                           toggleVisibility: () =>
@@ -700,10 +733,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade50,
+                            color: colorScheme.brightness == Brightness.dark
+                                ? Colors.red.withValues(alpha: 0.1)
+                                : Colors.red.shade50,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Colors.red.shade200,
+                              color: colorScheme.brightness == Brightness.dark
+                                  ? Colors.red.withValues(alpha: 0.3)
+                                  : Colors.red.shade200,
                               width: 1,
                             ),
                           ),
@@ -711,7 +748,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                             children: [
                               Icon(
                                 Icons.error_outline,
-                                color: Colors.red.shade600,
+                                color: colorScheme.brightness == Brightness.dark
+                                    ? Colors.red.shade300
+                                    : Colors.red.shade600,
                                 size: 16,
                               ),
                               const SizedBox(width: 8),
@@ -721,7 +760,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.red.shade700,
+                                    color: colorScheme.brightness == Brightness.dark
+                                        ? Colors.red.shade300
+                                        : Colors.red.shade700,
                                   ),
                                 ),
                               ),
@@ -937,6 +978,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
 
   Widget _buildEnhancedTextField({
     required TextEditingController controller,
+    required FocusNode focusNode,
     required String hintKey,
     required bool hideText,
     required VoidCallback toggleVisibility,
@@ -964,10 +1006,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: colorScheme.brightness == Brightness.dark
+                  ? Theme.of(context).scaffoldBackgroundColor
+                  : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: colorScheme.primary.withValues(alpha: 0.2),
+                color: focusNode.hasFocus
+                    ? colorScheme.primary
+                    : colorScheme.brightness == Brightness.dark
+                        ? const Color(0xFF4A1521) // Dim maroon border for idle in dark mode
+                        : colorScheme.primary.withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
@@ -980,6 +1028,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
             ),
             child: TextField(
               controller: controller,
+              focusNode: focusNode,
               obscureText: hideText,
               style: GoogleFonts.inter(
                 fontSize: 15,
@@ -1004,7 +1053,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                   margin: const EdgeInsets.only(left: 12, right: 8),
                   child: Icon(
                     icon,
-                    color: colorScheme.primary.withValues(alpha: 0.7),
+                    color: colorScheme.brightness == Brightness.dark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : colorScheme.primary.withValues(alpha: 0.7),
                     size: 20,
                   ),
                 ),
@@ -1016,7 +1067,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
                       key: ValueKey(hideText),
-                      color: colorScheme.primary.withValues(alpha: 0.6),
+                      color: colorScheme.brightness == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.7)
+                          : colorScheme.primary.withValues(alpha: 0.6),
                       size: 18,
                     ),
                   ),

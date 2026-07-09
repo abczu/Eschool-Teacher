@@ -1,4 +1,5 @@
-﻿import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'dart:ui';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,16 +24,33 @@ class OverviewDetailsContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    const double radius = 16.0;
+
     return Container(
       margin: const EdgeInsetsDirectional.only(end: 15.0),
       width: 265,
       height: double.maxFinite,
-      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-          color: backgroundColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8.0)),
-      child: Column(
-        children: [
+          color: backgroundColor.withValues(alpha: isDark ? 0.08 : 0.1),
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.transparent,
+            width: isDark ? 0.5 : 1,
+          )),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: isDark ? 8 : 0,
+            sigmaY: isDark ? 8 : 0,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              children: [
           Row(
             children: [
               Container(
@@ -77,8 +95,10 @@ class OverviewDetailsContainer extends StatelessWidget {
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(5)),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.circular(8)),
               child: Row(
                 children: [
                   CustomTextContainer(
@@ -105,6 +125,9 @@ class OverviewDetailsContainer extends StatelessWidget {
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

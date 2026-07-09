@@ -136,6 +136,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final Color effectivePrimary = isDark ? const Color(0xFF8B1F41) : widget.primaryColor;
+    final Color effectiveLight = isDark ? const Color(0xFFA84B5C) : widget.lightColor;
+    final Color effectiveDark = isDark ? const Color(0xFF4A0E17) : const Color(0xFF690013);
+    final Color effectiveMid = isDark ? const Color(0xFF4A0E17) : const Color(0xFFA12948);
+
     return SizedBox(
       height: MediaQuery.of(context).padding.top + widget.height,
       child: Stack(
@@ -151,10 +158,10 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFF690013),
-                        widget.primaryColor,
-                        const Color(0xFFA12948),
-                        widget.lightColor,
+                        effectiveDark,
+                        effectivePrimary,
+                        effectiveMid,
+                        effectiveLight,
                       ],
                       stops: const [0.0, 0.3, 0.6, 1.0],
                       transform: GradientRotation(
@@ -163,16 +170,16 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                   },
                   blendMode: BlendMode.srcATop,
                   child: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF800020),
-                          Color(0xFF9A1E3C),
+                          isDark ? const Color(0xFF4A0E17) : const Color(0xFF800020),
+                          isDark ? const Color(0xFF8B1F41) : const Color(0xFF9A1E3C),
                         ],
                       ),
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(30),
                         bottomRight: Radius.circular(30),
                       ),

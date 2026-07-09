@@ -64,7 +64,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
         Positioned.fill(
           child: Container(
             color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF121212)
+                ? Theme.of(context).scaffoldBackgroundColor
                 : Colors.grey[50],
           ),
         ),

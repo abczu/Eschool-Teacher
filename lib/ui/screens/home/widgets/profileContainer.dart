@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/appLocalizationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
@@ -196,7 +197,7 @@ class _ProfileContainerState extends State<ProfileContainer>
             // Background color
             Positioned.fill(
               child: Container(
-                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
               ),
             ),
 
@@ -590,6 +591,7 @@ class _ProfileContainerState extends State<ProfileContainer>
     required int index,
     required List<Widget> menus,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimationConfiguration.staggeredList(
       position: index,
       duration: const Duration(milliseconds: 400),
@@ -602,82 +604,99 @@ class _ProfileContainerState extends State<ProfileContainer>
                 left: 15,
                 right: 15), // Membuat kotak lebih ramping sesuai Akademik
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color:
-                      iconColor.withValues(alpha: 0.12), // Sedikit lebih pekat
-                  blurRadius: 20, // Samakan dengan akademik
-                  offset: const Offset(0, 8), // Samakan dengan akademik
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : iconColor.withValues(alpha: 0.1),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : iconColor.withValues(alpha: 0.05),
+                width: isDark ? 0.5 : 1,
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              iconColor.withValues(alpha: 0.2),
-                              iconColor.withValues(alpha: 0.1),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: iconColor.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: isDark ? 12 : 0,
+                  sigmaY: isDark ? 12 : 0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  iconColor.withValues(alpha: 0.2),
+                                  iconColor.withValues(alpha: 0.1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: iconColor.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
+                            child: Icon(
+                              icon,
+                              color: isDark
+                                  ? const Color(0xFFFF3D60)
+                                  : iconColor,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Text(
+                            title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 1,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            iconColor.withValues(alpha: 0.05),
+                            iconColor.withValues(alpha: 0.2),
+                            iconColor.withValues(alpha: 0.05),
                           ],
                         ),
-                        child: Icon(
-                          icon,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? const Color(0xFFFF3D60)
-                              : iconColor,
-                          size: 24,
-                        ),
                       ),
-                      const SizedBox(width: 14),
-                      Text(
-                        title,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 1,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        iconColor.withValues(alpha: 0.05),
-                        iconColor.withValues(alpha: 0.2),
-                        iconColor.withValues(alpha: 0.05),
-                      ],
                     ),
-                  ),
+                    ...menus,
+                    const SizedBox(height: 4),
+                  ],
                 ),
-                ...menus,
-                const SizedBox(height: 4),
-              ],
+              ),
             ),
           ),
         ),
@@ -775,8 +794,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                               isHovered ? FontWeight.w600 : FontWeight.w500,
                           color: isHovered
                               ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).colorScheme.onSurface
-                                  .withValues(alpha: 0.8), // Changed to black
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                         ),
                       ),
                     ),
@@ -1033,7 +1051,7 @@ class _ProfileContainerState extends State<ProfileContainer>
             // Solid foundation to ensure content scroll under the curves is hidden
             Positioned.fill(
               child: Container(
-                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
               ),
             ),
             // Background with dramatically curved bottom
@@ -1051,7 +1069,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         ? const Color(0xFF4A0E17)
                         : const Color(0xFF9A1E3C),
                     Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xFF121212)
+                        ? Theme.of(context).scaffoldBackgroundColor
                         : maroonLight,
                   ],
                   stops: const [0.0, 0.3, 0.6, 1.0],
@@ -1197,31 +1215,38 @@ class _ProfileContainerState extends State<ProfileContainer>
               child: GestureDetector(
                 onTap: () => Get.toNamed(Routes.editProfileScreen),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: maroonPrimary.withValues(alpha: 0.3),
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.3)
+                            : maroonPrimary.withValues(alpha: 0.15),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: maroonLight.withValues(alpha: 0.15),
-                        blurRadius: 25,
-                        offset: const Offset(0, 10),
-                        spreadRadius: 0,
                       ),
                     ],
                     border: Border.all(
-                      color: maroonPrimary.withValues(alpha: 0.05),
-                      width: 1,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : maroonPrimary.withValues(alpha: 0.05),
+                      width: isDark ? 0.5 : 1,
                     ),
                   ),
-                  child: _buildProfileInfo(context),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: isDark ? 12 : 0,
+                        sigmaY: isDark ? 12 : 0,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: _buildProfileInfo(context),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

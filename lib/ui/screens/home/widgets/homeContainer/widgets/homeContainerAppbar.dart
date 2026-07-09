@@ -122,7 +122,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
             // Solid foundation to ensure only cards are transparent to decoration, not the scaffold
             Positioned.fill(
               child: Container(
-                color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
               ),
             ),
             Positioned.fill(
@@ -132,7 +132,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                     maroonDark,
                     maroonPrimary,
                     isDark ? const Color(0xFF4A0E17) : const Color(0xFF9A1E3C),
-                    isDark ? const Color(0xFF121212) : maroonLight,
+                    isDark ? Theme.of(context).scaffoldBackgroundColor : maroonLight,
                   ],
                   stops: [0.0, 0.3, 0.6, 1.0],
                 ),

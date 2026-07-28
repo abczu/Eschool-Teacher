@@ -13,9 +13,15 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: bgColor,
       ),
       child: Column(
         children: [
@@ -25,19 +31,19 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(20, 50, 20, 20),
               height: 55,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black12,
                     blurRadius: 10,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: shimmerBase,
+                highlightColor: shimmerHighlight,
                 child: Row(
                   children: [
                     Padding(
@@ -73,7 +79,7 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               itemCount: itemCount,
               itemBuilder: (context, index) {
-                return _buildBankSoalCardSkeleton(index);
+                return _buildBankSoalCardSkeleton(context, index);
               },
             ),
           ),
@@ -82,25 +88,30 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBankSoalCardSkeleton(int index) {
+  Widget _buildBankSoalCardSkeleton(BuildContext context, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
+          baseColor: shimmerBase,
+          highlightColor: shimmerHighlight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

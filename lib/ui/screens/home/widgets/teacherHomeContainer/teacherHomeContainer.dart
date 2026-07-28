@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
 class TeacherHomeContainer extends StatefulWidget {
   const TeacherHomeContainer({super.key});
 
@@ -85,6 +86,9 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
 
                     return RefreshIndicator(
                       color: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(context).cardColor
+                          : Colors.white,
                       displacement: MediaQuery.of(context).padding.top + 100,
                       onRefresh: () async {
                         context
@@ -97,7 +101,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
                             bottom: 100),
                         child: Column(
                           children: [
-                            const SizedBox(height: 45),
+                            const SizedBox(height: 60),
                             if (staffPermissionsCubit.isPermissionGiven(
                                 permission: viewTimetablePermissionKey))
                               BlocProvider(
@@ -108,8 +112,10 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
                                 child: const TeacherTodaysTimetableContainer(),
                               ),
                             if (staffPermissionsCubit.isPermissionGiven(
-                                permission: approveLeavePermissionKey))
-                              const TeacherPermissionContainer(),
+                                permission: "leave-list"))
+                              TeacherPermissionContainer(
+                                onPermissionUpdated: getHomeScreenData,
+                              ),
                             if (staffPermissionsCubit.isPermissionGiven(
                                 permission: "leave-list"))
                               const TeacherLeavesContainer(),
@@ -173,3 +179,4 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
     );
   }
 }
+

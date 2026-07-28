@@ -42,12 +42,12 @@ class TeacherLeavesContainer extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
                     decoration: BoxDecoration(
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.02)
+                          ? const Color(0xFF2A2A2C)
                           : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white.withValues(alpha: 0.05)
+                            ? Colors.white.withValues(alpha: 0.1)
                             : Colors.grey.shade100,
                       ),
                       boxShadow: [

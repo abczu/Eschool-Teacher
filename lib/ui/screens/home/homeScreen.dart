@@ -36,6 +36,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentSelectedBottomNavIndex = 0;
   late final PageController _pageController = PageController();
+  bool _isPageAnimating = false;
 
   //
   @override
@@ -110,7 +111,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   ];
 
   void changeCurrentBottomNavIndex(int index) {
-    _pageController.jumpToPage(index);
+    if (_pageController.hasClients) {
+      _isPageAnimating = true;
+      _pageController
+          .animateToPage(
+            index,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+          )
+          .then((_) {
+        _isPageAnimating = false;
+      });
+    }
     setState(() {
       _currentSelectedBottomNavIndex = index;
     });
@@ -171,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         child: PageView(
                           controller: _pageController,
                           onPageChanged: (index) {
+                            if (_isPageAnimating) return;
                             setState(() {
                               _currentSelectedBottomNavIndex = index;
                             });

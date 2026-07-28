@@ -73,10 +73,28 @@ class Leave {
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
         rejectionReason = json['rejection_reason'] as String?,
-        file = (json['file'] as List<dynamic>?)
-            ?.map((e) => File.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        leaveDetail = (json['leave_detail'] as List<dynamic>?)
+        file = (() {
+          final rawFiles = json['files'] ?? json['file'];
+          // Use import-free print/debugPrint if available, standard dart print since foundation is not imported
+          print("DEBUG Leave.fromJson - leaveId: ${json['id']} - rawFiles: $rawFiles (type: ${rawFiles?.runtimeType})");
+          if (rawFiles != null) {
+            if (rawFiles is List && rawFiles.isNotEmpty) {
+              if (rawFiles[0] is List) {
+                return (rawFiles[0] as List<dynamic>)
+                    .map((e) => File.fromJson(e as Map<String, dynamic>))
+                    .toList();
+              } else {
+                return (rawFiles as List<dynamic>)
+                    .map((e) => File.fromJson(e as Map<String, dynamic>))
+                    .toList();
+              }
+            } else if (rawFiles is Map) {
+              return [File.fromJson(Map<String, dynamic>.from(rawFiles))];
+            }
+          }
+          return null;
+        })(),
+        leaveDetail = ((json['leave_details'] ?? json['leave_detail']) as List<dynamic>?)
             ?.map((e) => LeaveDetail.fromJson(e as Map<String, dynamic>))
             .toList();
 

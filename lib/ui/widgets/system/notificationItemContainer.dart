@@ -30,11 +30,14 @@ class NotificationItemContainer extends StatelessWidget {
       duration: Duration(milliseconds: 400 + (index * 80)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.2
+                      : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -49,10 +52,10 @@ class NotificationItemContainer extends StatelessWidget {
               // Header: Title and Time
               Text(
                 notificationDetails.title ?? "Pemberitahuan",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
@@ -60,7 +63,10 @@ class NotificationItemContainer extends StatelessWidget {
                 _formatTimeAgo(notificationDetails.createdAt),
                 style: TextStyle(
                   fontSize: 11.0,
-                  color: Colors.grey[600],
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -70,7 +76,10 @@ class NotificationItemContainer extends StatelessWidget {
               Text(
                 notificationDetails.message ?? "-",
                 style: TextStyle(
-                  color: Colors.grey[800],
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.8),
                   fontSize: 13,
                   height: 1.4,
                 ),

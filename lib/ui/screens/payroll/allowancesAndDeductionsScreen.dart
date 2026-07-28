@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/payRoll/allowancesAndDeductionsCubit.dart';
+import 'package:eschool_saas_staff/cubits/payRoll/allowancesAndDeductionsCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 
@@ -86,7 +86,7 @@ class _AllowancesAndDeductionsScreenState
     super.dispose();
   }
 
-  Widget _buildFloatingTabBar() {
+  Widget _buildFloatingTabBar(bool isDark, Color effectivePrimary) {
     return AnimatedBuilder(
       animation: _slideAnimationController,
       builder: (context, child) {
@@ -106,11 +106,11 @@ class _AllowancesAndDeductionsScreenState
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: _cardBg,
+              color: isDark ? Theme.of(context).cardColor : _cardBg,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withValues(alpha: 0.15),
+                  color: effectivePrimary.withValues(alpha: isDark ? 0.3 : 0.15),
                   blurRadius: 25,
                   offset: const Offset(0, 10),
                   spreadRadius: 0,
@@ -125,6 +125,8 @@ class _AllowancesAndDeductionsScreenState
                     icon: Icons.trending_up_rounded,
                     isSelected: _currentPageIndex == 0,
                     onTap: () => _switchTab(0),
+                    isDark: isDark,
+                    effectivePrimary: effectivePrimary,
                   ),
                 ),
                 Expanded(
@@ -133,6 +135,8 @@ class _AllowancesAndDeductionsScreenState
                     icon: Icons.trending_down_rounded,
                     isSelected: _currentPageIndex == 1,
                     onTap: () => _switchTab(1),
+                    isDark: isDark,
+                    effectivePrimary: effectivePrimary,
                   ),
                 ),
               ],
@@ -148,6 +152,8 @@ class _AllowancesAndDeductionsScreenState
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    required bool isDark,
+    required Color effectivePrimary,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -156,7 +162,7 @@ class _AllowancesAndDeductionsScreenState
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected ? _maroonPrimary : Colors.transparent,
+          color: isSelected ? effectivePrimary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -164,7 +170,9 @@ class _AllowancesAndDeductionsScreenState
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : _maroonPrimary,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : effectivePrimary),
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -173,7 +181,9 @@ class _AllowancesAndDeductionsScreenState
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : _maroonPrimary,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : effectivePrimary),
               ),
             ),
           ],
@@ -183,14 +193,18 @@ class _AllowancesAndDeductionsScreenState
   }
 
   void _switchTab(int index) {
-    setState(() {
-      _currentPageIndex = index;
-    });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (mounted) {
+      setState(() {
+        _currentPageIndex = index;
+      });
+    }
+    if (_pageController.hasClients) {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Widget _buildSummaryCard({
@@ -199,6 +213,7 @@ class _AllowancesAndDeductionsScreenState
     required IconData icon,
     required Color color,
     required bool isPositive,
+    required bool isDark,
   }) {
     const baseSalary = 5000000.0;
     final percentage = (amount / baseSalary * 100);
@@ -206,12 +221,12 @@ class _AllowancesAndDeductionsScreenState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: isDark ? Theme.of(context).cardColor : _cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.35 : 0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.08),
+            color: color.withValues(alpha: isDark ? 0.15 : 0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -257,7 +272,7 @@ class _AllowancesAndDeductionsScreenState
             title,
             style: GoogleFonts.poppins(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: isDark ? Colors.white70 : Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -283,7 +298,7 @@ class _AllowancesAndDeductionsScreenState
                 'dari gaji pokok',
                 style: GoogleFonts.poppins(
                   fontSize: 10,
-                  color: Colors.grey[500],
+                  color: isDark ? Colors.white54 : Colors.grey[500],
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -294,7 +309,7 @@ class _AllowancesAndDeductionsScreenState
     );
   }
 
-  Widget _buildNetSalaryCard(double allowances, double deductions) {
+  Widget _buildNetSalaryCard(double allowances, double deductions, bool isDark, Color effectivePrimary, Color effectiveLight) {
     const baseSalary = 5000000.0;
     final netSalary = baseSalary + allowances - deductions;
     final salaryIncrease = allowances - deductions;
@@ -308,14 +323,15 @@ class _AllowancesAndDeductionsScreenState
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _maroonPrimary,
-            _maroonLight,
+            isDark ? const Color(0xFF4A0E17) : effectivePrimary,
+            effectivePrimary,
+            effectiveLight,
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: _maroonPrimary.withValues(alpha: 0.3),
+            color: effectivePrimary.withValues(alpha: isDark ? 0.4 : 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -536,9 +552,14 @@ class _AllowancesAndDeductionsScreenState
     required String description,
     required bool isAllowance,
     required int index,
+    required bool isDark,
   }) {
     const baseSalary = 5000000.0;
     final percentage = (amount / baseSalary * 100);
+
+    final Color itemColor = isAllowance
+        ? (isDark ? const Color(0xFFE53935) : _maroonLight)
+        : (isDark ? const Color(0xFFE57373) : _maroonDeep);
 
     return Container(
       margin: EdgeInsets.only(
@@ -557,18 +578,15 @@ class _AllowancesAndDeductionsScreenState
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: _cardBg,
+              color: isDark ? Theme.of(context).cardColor : _cardBg,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: isAllowance
-                    ? _maroonLight.withValues(alpha: 0.2)
-                    : _maroonDeep.withValues(alpha: 0.2),
+                color: itemColor.withValues(alpha: isDark ? 0.35 : 0.2),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isAllowance ? _maroonLight : _maroonDeep)
-                      .withValues(alpha: 0.06),
+                  color: itemColor.withValues(alpha: isDark ? 0.15 : 0.06),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                   spreadRadius: 0,
@@ -582,15 +600,14 @@ class _AllowancesAndDeductionsScreenState
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: (isAllowance ? _maroonLight : _maroonDeep)
-                        .withValues(alpha: 0.1),
+                    color: itemColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
                     isAllowance
                         ? Icons.add_circle_outline_rounded
                         : Icons.remove_circle_outline_rounded,
-                    color: isAllowance ? _maroonLight : _maroonDeep,
+                    color: itemColor,
                     size: 26,
                   ),
                 ),
@@ -609,7 +626,7 @@ class _AllowancesAndDeductionsScreenState
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: _maroonDeep,
+                                color: isDark ? Colors.white : _maroonDeep,
                               ),
                             ),
                           ),
@@ -617,8 +634,7 @@ class _AllowancesAndDeductionsScreenState
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: (isAllowance ? _maroonLight : _maroonDeep)
-                                  .withValues(alpha: 0.1),
+                              color: itemColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -626,7 +642,7 @@ class _AllowancesAndDeductionsScreenState
                               style: GoogleFonts.poppins(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
-                                color: isAllowance ? _maroonLight : _maroonDeep,
+                                color: itemColor,
                               ),
                             ),
                           ),
@@ -638,7 +654,7 @@ class _AllowancesAndDeductionsScreenState
                           description,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: isDark ? Colors.white70 : Colors.grey[600],
                             fontWeight: FontWeight.w400,
                           ),
                           maxLines: 2,
@@ -659,7 +675,7 @@ class _AllowancesAndDeductionsScreenState
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: isAllowance ? _maroonLight : _maroonDeep,
+                        color: itemColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -667,8 +683,7 @@ class _AllowancesAndDeductionsScreenState
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: (isAllowance ? _maroonLight : _maroonDeep)
-                            .withValues(alpha: 0.1),
+                        color: itemColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -676,7 +691,7 @@ class _AllowancesAndDeductionsScreenState
                         style: GoogleFonts.poppins(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
-                          color: isAllowance ? _maroonLight : _maroonDeep,
+                          color: itemColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -694,7 +709,7 @@ class _AllowancesAndDeductionsScreenState
         .slideX(begin: 0.2, end: 0, curve: Curves.easeOutCubic);
   }
 
-  Widget _buildPageContent(List<dynamic> items, bool isAllowance) {
+  Widget _buildPageContent(List<dynamic> items, bool isAllowance, bool isDark) {
     if (items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(20),
@@ -706,12 +721,12 @@ class _AllowancesAndDeductionsScreenState
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _maroonSoft,
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : _maroonSoft,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
                 isAllowance ? Icons.savings_outlined : Icons.money_off_outlined,
-                color: _maroonPrimary,
+                color: isDark ? const Color(0xFFE53935) : _maroonPrimary,
                 size: 40,
               ),
             ),
@@ -721,7 +736,7 @@ class _AllowancesAndDeductionsScreenState
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: _maroonDeep,
+                color: isDark ? Colors.white : _maroonDeep,
               ),
             ),
             const SizedBox(height: 8),
@@ -731,7 +746,7 @@ class _AllowancesAndDeductionsScreenState
                   : 'Potongan akan muncul di sini',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
                 fontWeight: FontWeight.w400,
               ),
               textAlign: TextAlign.center,
@@ -753,6 +768,7 @@ class _AllowancesAndDeductionsScreenState
               : 'Potongan dari gaji pokok',
           isAllowance: isAllowance,
           index: index,
+          isDark: isDark,
         );
       }).toList(),
     );
@@ -773,17 +789,21 @@ class _AllowancesAndDeductionsScreenState
   }
 
   Widget _buildContent(AllowancesAndDeductionsFetchSuccess state) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color effectivePrimary = isDark ? const Color(0xFF8B1F41) : _maroonPrimary;
+    final Color effectiveLight = isDark ? const Color(0xFFA84B5C) : _maroonLight;
+
     return RefreshIndicator(
       onRefresh: () async {
         context
             .read<AllowancesAndDeductionsCubit>()
             .fetchAllowancesAndDeductions();
       },
-      color: _maroonPrimary,
-      backgroundColor: _cardBg,
+      color: effectivePrimary,
+      backgroundColor: isDark ? Theme.of(context).cardColor : _cardBg,
       strokeWidth: 3,
       child: Container(
-        color: _neutralBg,
+        color: isDark ? Theme.of(context).scaffoldBackgroundColor : _neutralBg,
         child: CustomScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
@@ -798,6 +818,9 @@ class _AllowancesAndDeductionsScreenState
                       0, (sum, item) => sum + calculateActualAmount(item)),
                   state.deductions.fold<double>(
                       0, (sum, item) => sum + calculateActualAmount(item)),
+                  isDark,
+                  effectivePrimary,
+                  effectiveLight,
                 ),
               )
                   .animate()
@@ -819,8 +842,9 @@ class _AllowancesAndDeductionsScreenState
                           (sum, item) => sum + calculateActualAmount(item),
                         ),
                         icon: Icons.add_circle_outline,
-                        color: _maroonLight,
+                        color: isDark ? const Color(0xFFE53935) : _maroonLight,
                         isPositive: true,
+                        isDark: isDark,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -832,8 +856,9 @@ class _AllowancesAndDeductionsScreenState
                           (sum, item) => sum + calculateActualAmount(item),
                         ),
                         icon: Icons.remove_circle_outline,
-                        color: _maroonDeep,
+                        color: isDark ? const Color(0xFFE57373) : _maroonDeep,
                         isPositive: false,
+                        isDark: isDark,
                       ),
                     ),
                   ],
@@ -846,7 +871,7 @@ class _AllowancesAndDeductionsScreenState
 
             // Floating Tab Bar
             SliverToBoxAdapter(
-              child: _buildFloatingTabBar(),
+              child: _buildFloatingTabBar(isDark, effectivePrimary),
             ),
 
             // Page Content
@@ -858,21 +883,23 @@ class _AllowancesAndDeductionsScreenState
                   controller: _pageController,
                   physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (index) {
-                    setState(() {
-                      _currentPageIndex = index;
-                    });
+                    if (mounted && _currentPageIndex != index) {
+                      setState(() {
+                        _currentPageIndex = index;
+                      });
+                    }
                   },
                   children: [
                     // Allowances Page
                     SingleChildScrollView(
                       padding: const EdgeInsets.only(bottom: 20),
-                      child: _buildPageContent(state.allowances, true),
+                      child: _buildPageContent(state.allowances, true, isDark),
                     ),
 
                     // Deductions Page
                     SingleChildScrollView(
                       padding: const EdgeInsets.only(bottom: 20),
-                      child: _buildPageContent(state.deductions, false),
+                      child: _buildPageContent(state.deductions, false, isDark),
                     ),
                   ],
                 ),
@@ -886,15 +913,19 @@ class _AllowancesAndDeductionsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color effectivePrimary = isDark ? const Color(0xFF8B1F41) : _maroonPrimary;
+    final Color effectiveLight = isDark ? const Color(0xFFA84B5C) : _maroonLight;
+
     return Scaffold(
-      backgroundColor: _neutralBg,
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : _neutralBg,
       extendBodyBehindAppBar: false,
       appBar: CustomModernAppBar(
         title: 'Tunjangan & Potongan',
         icon: Icons.assessment_outlined,
         fabAnimationController: _fabAnimationController,
-        primaryColor: _maroonPrimary,
-        lightColor: _maroonLight,
+        primaryColor: effectivePrimary,
+        lightColor: effectiveLight,
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: BlocBuilder<AllowancesAndDeductionsCubit,
@@ -905,17 +936,17 @@ class _AllowancesAndDeductionsScreenState
           }
           if (state is AllowancesAndDeductionsFetchFailure) {
             return Container(
-              color: _neutralBg,
+              color: isDark ? Theme.of(context).scaffoldBackgroundColor : _neutralBg,
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.all(24),
                   padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
-                    color: _cardBg,
+                    color: isDark ? Theme.of(context).cardColor : _cardBg,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: _maroonPrimary.withValues(alpha: 0.08),
+                        color: effectivePrimary.withValues(alpha: isDark ? 0.3 : 0.08),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -928,12 +959,12 @@ class _AllowancesAndDeductionsScreenState
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: _maroonSoft,
+                          color: isDark ? Colors.white.withValues(alpha: 0.08) : _maroonSoft,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Icon(
                           Icons.error_outline_rounded,
-                          color: _maroonPrimary,
+                          color: effectivePrimary,
                           size: 40,
                         ),
                       ),
@@ -943,7 +974,7 @@ class _AllowancesAndDeductionsScreenState
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: _maroonDeep,
+                          color: isDark ? Colors.white : _maroonDeep,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -952,7 +983,7 @@ class _AllowancesAndDeductionsScreenState
                             state.errorMessage),
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: isDark ? Colors.white70 : Colors.grey[600],
                           fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
@@ -965,7 +996,7 @@ class _AllowancesAndDeductionsScreenState
                               .fetchAllowancesAndDeductions();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _maroonPrimary,
+                          backgroundColor: effectivePrimary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,

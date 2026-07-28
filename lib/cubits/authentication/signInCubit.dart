@@ -51,6 +51,9 @@ class SignInCubit extends Cubit<SignInState> {
           responseJson: result.responseJson,
         ),
       );
+
+      // Register FCM device token to backend (fire-and-forget)
+      _authRepository.registerDeviceToken();
     } catch (e) {
       debugPrint("ERRORNYA PT 2");
       debugPrint(e.toString());

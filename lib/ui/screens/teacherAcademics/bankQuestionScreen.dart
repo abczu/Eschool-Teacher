@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/no_search_results_widget.dart';
@@ -241,11 +241,13 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor:
-            Colors.white, // Change to white to extend all the way to status bar
+        backgroundColor: bgColor,
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: "Soal Akademik",
@@ -275,13 +277,13 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             children: [
               // Background gradient covering the whole screen
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white,
-                      Color(0xFFFFF0F0),
+                      bgColor,
+                      isDark ? bgColor : const Color(0xFFFFF0F0),
                     ],
                   ),
                 ),
@@ -371,6 +373,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   // Modifikasi _buildContent untuk menampilkan panduan swipe saat pertama kali
   Widget _buildContent(List<q.Question> questions) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     debugPrint(
         '_buildContent called with ${questions.length} questions, current searchText: "${_searchController.text}", current filteredQuestions: ${_filteredQuestions.length}');
 
@@ -402,6 +405,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           AnimatedBuilder(
             animation: _searchExpandController,
             builder: (context, child) {
+              final bool isDark = Theme.of(context).brightness == Brightness.dark;
               return Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8.0, // Reduced horizontal padding
@@ -412,18 +416,22 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       0.95, // Increased width to 95% of screen
                   height: 52.0, // Slightly taller for better visibility
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Theme.of(context).cardColor : Colors.white,
                     borderRadius: BorderRadius.circular(24.0),
-                    border: _searchController.text.isNotEmpty
-                        ? Border.all(
-                            color: _primaryColor.withValues(alpha: 0.3),
-                            width: 1.5)
-                        : null,
+                    border: isDark
+                        ? Border.all(color: Colors.white.withValues(alpha: 0.08))
+                        : (_searchController.text.isNotEmpty
+                            ? Border.all(
+                                color: _primaryColor.withValues(alpha: 0.3),
+                                width: 1.5)
+                            : null),
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withValues(
-                            alpha:
-                                _searchController.text.isNotEmpty ? 0.15 : 0.1),
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.2)
+                            : _primaryColor.withValues(
+                                alpha:
+                                    _searchController.text.isNotEmpty ? 0.15 : 0.1),
                         blurRadius: 8.0,
                         offset: const Offset(0, 2),
                       ),
@@ -431,6 +439,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   ),
                   child: TextField(
                     controller: _searchController,
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                     onChanged: (value) {
                       // Get current state questions untuk filter
                       final currentState =
@@ -442,13 +451,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     },
                     decoration: InputDecoration(
                       hintText: 'Cari soal...',
-                      prefixIcon: const Icon(
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : null),
+                      prefixIcon: Icon(
                         Icons.search,
-                        color: _primaryColor,
+                        color: isDark ? Colors.white54 : _primaryColor,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.grey),
+                              icon: Icon(Icons.clear, color: isDark ? Colors.white54 : Colors.grey),
                               onPressed: () {
                                 _searchController.clear();
                                 // Get current state questions untuk reset filter
@@ -523,11 +533,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 12.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).cardColor : Colors.white,
                           borderRadius: BorderRadius.circular(16.0),
+                          border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.08)) : null,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8.0,
                               offset: const Offset(0, 4),
                             ),
@@ -536,9 +547,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.swipe, color: _primaryColor),
+                            Icon(Icons.swipe, color: isDark ? const Color(0xFFE53935) : _primaryColor),
                             const SizedBox(width: 12.0),
-                            const Flexible(
+                            Flexible(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
@@ -547,19 +558,22 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     "Geser Untuk Melihat Versi",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: _primaryColor,
+                                      color: isDark ? const Color(0xFFE53935) : _primaryColor,
                                     ),
                                   ),
-                                  SizedBox(height: 4.0),
+                                  const SizedBox(height: 4.0),
                                   Text(
                                     "Geser kartu ke kiri/kanan untuk melihat versi soal sebelumnya",
-                                    style: TextStyle(fontSize: 12.0),
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      color: isDark ? Colors.white70 : Colors.grey[600],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close, size: 16.0),
+                              icon: Icon(Icons.close, size: 16.0, color: isDark ? Colors.white54 : Colors.grey),
                               onPressed: () {
                                 setState(() {
                                   _hasShownSwipeGuide = true;
@@ -580,14 +594,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   Widget _buildShimmerLoading() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white,
-            Color(0xFFFFF0F0), // Very light maroon tint instead of light blue
+            bgColor,
+            isDark ? bgColor : const Color(0xFFFFF0F0),
           ],
         ),
       ),
@@ -598,6 +614,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   Widget _buildEmptyState() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -605,11 +622,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.question_mark_rounded,
-                size: 70, color: Colors.grey.shade400),
+                size: 70, color: isDark ? Colors.white60 : Colors.grey.shade400),
           ),
           const SizedBox(height: 24),
           Text(
@@ -617,7 +634,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDark ? Colors.white : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 12),
@@ -625,7 +642,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             'Tambahkan soal baru untuk memulai',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[500],
+              color: isDark ? Colors.white70 : Colors.grey[500],
             ),
           ),
         ],
@@ -657,6 +674,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   Widget _buildQuestionCard(q.Question question, dynamic latestVersion) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final int questionVersionsCount = question.versions.length;
     final int activeIndex = _getActiveVersionIndex(question.id);
 
@@ -708,12 +726,17 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
             borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.transparent,
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
-                color:
-                    _getTypeColor(latestVersion.type).withValues(alpha: 0.12),
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : _getTypeColor(latestVersion.type).withValues(alpha: 0.12),
                 blurRadius: 12,
                 offset: const Offset(0, 5),
               ),
@@ -743,6 +766,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   Widget _buildVersionCardWithActionsImproved(q.QuestionVersion version,
       q.Question question, int versionIndex, int totalVersions) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -786,7 +810,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   Text(
                     "Konten Pertanyaan",
                     style: TextStyle(
-                      color: Colors.grey[800],
+                      color: isDark ? Colors.white70 : Colors.grey[800],
                       fontSize: 15.5,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
@@ -800,12 +824,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.grey.shade100),
+                  border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
+                      color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -815,7 +839,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   parseHtmlString(version.question),
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.grey[800],
+                    color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey[800],
                     height: 1.5,
                     letterSpacing: 0.2,
                     fontWeight: FontWeight.w500,
@@ -833,22 +857,27 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade50,
-                    ],
+                    colors: isDark
+                        ? [
+                            Theme.of(context).cardColor,
+                            Theme.of(context).cardColor.withValues(alpha: 0.9),
+                          ]
+                        : [
+                            Colors.white,
+                            Colors.grey.shade50,
+                          ],
                   ),
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
                       spreadRadius: 0,
                       offset: const Offset(0, 4),
                     ),
                   ],
                   border: Border.all(
-                    color: _getTypeColor(version.type).withValues(alpha: 0.2),
+                    color: _getTypeColor(version.type).withValues(alpha: isDark ? 0.3 : 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -903,7 +932,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         Text(
                           'Pilihan Jawaban',
                           style: TextStyle(
-                            color: Colors.grey[500],
+                            color: isDark ? Colors.white60 : Colors.grey[500],
                             fontSize: 13.5,
                           ),
                         ),
@@ -911,7 +940,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         Text(
                           '${version.options.length} Opsi',
                           style: TextStyle(
-                            color: Colors.grey[800],
+                            color: isDark ? Colors.white : Colors.grey[800],
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -958,14 +987,19 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.grey.shade50,
-                Colors.grey.shade100,
-              ],
+              colors: isDark
+                  ? [
+                      Colors.white.withValues(alpha: 0.02),
+                      Colors.white.withValues(alpha: 0.04),
+                    ]
+                  : [
+                      Colors.grey.shade50,
+                      Colors.grey.shade100,
+                    ],
             ),
             border: Border(
               top: BorderSide(
-                color: Colors.grey.shade200,
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                 width: 1.5,
               ),
             ),

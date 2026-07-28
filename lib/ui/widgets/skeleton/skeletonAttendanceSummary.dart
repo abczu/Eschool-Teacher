@@ -6,24 +6,37 @@ class SkeletonAttendanceSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color borderColor =
+        isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+    final Color shimmerBase =
+        isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight =
+        isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color badgeBgColor =
+        isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,9 +103,10 @@ class SkeletonAttendanceSummary extends StatelessWidget {
               children: [
                 // Hadir badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: badgeBgColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -129,9 +143,10 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Sakit badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: badgeBgColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -168,9 +183,10 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Izin badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: badgeBgColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -207,9 +223,10 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Alpa badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: badgeBgColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(

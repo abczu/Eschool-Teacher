@@ -84,6 +84,9 @@ class HomeContainerState extends State<HomeContainer>
 
                   return RefreshIndicator(
                     color: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context).cardColor
+                        : Colors.white,
                     displacement: MediaQuery.of(context).padding.top + 100,
                     onRefresh: () async {
                       context
@@ -96,6 +99,7 @@ class HomeContainerState extends State<HomeContainer>
                           bottom: 100),
                       child: Column(
                         children: [
+                          const SizedBox(height: 60),
                           const HomeOverviewDetailsContainer(),
                           if (staffPermissionsCubit.isPermissionGiven(
                               permission: viewTimetablePermissionKey))

@@ -8,9 +8,12 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: bgColor,
       ),
       child: SingleChildScrollView(
         child: Container(
@@ -19,7 +22,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
             children: [
               _buildHeaderSkeleton(context),
               const SizedBox(height: 16),
-              _buildLeaderboardSkeleton(),
+              _buildLeaderboardSkeleton(context),
             ],
           ),
         ),
@@ -28,22 +31,29 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color innerBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: headerBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           children: [
             // Header title section
@@ -108,14 +118,14 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Container(
                 height: 13,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: innerBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
@@ -129,6 +139,9 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
   Widget _buildTopThreeItemSkeleton(BuildContext context, int position) {
     final scale = position == 1 ? 1.1 : 1.0;
     final verticalPadding = position == 1 ? 0.0 : 20.0;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.27,
@@ -136,8 +149,8 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
       child: Transform.scale(
         scale: scale,
         child: Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
+          baseColor: shimmerBase,
+          highlightColor: shimmerHighlight,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -183,14 +196,17 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLeaderboardSkeleton() {
+  Widget _buildLeaderboardSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -199,33 +215,39 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(
-            itemCount, (index) => _buildStudentItemSkeleton(index)),
+            itemCount, (index) => _buildStudentItemSkeleton(context, index)),
       ),
     );
   }
 
-  Widget _buildStudentItemSkeleton(int index) {
+  Widget _buildStudentItemSkeleton(BuildContext context, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color borderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.05),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Row(
           children: [
             // Rank number

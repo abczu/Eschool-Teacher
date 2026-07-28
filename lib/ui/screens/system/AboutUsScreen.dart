@@ -141,24 +141,33 @@ class _AboutUsScreenState extends State<AboutUsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Warna tema dinamis
+    final Color primaryColor = isDark ? const Color(0xFF8B1F41) : _themePrimary;
+    final Color lightColor = isDark ? const Color(0xFFAC3B5C) : _themeLight;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : _themeBackground;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color textColor = isDark ? Colors.white : _themePrimary;
+    final Color subtitleColor = isDark ? Colors.white70 : _themePrimary.withValues(alpha: 0.75);
+    final Color iconBgColor = isDark ? Colors.grey.shade900 : Colors.white;
 
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: _themePrimary,
-              secondary: _themeLight,
-              surface: _themeBackground,
+              primary: primaryColor,
+              secondary: lightColor,
+              surface: bgColor,
             ),
       ),
       child: Scaffold(
-        backgroundColor: _themeBackground,
+        backgroundColor: bgColor,
         appBar: CustomModernAppBar(
           title: Utils.getTranslatedLabel(aboutUsKey),
           icon: Icons.info_outline,
           fabAnimationController: _fabAnimationController,
-          primaryColor: _themePrimary,
-          lightColor: _themeLight,
+          primaryColor: primaryColor,
+          lightColor: lightColor,
           onBackPressed: () => Navigator.of(context).pop(),
         ),
         body: BlocBuilder<SettingsCubit, SettingsState>(
@@ -175,18 +184,18 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _themePrimary,    // 0xFF800020
-                            _themeLight,      // 0xFFAA6976
+                            primaryColor,
+                            lightColor,
                           ],
                         ),
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: _themePrimary.withValues(alpha: 0.3),
+                            color: primaryColor.withValues(alpha: 0.3),
                             blurRadius: 25,
                             offset: const Offset(0, 10),
                           ),
@@ -199,7 +208,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
@@ -209,10 +218,10 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                                 ),
                               ],
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.school_rounded,
                               size: 55,
-                              color: _themePrimary,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -260,19 +269,39 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           icon: Icons.computer,
                           title: 'Pembelajaran Modern',
                           description: 'Platform pembelajaran digital yang modern',
-                          gradient: [
-                            _themeBackground,
-                            _themeLight.withValues(alpha: 0.15),
-                          ],
+                          gradient: isDark
+                              ? [
+                                  cardBgColor,
+                                  cardBgColor.withValues(alpha: 0.8),
+                                ]
+                              : [
+                                  _themeBackground,
+                                  _themeLight.withValues(alpha: 0.15),
+                                ],
+                          delay: const Duration(milliseconds: 200),
+                          primaryColor: primaryColor,
+                          textColor: textColor,
+                          subtitleColor: subtitleColor,
+                          iconBgColor: iconBgColor,
                         ),
                         _buildFeatureCard(
                           icon: Icons.analytics,
                           title: 'Analisis Cerdas',
                           description: 'Pemantauan kinerja dan wawasan secara langsung',
-                          gradient: [
-                            _themeBackground,
-                            const Color(0xFFF4D0D9).withValues(alpha: 0.3),
-                          ],
+                          gradient: isDark
+                              ? [
+                                  cardBgColor,
+                                  cardBgColor.withValues(alpha: 0.8),
+                                ]
+                              : [
+                                  _themeBackground,
+                                  const Color(0xFFF4D0D9).withValues(alpha: 0.3),
+                                ],
+                          delay: const Duration(milliseconds: 400),
+                          primaryColor: primaryColor,
+                          textColor: textColor,
+                          subtitleColor: subtitleColor,
+                          iconBgColor: iconBgColor,
                         ),
                       ],
                     ),
@@ -283,16 +312,17 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                   // ═══════════════════════════════════════════
                   if (state is SettingsSuccess)
                     FadeInUp(
+                      delay: const Duration(milliseconds: 600),
                       duration: const Duration(milliseconds: 800),
                       child: Container(
                         margin: const EdgeInsets.all(20),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardBgColor,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: _themePrimary.withValues(alpha: 0.08),
+                              color: primaryColor.withValues(alpha: 0.08),
                               blurRadius: 25,
                               spreadRadius: 2,
                               offset: const Offset(0, 8),
@@ -305,7 +335,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                             parseCustomHtml(state.data),
                             textStyle: GoogleFonts.poppins(
                               fontSize: 15,
-                              color: _themePrimary.withValues(alpha: 0.75),
+                              color: isDark ? Colors.white.withValues(alpha: 0.9) : primaryColor.withValues(alpha: 0.75),
                               height: 1.6,
                             ),
                           ),
@@ -322,7 +352,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                               .read<SettingsCubit>()
                               .getSettings("about_us");
                         },
-                        primaryColor: _themePrimary,
+                        primaryColor: primaryColor,
                       ),
                     )
                   else
@@ -345,8 +375,15 @@ class _AboutUsScreenState extends State<AboutUsScreen>
     required String title,
     required String description,
     required List<Color> gradient,
+    required Duration delay,
+    required Color primaryColor,
+    required Color textColor,
+    required Color subtitleColor,
+    required Color iconBgColor,
   }) {
     return FadeInUp(
+      delay: delay,
+      duration: const Duration(milliseconds: 600),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
@@ -359,7 +396,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _themePrimary.withValues(alpha: 0.08),
+              color: primaryColor.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -370,17 +407,17 @@ class _AboutUsScreenState extends State<AboutUsScreen>
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: iconBgColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: _themePrimary.withValues(alpha: 0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Icon(icon, size: 28, color: _themePrimary),
+              child: Icon(icon, size: 28, color: primaryColor),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -392,7 +429,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: _themePrimary,
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -400,7 +437,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                     description,
                     style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: _themePrimary.withValues(alpha: 0.65),
+                      color: subtitleColor,
                     ),
                   ),
                 ],

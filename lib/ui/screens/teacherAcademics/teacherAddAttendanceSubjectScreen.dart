@@ -435,6 +435,11 @@ class _TeacherAddAttendanceScreenSubjectState
             bottom: 100), // Add bottom padding to prevent overlap
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+            final Color skeletonHeaderColor = isDark ? Colors.grey.shade900 : Colors.grey.shade300;
+            final Color skeletonItemColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
             if (state is SubjectAttendanceFetchInProgress) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,8 +449,8 @@ class _TeacherAddAttendanceScreenSubjectState
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                     width: double.infinity,
                     child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
+                      baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                      highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                       child: Container(
                         height: 24,
                         width: 150,
@@ -466,10 +471,10 @@ class _TeacherAddAttendanceScreenSubjectState
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                      color: cardBgColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -482,13 +487,13 @@ class _TeacherAddAttendanceScreenSubjectState
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: skeletonHeaderColor,
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16)),
                           ),
                           child: Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
+                            baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                            highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                             child: Row(
                               children: [
                                 Container(
@@ -522,12 +527,11 @@ class _TeacherAddAttendanceScreenSubjectState
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: skeletonItemColor,
                                   borderRadius: BorderRadius.circular(8),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          Colors.grey.withValues(alpha: 0.05),
+                                      color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.05),
                                       blurRadius: 2,
                                       offset: const Offset(0, 1),
                                     ),

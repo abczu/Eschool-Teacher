@@ -3,25 +3,32 @@ import 'package:shimmer/shimmer.dart';
 
 class SkeletonAnnouncementCard extends StatelessWidget {
   const SkeletonAnnouncementCard({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -29,7 +36,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
             Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: headerBg,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               padding: const EdgeInsets.all(20),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/submitContactCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
@@ -66,8 +66,11 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFF8F9FA);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       body: Column(
         children: [
           CustomModernAppBar(
@@ -120,11 +123,15 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
   }
 
   Widget _buildFormCard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(20),
+        border: isDark ? Border.all(color: Colors.grey.shade800) : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -142,12 +149,12 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _primaryColor.withValues(alpha: 0.1),
+                  color: isDark ? Colors.grey.shade800 : _primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.contact_support_rounded,
-                  color: _primaryColor,
+                  color: isDark ? const Color(0xFFAC3B5C) : _primaryColor,
                   size: 24,
                 ),
               ),
@@ -161,14 +168,14 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                     Text(
                       'Sampaikan pertanyaan atau laporan Anda',
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -185,7 +192,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 8),
@@ -278,6 +285,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
 
   Widget _buildTypeOption(
       String type, String label, IconData icon, Color color) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _selectedType == type;
 
     return GestureDetector(
@@ -285,10 +293,12 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[50],
+          color: isSelected
+              ? color.withValues(alpha: isDark ? 0.25 : 0.1)
+              : (isDark ? Colors.grey.shade900 : Colors.grey[50]),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color : Colors.grey[300]!,
+            color: isSelected ? color : (isDark ? Colors.grey.shade800 : Colors.grey[300]!),
             width: 2,
           ),
         ),
@@ -296,7 +306,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
           children: [
             Icon(
               icon,
-              color: isSelected ? color : Colors.grey[500],
+              color: isSelected ? color : (isDark ? Colors.white54 : Colors.grey[500]),
               size: 24,
             ),
             const SizedBox(height: 8),
@@ -305,7 +315,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? color : Colors.grey[600],
+                color: isSelected ? color : (isDark ? Colors.white70 : Colors.grey[600]),
               ),
             ),
           ],
@@ -322,6 +332,8 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -330,7 +342,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
@@ -340,26 +352,30 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
           maxLines: maxLines,
           validator: validator,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: _primaryColor, size: 20),
+            prefixIcon: Icon(icon, color: isDark ? const Color(0xFFAC3B5C) : _primaryColor, size: 20),
             hintText: 'Masukkan $label',
             hintStyle: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.grey[500],
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+              borderSide: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: _primaryColor, width: 2),
+              borderSide: BorderSide(color: isDark ? const Color(0xFFAC3B5C) : _primaryColor, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.red, width: 2),
             ),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: isDark ? Colors.grey.shade900 : Colors.grey[50],
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -367,7 +383,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
           ),
           style: GoogleFonts.poppins(
             fontSize: 14,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
       ],
@@ -375,6 +391,8 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
   }
 
   Widget _buildSubmitButton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BlocBuilder<SubmitContactCubit, SubmitContactState>(
       builder: (context, state) {
         final isLoading = state is SubmitContactLoading;
@@ -385,13 +403,17 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
-              colors: [_primaryColor, _lightColor],
+              colors: isDark
+                  ? [const Color(0xFF8B1F41), const Color(0xFFAC3B5C)]
+                  : [_primaryColor, _lightColor],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: _primaryColor.withValues(alpha: 0.3),
+                color: isDark
+                    ? const Color(0xFF8B1F41).withValues(alpha: 0.3)
+                    : _primaryColor.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

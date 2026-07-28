@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
@@ -42,10 +42,6 @@ class HomeOverviewDetailsContainer extends StatelessWidget {
     return (showStaffs || showStudents || showTeachers || showLeaveRequests)
         ? Column(
             children: [
-              // Adding top padding to create space between this container and the AppBar
-              const SizedBox(
-                height: 60,
-              ),
               const ContentTitleWithViewMoreButton(
                   showViewMoreButton: false, contentTitleKey: overviewKey),
               const SizedBox(

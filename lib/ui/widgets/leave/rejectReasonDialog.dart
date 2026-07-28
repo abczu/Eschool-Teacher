@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customRoundedButton.dart';
 
@@ -93,6 +93,8 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
   @override
   Widget build(BuildContext context) {
     const Color maroonPrimary = Color(0xFF800020);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryRed = isDark ? const Color(0xFFE53935) : maroonPrimary;
 
     return PopScope(
       canPop: false,
@@ -115,7 +117,9 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark
+                        ? Theme.of(context).cardColor
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -137,12 +141,12 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: maroonPrimary.withValues(alpha: 0.1),
+                                color: primaryRed.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.cancel_outlined,
-                                color: maroonPrimary,
+                                color: primaryRed,
                                 size: 24,
                               ),
                             ),
@@ -158,7 +162,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                           GoogleFonts.poppins().fontFamily,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: maroonPrimary,
+                                      color: primaryRed,
                                     ),
                                   ),
                                   Text(
@@ -167,7 +171,9 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                       fontFamily:
                                           GoogleFonts.poppins().fontFamily,
                                       fontSize: 14,
-                                      color: Colors.grey[600],
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -185,7 +191,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                             fontFamily: GoogleFonts.poppins().fontFamily,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: maroonPrimary,
+                            color: primaryRed,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -199,20 +205,26 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                 "Masukkan alasan mengapa permohonan cuti ditolak...",
                             hintStyle: TextStyle(
                               fontFamily: GoogleFonts.poppins().fontFamily,
-                              color: Colors.grey[500],
+                              color: isDark ? Colors.white38 : Colors.grey[500],
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
+                              borderSide: BorderSide(
+                                  color: isDark
+                                      ? Colors.white24
+                                      : Colors.grey[300]!),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
+                              borderSide: BorderSide(
+                                  color: isDark
+                                      ? Colors.white24
+                                      : Colors.grey[300]!),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide:
-                                  const BorderSide(color: maroonPrimary, width: 2),
+                                  BorderSide(color: primaryRed, width: 2),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -225,12 +237,17 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                   const BorderSide(color: Colors.red, width: 2),
                             ),
                             filled: true,
-                            fillColor: Colors.grey[50],
+                            fillColor: isDark
+                                ? Colors.black26
+                                : Colors.grey[50],
                             contentPadding: const EdgeInsets.all(16),
                           ),
                           style: TextStyle(
                             fontFamily: GoogleFonts.poppins().fontFamily,
                             fontSize: 14,
+                            color: isDark
+                                ? Colors.white
+                                : Colors.black,
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -253,11 +270,17 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                 radius: 12,
                                 height: 48,
                                 widthPercentage: 1.0,
-                                backgroundColor: Colors.grey[100]!,
+                                backgroundColor: isDark
+                                    ? Colors.white10
+                                    : Colors.grey[100]!,
                                 buttonTitle: "Batal",
-                                titleColor: Colors.grey[700]!,
+                                titleColor: isDark
+                                    ? Colors.white
+                                    : Colors.grey[700]!,
                                 showBorder: true,
-                                borderColor: Colors.grey[300]!,
+                                borderColor: isDark
+                                    ? Colors.white24
+                                    : Colors.grey[300]!,
                                 onTap: _isSubmitting ? null : _handleCancel,
                               ),
                             ),
@@ -267,8 +290,9 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                 radius: 12,
                                 height: 48,
                                 widthPercentage: 1.0,
-                                backgroundColor: maroonPrimary,
+                                backgroundColor: primaryRed,
                                 buttonTitle: "Tolak Cuti",
+                                titleColor: Colors.white,
                                 showBorder: false,
                                 onTap: _isSubmitting ? null : _handleReject,
                                 child: _isSubmitting

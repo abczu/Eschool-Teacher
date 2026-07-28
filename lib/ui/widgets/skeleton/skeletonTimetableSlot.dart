@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -8,6 +8,10 @@ class SkeletonTimetableSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
       height: Utils().getResponsiveHeight(context, 150),
@@ -18,8 +22,8 @@ class SkeletonTimetableSlot extends StatelessWidget {
             SizedBox(
               width: boxConstraints.maxWidth * (0.2),
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: shimmerBase,
+                highlightColor: shimmerHighlight,
                 child: Column(
                   children: [
                     // Start time
@@ -82,13 +86,13 @@ class SkeletonTimetableSlot extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                     horizontal: appContentHorizontalPadding, vertical: 10),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                   color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 child: Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
+                  baseColor: shimmerBase,
+                  highlightColor: shimmerHighlight,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

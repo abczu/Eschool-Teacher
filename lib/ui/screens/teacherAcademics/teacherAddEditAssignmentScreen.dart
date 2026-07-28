@@ -113,8 +113,11 @@ class _TeacherAddEditAssignmentScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : _roseMist;
+
     return Scaffold(
-      backgroundColor: _roseMist,
+      backgroundColor: bgColor,
       appBar: CustomModernAppBar(
         title: widget.assignment != null ? "Edit Tugas" : "Buat Tugas Baru",
         icon: Icons.assignment_rounded,
@@ -1161,6 +1164,7 @@ class _TeacherAddEditAssignmentScreenState
     required String subtitle,
     required IconData icon,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1168,16 +1172,20 @@ class _TeacherAddEditAssignmentScreenState
         width: double.infinity,
         height: 80,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [_deepMaroon, _softMaroon],
-            stops: [0.0, 1.0],
+            colors: isDark
+                ? [const Color(0xFFE53935), const Color(0xFFEF5350)]
+                : [_deepMaroon, _softMaroon],
+            stops: const [0.0, 1.0],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _deepMaroon.withValues(alpha: 0.3),
+              color: isDark
+                  ? const Color(0xFFE53935).withValues(alpha: 0.3)
+                  : _deepMaroon.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
               spreadRadius: 0,
@@ -1323,6 +1331,7 @@ class _TeacherAddEditAssignmentScreenState
     void Function(String)? onChanged,
     TextAlignVertical? textAlignVertical,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
@@ -1334,14 +1343,15 @@ class _TeacherAddEditAssignmentScreenState
       validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
       onChanged: onChanged,
       textAlignVertical: textAlignVertical,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: Colors.grey.shade500,
+          color: isDark ? Colors.white60 : Colors.grey.shade500,
         ),
         prefixIcon: Icon(
           icon,
-          color: iconColor ?? _deepMaroon,
+          color: isDark ? Colors.white70 : (iconColor ?? _deepMaroon),
         ),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
@@ -1349,10 +1359,10 @@ class _TeacherAddEditAssignmentScreenState
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _deepMaroon),
+          borderSide: BorderSide(color: isDark ? Colors.white38 : _deepMaroon),
         ),
       ),
     );
@@ -1360,6 +1370,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // Subject Selection Widget - Similar to createOnlineExam.dart
   Widget _buildSubjectSelection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BlocBuilder<ClassSectionsAndSubjectsCubit,
         ClassSectionsAndSubjectsState>(
       builder: (context, state) {
@@ -1430,11 +1441,18 @@ class _TeacherAddEditAssignmentScreenState
                 // Tingkatan Dropdown
                 DropdownButtonFormField<String>(
                   initialValue: selectedTingkatan,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.layers, color: _deepMaroon),
+                    prefixIcon: Icon(Icons.layers, color: isDark ? Colors.white70 : _deepMaroon),
                     labelText: 'Pilih Tingkatan',
+                    labelStyle: TextStyle(color: isDark ? Colors.white60 : Colors.grey.shade500),
                     filled: true,
-                    fillColor: Colors.grey.shade50,
+                    fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                    ),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
@@ -1458,11 +1476,18 @@ class _TeacherAddEditAssignmentScreenState
                   // Kelas Dropdown
                   DropdownButtonFormField<String>(
                     initialValue: selectedKelas,
+                    dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.class_, color: _deepMaroon),
+                      prefixIcon: Icon(Icons.class_, color: isDark ? Colors.white70 : _deepMaroon),
                       labelText: 'Pilih Kelas',
+                      labelStyle: TextStyle(color: isDark ? Colors.white60 : Colors.grey.shade500),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                      ),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -1600,12 +1625,19 @@ class _TeacherAddEditAssignmentScreenState
                   else
                     DropdownButtonFormField<String>(
                       initialValue: selectedMapel,
+                      dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                       decoration: InputDecoration(
                         prefixIcon:
-                            const Icon(Icons.menu_book, color: _deepMaroon),
+                            Icon(Icons.menu_book, color: isDark ? Colors.white70 : _deepMaroon),
                         labelText: 'Pilih Mata Pelajaran',
+                        labelStyle: TextStyle(color: isDark ? Colors.white60 : Colors.grey.shade500),
                         filled: true,
-                        fillColor: Colors.grey.shade50,
+                        fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                        ),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
@@ -1659,15 +1691,20 @@ class _TeacherAddEditAssignmentScreenState
     required List<Color> gradient,
     required List<Widget> children,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.transparent,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 5,
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+            spreadRadius: isDark ? 1 : 5,
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -1681,12 +1718,12 @@ class _TeacherAddEditAssignmentScreenState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: _deepMaroon.withValues(alpha: 0.1),
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : _deepMaroon.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
-                  color: _deepMaroon,
+                  color: isDark ? Colors.white70 : _deepMaroon,
                   size: 24,
                 ),
               ),
@@ -1697,10 +1734,10 @@ class _TeacherAddEditAssignmentScreenState
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: _deepMaroon,
+                        color: isDark ? Colors.white : _deepMaroon,
                       ),
                     ),
                     if (subtitle.isNotEmpty)
@@ -1708,7 +1745,7 @@ class _TeacherAddEditAssignmentScreenState
                         subtitle,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: isDark ? Colors.white60 : Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1724,9 +1761,9 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // ELEGANT FIELD BUILDER - Creates beautiful input fields
   Widget _buildElegantField(
       String label, String description, IconData icon, Widget child) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -1735,20 +1772,20 @@ class _TeacherAddEditAssignmentScreenState
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(
-              color: _deepMaroon.withValues(alpha: 0.05),
+              color: isDark ? Colors.white.withValues(alpha: 0.05) : _deepMaroon.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
               border:
-                  const Border(left: BorderSide(color: _deepMaroon, width: 3)),
+                  Border(left: BorderSide(color: isDark ? Colors.white54 : _deepMaroon, width: 3)),
             ),
             child: Row(
               children: [
-                Icon(icon, color: _deepMaroon, size: 18),
+                Icon(icon, color: isDark ? Colors.white70 : _deepMaroon, size: 18),
                 const SizedBox(width: 8),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: _deepMaroon,
+                    color: isDark ? Colors.white : _deepMaroon,
                     fontSize: 15,
                     letterSpacing: -0.2,
                   ),
@@ -1762,9 +1799,9 @@ class _TeacherAddEditAssignmentScreenState
               padding: const EdgeInsets.only(left: 4.0),
               child: Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12.5,
-                  color: _dustyRose,
+                  color: isDark ? Colors.white60 : _dustyRose,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
                 ),
@@ -1863,6 +1900,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // ANSWER TYPE SECTION - Interactive answer type selection
   Widget _buildAnswerTypeSection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return _buildLuxurySection(
       title: "Jenis Jawaban *",
       subtitle: "Cara Siswa Menjawab (Wajib pilih minimal satu)",
@@ -1874,10 +1912,15 @@ class _TeacherAddEditAssignmentScreenState
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_champagne.withValues(alpha: 0.6), _pearl],
+              colors: isDark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Theme.of(context).cardColor.withValues(alpha: 0.9),
+                    ]
+                  : [_champagne.withValues(alpha: 0.6), _pearl],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
+            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : _blushPink.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -1950,7 +1993,7 @@ class _TeacherAddEditAssignmentScreenState
               keyboardType: TextInputType.number,
               textEditingController: _maxFileSizeTextEditingController,
               hintTextKey: 'Contoh: 10 MB',
-              backgroundColor: _pearl,
+              backgroundColor: isDark ? Theme.of(context).cardColor : _pearl,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
           ),
@@ -1962,6 +2005,7 @@ class _TeacherAddEditAssignmentScreenState
   // ANSWER TYPE CARD - Beautiful interactive cards
   Widget _buildAnswerTypeCard(String title, String description, IconData icon,
       bool isSelected, VoidCallback onTap) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1969,23 +2013,32 @@ class _TeacherAddEditAssignmentScreenState
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: isSelected
-              ? const LinearGradient(
+              ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [_deepMaroon, _softMaroon],
+                  colors: isDark
+                      ? [const Color(0xFFE53935), const Color(0xFFEF5350)]
+                      : [_deepMaroon, _softMaroon],
                 )
-              : const LinearGradient(
-                  colors: [Colors.white, _pearl],
+              : LinearGradient(
+                  colors: isDark
+                      ? [
+                          Theme.of(context).cardColor,
+                          Theme.of(context).cardColor.withValues(alpha: 0.9),
+                        ]
+                      : [Colors.white, _pearl],
                 ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? _deepMaroon : _blushPink.withValues(alpha: 0.3),
+            color: isSelected
+                ? (isDark ? const Color(0xFFE53935) : _deepMaroon)
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : _blushPink.withValues(alpha: 0.3)),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? _deepMaroon.withValues(alpha: 0.25)
+                  ? (isDark ? const Color(0xFFE53935).withValues(alpha: 0.25) : _deepMaroon.withValues(alpha: 0.25))
                   : _blushPink.withValues(alpha: 0.1),
               blurRadius: isSelected ? 15 : 8,
               offset: Offset(0, isSelected ? 8 : 4),
@@ -1999,12 +2052,12 @@ class _TeacherAddEditAssignmentScreenState
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.white.withValues(alpha: 0.2)
-                    : _dustyRose.withValues(alpha: 0.1),
+                    : (isDark ? Colors.white.withValues(alpha: 0.05) : _dustyRose.withValues(alpha: 0.1)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : _deepMaroon,
+                color: isSelected ? Colors.white : (isDark ? Colors.redAccent.shade100 : _deepMaroon),
                 size: 24,
               ),
             ),
@@ -2014,7 +2067,7 @@ class _TeacherAddEditAssignmentScreenState
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : _deepMaroon,
+                color: isSelected ? Colors.white : (isDark ? Colors.redAccent.shade100 : _deepMaroon),
                 letterSpacing: -0.2,
               ),
             ),
@@ -2027,7 +2080,7 @@ class _TeacherAddEditAssignmentScreenState
                 fontWeight: FontWeight.w500,
                 color: isSelected
                     ? Colors.white.withValues(alpha: 0.8)
-                    : _dustyRose,
+                    : (isDark ? Colors.white54 : _dustyRose),
                 letterSpacing: 0.1,
               ),
             ),
@@ -2039,6 +2092,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // FILE TYPE SELECTION - Elegant file type chips
   Widget _buildFileTypeSelection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2048,21 +2102,21 @@ class _TeacherAddEditAssignmentScreenState
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
-                  _dustyRose.withValues(alpha: 0.15),
-                  _blushPink.withValues(alpha: 0.1)
+                  _dustyRose.withValues(alpha: isDark ? 0.25 : 0.15),
+                  _blushPink.withValues(alpha: isDark ? 0.2 : 0.1)
                 ]),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.folder_rounded,
-                  size: 18, color: _deepMaroon),
+              child: Icon(Icons.folder_rounded,
+                  size: 18, color: isDark ? const Color(0xFFE53935) : _deepMaroon),
             ),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               "Format File yang Diizinkan",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: _deepMaroon,
+                color: isDark ? const Color(0xFFE53935) : _deepMaroon,
                 letterSpacing: -0.3,
               ),
             ),
@@ -2073,10 +2127,15 @@ class _TeacherAddEditAssignmentScreenState
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_pearl, _champagne.withValues(alpha: 0.5)],
+              colors: isDark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Theme.of(context).cardColor.withValues(alpha: 0.9),
+                    ]
+                  : [_pearl, _champagne.withValues(alpha: 0.5)],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
+            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : _blushPink.withValues(alpha: 0.3)),
           ),
           child: Wrap(
             spacing: 12,
@@ -2091,6 +2150,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // FILE TYPE CHIP - Beautiful file type selectors
   Widget _buildFileTypeChip(AssignmentFileType type) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => setState(() => type.isSelected = !type.isSelected),
       child: AnimatedContainer(
@@ -2098,20 +2158,20 @@ class _TeacherAddEditAssignmentScreenState
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           gradient: type.isSelected
-              ? const LinearGradient(colors: [_deepMaroon, _softMaroon])
-              : const LinearGradient(colors: [Colors.white, _roseMist]),
+              ? LinearGradient(colors: isDark ? [const Color(0xFFE53935), const Color(0xFFEF5350)] : [_deepMaroon, _softMaroon])
+              : LinearGradient(colors: isDark ? [Theme.of(context).cardColor, Theme.of(context).cardColor.withValues(alpha: 0.9)] : [Colors.white, _roseMist]),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: type.isSelected
-                ? _deepMaroon
-                : _dustyRose.withValues(alpha: 0.4),
+                ? (isDark ? const Color(0xFFE53935) : _deepMaroon)
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : _dustyRose.withValues(alpha: 0.4)),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
               color: type.isSelected
-                  ? _deepMaroon.withValues(alpha: 0.3)
-                  : _dustyRose.withValues(alpha: 0.1),
+                  ? (isDark ? const Color(0xFFE53935).withValues(alpha: 0.3) : _deepMaroon.withValues(alpha: 0.3))
+                  : (isDark ? Colors.black.withValues(alpha: 0.1) : _dustyRose.withValues(alpha: 0.1)),
               blurRadius: type.isSelected ? 8 : 4,
               offset: Offset(0, type.isSelected ? 4 : 2),
             ),
@@ -2122,7 +2182,7 @@ class _TeacherAddEditAssignmentScreenState
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: type.isSelected ? Colors.white : _deepMaroon,
+            color: type.isSelected ? Colors.white : (isDark ? Colors.white70 : _deepMaroon),
             letterSpacing: 0.5,
           ),
         ),
@@ -2132,6 +2192,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // ATTACHMENT SECTION - Modern file attachment UI
   Widget _buildAttachmentSection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return _buildLuxurySection(
       title: "Lampiran Tugas",
       subtitle: "File Pendukung",
@@ -2143,10 +2204,15 @@ class _TeacherAddEditAssignmentScreenState
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_champagne.withValues(alpha: 0.6), _pearl],
+              colors: isDark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Theme.of(context).cardColor.withValues(alpha: 0.9),
+                    ]
+                  : [_champagne.withValues(alpha: 0.6), _pearl],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
+            border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : _blushPink.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -2161,7 +2227,7 @@ class _TeacherAddEditAssignmentScreenState
                     color: Colors.white, size: 16),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2170,7 +2236,7 @@ class _TeacherAddEditAssignmentScreenState
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _deepMaroon,
+                        color: isDark ? Colors.white70 : _deepMaroon,
                       ),
                     ),
                   ],
@@ -2213,7 +2279,7 @@ class _TeacherAddEditAssignmentScreenState
                   .entries
                   .map(
                     (entry) => CustomFileContainer(
-                      backgroundColor: _pearl,
+                      backgroundColor: isDark ? Theme.of(context).cardColor : _pearl,
                       onDelete: () {
                         uploadedFiles.removeAt(entry.key);
                         setState(() {});
@@ -2235,14 +2301,19 @@ class _TeacherAddEditAssignmentScreenState
             height: 60,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  _deepMaroon.withValues(alpha: 0.1),
-                  _dustyRose.withValues(alpha: 0.05)
-                ],
+                colors: isDark
+                    ? [
+                        Colors.white.withValues(alpha: 0.05),
+                        Colors.white.withValues(alpha: 0.02),
+                      ]
+                    : [
+                        _deepMaroon.withValues(alpha: 0.1),
+                        _dustyRose.withValues(alpha: 0.05)
+                      ],
               ),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                  color: _deepMaroon.withValues(alpha: 0.3), width: 2),
+                  color: isDark ? Colors.white24 : _deepMaroon.withValues(alpha: 0.3), width: 2),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -2250,20 +2321,22 @@ class _TeacherAddEditAssignmentScreenState
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [_deepMaroon, _softMaroon]),
+                    gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFFE53935), const Color(0xFFEF5350)]
+                            : [_deepMaroon, _softMaroon]),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.add_rounded,
                       color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: 16),
-                const Text(
+                Text(
                   "Tambah Lampiran",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: _deepMaroon,
+                    color: isDark ? Colors.white70 : _deepMaroon,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -2277,6 +2350,7 @@ class _TeacherAddEditAssignmentScreenState
 
   // ?? ATTACHMENT LIST - Organized file lists
   Widget _buildAttachmentList(String title, List<Widget> attachments) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2291,16 +2365,16 @@ class _TeacherAddEditAssignmentScreenState
                 ]),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.folder_outlined,
-                  size: 16, color: _deepMaroon),
+              child: Icon(Icons.folder_outlined,
+                  size: 16, color: isDark ? Colors.white70 : _deepMaroon),
             ),
             const SizedBox(width: 10),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: _deepMaroon,
+                color: isDark ? Colors.white : _deepMaroon,
                 letterSpacing: -0.2,
               ),
             ),

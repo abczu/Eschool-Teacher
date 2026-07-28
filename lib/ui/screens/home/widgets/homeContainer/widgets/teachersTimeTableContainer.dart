@@ -34,9 +34,7 @@ class TeachersTimeTableContainer extends StatelessWidget {
         height: 110,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),

@@ -22,18 +22,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 
 // Define our theme colors
 const Color maroonPrimary = Color(0xFF8B1F41);
 const Color maroonLight = Color(0xFFAC3B5C);
 const Color maroonDark = Color(0xFF6A0F2A);
 const Color accentColor = Color(0xFFF5EBE0);
-const Color bgColor = Color(0xFFFAF6F2);
-const Color cardColor = Colors.white;
-const Color textDarkColor = Color(0xFF2D2D2D);
-const Color textMediumColor = Color(0xFF717171);
-const Color borderColor = Color(0xFFE8E8E8);
+const Color defaultBgColor = Color(0xFFFAF6F2);
+const Color defaultCardColor = Colors.white;
+const Color defaultTextDarkColor = Color(0xFF2D2D2D);
+const Color defaultTextMediumColor = Color(0xFF717171);
+const Color defaultBorderColor = Color(0xFFE8E8E8);
 
 class TeacherManageTopicScreen extends StatefulWidget {
   final ClassSection? selectedClassSection;
@@ -83,6 +83,12 @@ class TeacherManageTopicScreen extends StatefulWidget {
 
 class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
     with TickerProviderStateMixin {
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get bgColor => isDark ? Theme.of(context).scaffoldBackgroundColor : defaultBgColor;
+  Color get cardColor => isDark ? Theme.of(context).cardColor : defaultCardColor;
+  Color get textDarkColor => isDark ? Colors.white : defaultTextDarkColor;
+  Color get textMediumColor => isDark ? Colors.white70 : defaultTextMediumColor;
+  Color get borderColor => isDark ? Colors.white.withValues(alpha: 0.08) : defaultBorderColor;
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
@@ -90,7 +96,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
   bool didCreateNewTopic = false; // For tracking new topic creation
   // Animation controllers
   late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
   late AnimationController _slideController;
+  late Animation<Offset> _slideAnimation;
   late AnimationController _fabAnimationController;
 
   // For header collapsing effect
@@ -102,10 +110,25 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.15),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: Curves.easeOutCubic,
+      ),
     );
 
     // Initialize app bar animation controller
@@ -227,7 +250,14 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2), // Shorter duration
@@ -315,7 +345,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
     }
   }
 
-  Widget _buildTopicItem({required Topic topic}) {
+  Widget _buildTopicItem({required Topic topic, int index = 0}) {
+    final staggerDelay = Duration(milliseconds: 80 * index);
     return BlocProvider(
       create: (context) => DeleteTopicCubit(),
       child: Builder(builder: (context) {
@@ -395,18 +426,27 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
             }
           },
           builder: (context, state) {
-            return TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.easeOutCubic,
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: child,
-                  ),
-                );
+            return FutureBuilder(
+              future: Future.delayed(staggerDelay),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const SizedBox.shrink();
+                }
+                return TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 40 * (1 - value)),
+                      child: Transform.scale(
+                        scale: 0.95 + (0.05 * value),
+                        child: Opacity(
+                          opacity: value,
+                          child: child,
+                        ),
+                      ),
+                    );
               },
               child: Container(
                 margin: const EdgeInsets.only(
@@ -444,12 +484,17 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                             duration: const Duration(milliseconds: 300),
                             height: 130,
                             width: double.infinity,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFFF9F0F5),
-                                  Color(0xFFFDF7FA),
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Colors.grey.shade900,
+                                        Theme.of(context).cardColor,
+                                      ]
+                                    : const [
+                                        Color(0xFFF9F0F5),
+                                        Color(0xFFFDF7FA),
+                                      ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -557,7 +602,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                     ),
                                     elevation: 12,
                                     offset: const Offset(0, 50),
-                                    color: Colors.white,
+                                    color: isDark ? Theme.of(context).cardColor : Colors.white,
                                     onSelected: (value) {
                                       if (value == 'edit') {
                                         HapticFeedback.lightImpact();
@@ -799,10 +844,15 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                                           Alignment.bottomRight,
                                                     )
                                                   : LinearGradient(
-                                                      colors: [
-                                                        Colors.white,
-                                                        Colors.grey.shade100
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Colors.grey.shade900,
+                                                              Colors.grey.shade800
+                                                            ]
+                                                          : [
+                                                              Colors.white,
+                                                              Colors.grey.shade100
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
@@ -810,7 +860,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               border: Border.all(
-                                                color: Colors.grey.shade300,
+                                                color: isDark
+                                                    ? Colors.white.withValues(alpha: 0.08)
+                                                    : Colors.grey.shade300,
                                                 width: 1.5,
                                               ),
                                               boxShadow: [
@@ -857,10 +909,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                       Container(
                         padding: const EdgeInsets.fromLTRB(26, 22, 26, 24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.white,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.shade100,
+                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                               width: 1,
                             ),
                           ),
@@ -902,10 +954,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 20),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                   width: 1,
                                 ),
                               ),
@@ -928,10 +980,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                         Container(
                           padding: const EdgeInsets.all(26),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.white,
                             border: Border(
                               bottom: BorderSide(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                                 width: 1,
                               ),
                             ),
@@ -1005,10 +1057,10 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                               // Enhanced file list container
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                     width: 1,
                                   ),
                                 ),
@@ -1024,11 +1076,11 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade50,
+                                          color: isDark ? Colors.transparent : Colors.grey.shade50,
                                           border: index > 0
                                               ? Border(
                                                   top: BorderSide(
-                                                    color: Colors.grey.shade200,
+                                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                                     width: 1,
                                                   ),
                                                 )
@@ -1043,21 +1095,21 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                               height: 48,
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: isDark ? Colors.grey.shade800 : Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
                                                         .withValues(
-                                                            alpha: 0.05),
+                                                            alpha: isDark ? 0.3 : 0.05),
                                                     blurRadius: 10,
                                                     offset: const Offset(0, 3),
                                                     spreadRadius: -2,
                                                   ),
                                                 ],
                                                 border: Border.all(
-                                                  color: Colors.grey.shade100,
+                                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                                                   width: 1,
                                                 ),
                                               ),
@@ -1095,8 +1147,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                                         horizontal: 8,
                                                         vertical: 3),
                                                     decoration: BoxDecoration(
-                                                      color:
-                                                          Colors.grey.shade200,
+                                                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               6),
@@ -1187,6 +1238,8 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                 ),
               ),
             );
+              },
+            );
           },
         );
       }),
@@ -1210,16 +1263,22 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
             if (state is TopicsFetchSuccess) {
               if (state.topics.isEmpty) {
                 return Center(
-                  child: Container(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 25),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardColor,
                       borderRadius: BorderRadius.circular(16),
+                      border: isDark ? Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        width: 1,
+                      ) : null,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          spreadRadius: 2,
+                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                          spreadRadius: isDark ? 0 : 2,
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -1228,9 +1287,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.topic_outlined,
-                          color: maroonPrimary,
+                          color: isDark ? maroonLight : maroonPrimary,
                           size: 56,
                         ),
                         const SizedBox(height: 16),
@@ -1240,7 +1299,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: textDarkColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -1249,18 +1308,25 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: textMediumColor,
                           ),
                         ),
                       ],
                     ),
                   ),
+                  ),
                 );
               }
-              return Column(
-                children: List.generate(
-                  state.topics.length,
-                  (index) => _buildTopicItem(topic: state.topics[index]),
+              return SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: List.generate(
+                      state.topics.length,
+                      (index) => _buildTopicItem(topic: state.topics[index], index: index),
+                    ),
+                  ),
                 ),
               );
             } else if (state is TopicsFetchFailure) {
@@ -1279,16 +1345,22 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                   _selectedSubject == null ||
                   _selectedLesson == null) {
                 return Center(
-                  child: Container(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardColor,
                       borderRadius: BorderRadius.circular(16),
+                      border: isDark ? Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        width: 1,
+                      ) : null,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          spreadRadius: 2,
+                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                          spreadRadius: isDark ? 0 : 2,
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -1297,9 +1369,9 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
-                          color: maroonPrimary,
+                          color: isDark ? maroonLight : maroonPrimary,
                           size: 40,
                         ),
                         const SizedBox(height: 16),
@@ -1309,7 +1381,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black87,
+                            color: textDarkColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -1318,11 +1390,12 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: textMediumColor,
                           ),
                         ),
                       ],
                     ),
+                  ),
                   ),
                 );
               }
@@ -1357,90 +1430,109 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.white.withValues(alpha: 0.0),
-              Colors.white.withValues(alpha: 0.8),
-              Colors.white,
-              Colors.white,
+              bgColor.withValues(alpha: 0.0),
+              bgColor.withValues(alpha: 0.8),
+              bgColor,
+              bgColor,
             ],
             stops: const [0.0, 0.2, 0.5, 1.0],
           ),
         ),
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              Get.toNamed(
-                Routes.teacherAddEditTopicScreen,
-                arguments: TeacherAddEditTopicScreen.buildArguments(
-                  topic: null,
-                  selectedClassSection: _selectedClassSection,
-                  selectedLesson: _selectedLesson,
-                  selectedSubject: _selectedSubject,
-                ),
-              )?.then((value) {
-                if (value != null && value is bool && value) {
-                  // Delay to let pop animation finish
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    if (mounted) {
-                      getTopics();
-                      didCreateNewTopic = true;
-                    }
-                  });
-                }
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    maroonPrimary,
-                    Color(0xFF9A1E3C),
-                    maroonLight,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: maroonPrimary.withValues(alpha: 0.3),
-                    spreadRadius: 0,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      Utils.getTranslatedLabel(createTopicKey),
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        letterSpacing: 0.5,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.9, end: 1.0),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutBack,
+          builder: (context, scaleValue, child) {
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: Transform.scale(
+                scale: scaleValue,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      Get.toNamed(
+                        Routes.teacherAddEditTopicScreen,
+                        arguments: TeacherAddEditTopicScreen.buildArguments(
+                          topic: null,
+                          selectedClassSection: _selectedClassSection,
+                          selectedLesson: _selectedLesson,
+                          selectedSubject: _selectedSubject,
+                        ),
+                      )?.then((value) {
+                        if (value != null && value is bool && value) {
+                          // Delay to let pop animation finish
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (mounted) {
+                              getTopics();
+                              didCreateNewTopic = true;
+                            }
+                          });
+                        }
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    highlightColor: Colors.white.withValues(alpha: 0.1),
+                    splashColor: Colors.white.withValues(alpha: 0.2),
+                    child: Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            maroonPrimary,
+                            Color(0xFF9A1E3C),
+                            maroonLight,
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: maroonPrimary.withValues(alpha: 0.35),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.add_circle_outline,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              Utils.getTranslatedLabel(createTopicKey),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ).animate().fadeIn(duration: 500.ms),
+            );
+          },
         ),
       ),
-    ).animate().fadeIn(duration: 500.ms);
+    );
   }
 
   CustomModernAppBar _buildAppBar() {
@@ -1757,78 +1849,100 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GradeLevelCubit, GradeLevelState>(
-      builder: (context, gradeLevelState) {
-        if (gradeLevelState is GradeLevelFetchSuccess) {
+    final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
+      primaryColor: maroonPrimary,
+      scaffoldBackgroundColor: bgColor,
+      cardColor: Theme.of(context).cardColor,
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
+        seedColor: maroonPrimary,
+        primary: maroonPrimary,
+        secondary: maroonLight,
+      ).copyWith(
+        surface: Theme.of(context).colorScheme.surface,
+      ),
+    );
+
+    return Theme(
+      data: theme,
+      child: BlocBuilder<GradeLevelCubit, GradeLevelState>(
+        builder: (context, gradeLevelState) {
+          if (gradeLevelState is GradeLevelFetchSuccess) {
+            return Scaffold(
+              backgroundColor: bgColor,
+              appBar: _buildAppBar(),
+              body: Stack(
+                children: [
+                  _buildTopicList(),
+                  _buildSubmitButton(),
+                ],
+              ),
+            );
+          }
+
+          if (gradeLevelState is GradeLevelFetchFailure) {
+            return Scaffold(
+              backgroundColor: bgColor,
+              appBar: _buildAppBar(),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: maroonPrimary,
+                      size: 64,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Gagal mendapatkan data tingkat, mohon coba lagi",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: textMediumColor,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<GradeLevelCubit>().getGradeLevels();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: maroonPrimary,
+                      ),
+                      child: const Text(
+                        "Coba Lagi",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return Scaffold(
+            backgroundColor: bgColor,
             appBar: _buildAppBar(),
-            body: Stack(
+            body: Column(
               children: [
-                _buildTopicList(),
-                _buildSubmitButton(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: 5,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    itemBuilder: (context, index) =>
+                        const SkeletonAssignmentCard(),
+                  ),
+                ),
               ],
             ),
           );
-        }
-
-        if (gradeLevelState is GradeLevelFetchFailure) {
-          return Scaffold(
-            appBar: _buildAppBar(),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: maroonPrimary,
-                    size: 64,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Gagal mendapatkan data tingkat, mohon coba lagi",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: textMediumColor,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<GradeLevelCubit>().getGradeLevels();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: maroonPrimary,
-                    ),
-                    child: const Text(
-                      "Coba Lagi",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return Scaffold(
-          appBar: _buildAppBar(),
-          body: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 5,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  itemBuilder: (context, index) =>
-                      const SkeletonAssignmentCard(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 }

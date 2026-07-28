@@ -90,18 +90,27 @@ class _ContactListScreenState extends State<ContactListScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : _surfaceColor;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Scaffold(
-      backgroundColor: _surfaceColor,
+      backgroundColor: bgColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              _surfaceColor,
-              _surfaceColor.withValues(alpha: 0.8),
-              Colors.white.withValues(alpha: 0.9),
-            ],
+            colors: isDark
+                ? [
+                    bgColor,
+                    bgColor,
+                  ]
+                : [
+                    _surfaceColor,
+                    _surfaceColor.withValues(alpha: 0.8),
+                    Colors.white.withValues(alpha: 0.9),
+                  ],
           ),
         ),
         child: Column(
@@ -301,26 +310,27 @@ class _ContactListScreenState extends State<ContactListScreen>
   }
 
   Widget _buildEnhancedSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? cardBgColor : null,
+        gradient: isDark
+            ? null
+            : LinearGradient(
+                colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withValues(alpha: 0.08),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : _primaryColor.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 2,
-          ),
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.8),
-            blurRadius: 10,
-            offset: const Offset(-4, -4),
           ),
         ],
       ),
@@ -329,14 +339,14 @@ class _ContactListScreenState extends State<ContactListScreen>
         decoration: InputDecoration(
           hintText: 'Cari kontak, pesan, atau nama...',
           hintStyle: GoogleFonts.poppins(
-            color: Colors.grey[500],
+            color: isDark ? Colors.grey[500] : Colors.grey[500],
             fontSize: 14,
           ),
           prefixIcon: Container(
             padding: const EdgeInsets.all(12),
             child: Icon(
               Icons.search_rounded,
-              color: _primaryColor,
+              color: isDark ? _accentColor : _primaryColor,
               size: 24,
             ),
           ),
@@ -364,7 +374,7 @@ class _ContactListScreenState extends State<ContactListScreen>
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
-        style: GoogleFonts.poppins(fontSize: 14),
+        style: GoogleFonts.poppins(fontSize: 14, color: isDark ? Colors.white : Colors.black),
         onChanged: (value) {
           setState(() {
             searchQuery = value;
@@ -379,18 +389,24 @@ class _ContactListScreenState extends State<ContactListScreen>
   }
 
   Widget _buildEnhancedFilterCard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withValues(alpha: 0.9)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? cardBgColor : null,
+        gradient: isDark
+            ? null
+            : LinearGradient(
+                colors: [Colors.white, Colors.white.withValues(alpha: 0.9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withValues(alpha: 0.08),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : _primaryColor.withValues(alpha: 0.08),
             blurRadius: 25,
             offset: const Offset(0, 10),
             spreadRadius: 2,
@@ -409,7 +425,7 @@ class _ContactListScreenState extends State<ContactListScreen>
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 8),
@@ -452,7 +468,7 @@ class _ContactListScreenState extends State<ContactListScreen>
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 8),
@@ -483,33 +499,37 @@ class _ContactListScreenState extends State<ContactListScreen>
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: _surfaceColor,
+              color: isDark ? Colors.grey.shade900 : _surfaceColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _accentColor.withValues(alpha: 0.2)),
+              border: Border.all(color: isDark ? Colors.grey.shade800 : _accentColor.withValues(alpha: 0.2)),
             ),
             child: DropdownButtonFormField<String>(
               initialValue: _selectedSort,
+              dropdownColor: isDark ? Colors.grey.shade900 : Colors.white,
               decoration: InputDecoration(
                 prefixIcon: Container(
                   padding: const EdgeInsets.all(12),
                   child:
-                      Icon(Icons.sort_rounded, color: _primaryColor, size: 20),
+                      Icon(Icons.sort_rounded, color: isDark ? _accentColor : _primaryColor, size: 20),
                 ),
                 labelText: 'Urutkan Berdasarkan',
                 labelStyle: GoogleFonts.poppins(
-                  color: _primaryColor,
+                  color: isDark ? Colors.white70 : _primaryColor,
                   fontSize: 14,
                 ),
                 border: InputBorder.none,
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
+              style: GoogleFonts.poppins(
+                color: isDark ? Colors.white : Colors.black,
+              ),
               items: [
                 DropdownMenuItem(
                   value: 'created_at:desc',
                   child: Row(
                     children: [
-                      Text('Terbaru', style: GoogleFonts.poppins()),
+                      Text('Terbaru', style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black)),
                     ],
                   ),
                 ),
@@ -517,7 +537,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                   value: 'created_at:asc',
                   child: Row(
                     children: [
-                      Text('Terlama', style: GoogleFonts.poppins()),
+                      Text('Terlama', style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black)),
                     ],
                   ),
                 ),
@@ -782,18 +802,21 @@ class _ContactListScreenState extends State<ContactListScreen>
   }
 
   Widget _buildContactItem(Contact contact, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _accentColor.withValues(alpha: 0.1),
+          color: isDark ? Colors.grey.shade800 : _accentColor.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withValues(alpha: 0.08),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : _primaryColor.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
             spreadRadius: -2,
@@ -873,7 +896,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: _primaryColor,
+                              color: isDark ? Colors.white : _primaryColor,
                               height: 1.4,
                               letterSpacing: -0.2,
                             ),
@@ -897,15 +920,15 @@ class _ContactListScreenState extends State<ContactListScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _accentColor.withValues(alpha: 0.15),
+                      color: isDark ? Colors.grey.shade800 : _accentColor.withValues(alpha: 0.15),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withValues(alpha: 0.06),
+                        color: isDark ? Colors.black.withValues(alpha: 0.1) : _primaryColor.withValues(alpha: 0.06),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                         spreadRadius: -1,
@@ -921,13 +944,13 @@ class _ContactListScreenState extends State<ContactListScreen>
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: _primaryColor.withValues(alpha: 0.1),
+                              color: isDark ? Colors.grey.shade800 : _primaryColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Icon(
                               Icons.chat_bubble_outline_rounded,
                               size: 14,
-                              color: _primaryColor,
+                              color: isDark ? Colors.white70 : _primaryColor,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -936,7 +959,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: _primaryColor,
+                              color: isDark ? Colors.white70 : _primaryColor,
                               letterSpacing: -0.1,
                             ),
                           ),
@@ -946,14 +969,14 @@ class _ContactListScreenState extends State<ContactListScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _surfaceColor.withValues(alpha: 0.8),
+                              color: isDark ? Colors.grey.shade900 : _surfaceColor.withValues(alpha: 0.8),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               _formatDateTime(contact.createdAt),
                               style: GoogleFonts.inter(
                                 fontSize: 10,
-                                color: _lightColor,
+                                color: isDark ? Colors.grey[400] : _lightColor,
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: -0.1,
                               ),
@@ -967,7 +990,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                         contact.message,
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: const Color(0xFF374151),
+                          color: isDark ? Colors.white.withValues(alpha: 0.8) : const Color(0xFF374151),
                           height: 1.6,
                           fontWeight: FontWeight.w400,
                           letterSpacing: -0.1,
@@ -983,7 +1006,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                             '... baca selengkapnya',
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: _primaryColor,
+                              color: isDark ? const Color(0xFFAC3B5C) : _primaryColor,
                               fontWeight: FontWeight.w500,
                               fontStyle: FontStyle.italic,
                             ),
@@ -1002,16 +1025,21 @@ class _ContactListScreenState extends State<ContactListScreen>
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF059669).withValues(alpha: 0.05),
-                          const Color(0xFF10B981).withValues(alpha: 0.03),
-                        ],
+                        colors: isDark
+                            ? [
+                                const Color(0xFF064E3B).withValues(alpha: 0.2),
+                                const Color(0xFF065F46).withValues(alpha: 0.15),
+                              ]
+                            : [
+                                const Color(0xFF059669).withValues(alpha: 0.05),
+                                const Color(0xFF10B981).withValues(alpha: 0.03),
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: const Color(0xFF059669).withValues(alpha: 0.15),
+                        color: const Color(0xFF059669).withValues(alpha: isDark ? 0.3 : 0.15),
                         width: 1,
                       ),
                     ),
@@ -1039,7 +1067,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF059669),
+                                color: const Color(0xFF10B981),
                                 letterSpacing: -0.1,
                               ),
                             ),
@@ -1048,7 +1076,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: isDark ? Colors.grey.shade900 : Colors.white.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -1056,7 +1084,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                                     contact.replies!.last.createdAt),
                                 style: GoogleFonts.inter(
                                   fontSize: 9,
-                                  color: const Color(0xFF059669),
+                                  color: const Color(0xFF10B981),
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: -0.1,
                                 ),
@@ -1069,7 +1097,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                           contact.replies!.last.reply,
                           style: GoogleFonts.inter(
                             fontSize: 13,
-                            color: const Color(0xFF1F2937),
+                            color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF1F2937),
                             height: 1.5,
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.1,
@@ -1287,6 +1315,8 @@ class _ContactListScreenState extends State<ContactListScreen>
   }
 
   Widget _buildEmptyState() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -1316,7 +1346,7 @@ class _ContactListScreenState extends State<ContactListScreen>
               child: Icon(
                 Icons.contact_support_rounded,
                 size: 80,
-                color: _primaryColor,
+                color: isDark ? Colors.white : _primaryColor,
               ),
             ),
             const SizedBox(height: 32),
@@ -1325,7 +1355,7 @@ class _ContactListScreenState extends State<ContactListScreen>
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: _primaryColor,
+                color: isDark ? Colors.white : _primaryColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -1336,7 +1366,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 15,
-                  color: _lightColor,
+                  color: isDark ? Colors.grey[400] : _lightColor,
                   height: 1.6,
                 ),
               ),
@@ -1500,6 +1530,8 @@ class _ContactListScreenState extends State<ContactListScreen>
     bool isSelected,
     VoidCallback onTap,
   ) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1512,12 +1544,12 @@ class _ContactListScreenState extends State<ContactListScreen>
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: isSelected ? null : _surfaceColor,
+          color: isSelected ? null : (isDark ? Colors.grey.shade900 : _surfaceColor),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? _primaryColor
-                : _accentColor.withValues(alpha: 0.3),
+                : (isDark ? Colors.grey.shade800 : _accentColor.withValues(alpha: 0.3)),
             width: 1.5,
           ),
           boxShadow: isSelected
@@ -1536,7 +1568,7 @@ class _ContactListScreenState extends State<ContactListScreen>
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : _primaryColor,
+              color: isSelected ? Colors.white : (isDark ? Colors.white70 : _primaryColor),
             ),
             const SizedBox(width: 6),
             Text(
@@ -1544,7 +1576,7 @@ class _ContactListScreenState extends State<ContactListScreen>
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : _primaryColor,
+                color: isSelected ? Colors.white : (isDark ? Colors.white70 : _primaryColor),
               ),
             ),
           ],

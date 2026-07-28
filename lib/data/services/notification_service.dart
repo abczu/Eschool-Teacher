@@ -42,6 +42,22 @@ class NotificationService {
     // Debug Token
     await _logFCMToken();
 
+    // Register device token with backend if user is already logged in
+    if (AuthRepository.getIsLogIn()) {
+      AppLogger.info('NotificationService',
+          'User already logged in, registering device token...');
+      AuthRepository().registerDeviceToken();
+    }
+
+    // Listen for token refresh — re-register when Firebase rotates the token
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      AppLogger.info('NotificationService',
+          'FCM token refreshed, re-registering with backend...');
+      if (AuthRepository.getIsLogIn()) {
+        AuthRepository().registerDeviceToken();
+      }
+    });
+
     // Subscribe to topics
     await subscribeToTopics([staffNotificationsTopic, allNotificationsTopic]);
 
@@ -121,6 +137,12 @@ class NotificationService {
     debugPrint("🚀 [NOTIF-NAV] Type received: $type");
 
     switch (type) {
+      // Student leave
+      case 'student_leave':
+      case 'student_leave_request':
+        debugPrint("🚀 [NOTIF-NAV] Navigating to generalPermissionScreen");
+        Get.toNamed(Routes.generalPermissionScreen);
+        break;
       // Announcement & General
       case 'announcement':
       case 'announcement_created':
@@ -290,5 +312,53 @@ class NotificationService {
       'message' || 'chat' => PushType.success,
       _ => PushType.success,
     };
+  }
+
+  void simulateNotification({required String type, required String title, required String body}) {
+    try {
+      debugPrint("🚀 [SIMULATE-NOTIF] Memulai simulasi...");
+      final Map<String, dynamic> extraData = {
+        'type': type,
+        'title': title,
+        'body': body,
+        'message': body,
+      };
+      
+      // Simpan ke riwayat notifikasi lokal (Hive)
+      debugPrint("🚀 [SIMULATE-NOTIF] Menyimpan ke Hive lokal...");
+      AnnouncementRepository.addNotification(
+        notificationDetails: notificationDetails.NotificationDetails(
+          createdAt: DateTime.now().toString(),
+          id: 0, // Fallback ID generic
+          image: '',
+          message: body,
+          title: title,
+          sendTo: type,
+        ),
+      );
+      
+      final pushType = _mapPushType(type);
+      debugPrint("🚀 [SIMULATE-NOTIF] Type map: $pushType");
+      
+      // Tampilkan banner in-app
+      debugPrint("🚀 [SIMULATE-NOTIF] Memanggil showPushBanner...");
+      showPushBanner(
+        title: title,
+        body: body,
+        type: pushType,
+        onTap: () {
+          debugPrint("🚀 [SIMULATE-NOTIF] Banner ditap, menjalankan navigasi...");
+          _handleNavigation(
+            RemoteMessage(
+              data: extraData,
+            ),
+          );
+        },
+      );
+      debugPrint("🚀 [SIMULATE-NOTIF] Berhasil memicu showPushBanner");
+    } catch (e, stack) {
+      debugPrint("❌ [SIMULATE-NOTIF] Error dalam simulasi: $e");
+      debugPrint(stack.toString());
+    }
   }
 }

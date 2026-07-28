@@ -57,10 +57,18 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   late Animation<Offset> _slideAnimation;
 
   // Soft maroon color scheme
-  final Color primaryMaroon = const Color(0xFF8B1F41);
-  final Color lightMaroon = const Color(0xFFBF6680);
-  final Color accentMaroon = const Color(0xFF5D1429);
-  final Color backgroundMaroon = const Color(0xFFFDF6F8);
+  Color get primaryMaroon => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF8B1F41)
+      : const Color(0xFF800020);
+  Color get lightMaroon => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFA84B5C)
+      : const Color(0xFFAA6976);
+  Color get accentMaroon => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF4A0E17)
+      : const Color(0xFF5D1429);
+  Color get backgroundMaroon => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF1D1B1E)
+      : const Color(0xFFFDF6F8);
 
   @override
   void initState() {
@@ -138,10 +146,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Future<void> _addFiles() async {
     HapticFeedback.mediumImpact();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -150,17 +160,20 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: primaryMaroon,
+              color: isDark ? lightMaroon : primaryMaroon,
             ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.photo_library, color: primaryMaroon),
+                leading: Icon(Icons.photo_library, color: isDark ? lightMaroon : primaryMaroon),
                 title: Text(
                   'Galeri',
-                  style: GoogleFonts.poppins(fontSize: 16),
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : Colors.black87,
+                  ),
                 ),
                 onTap: () async {
                   Navigator.of(context).pop();
@@ -179,10 +192,13 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 },
               ),
               ListTile(
-                leading: Icon(Icons.camera_alt, color: primaryMaroon),
+                leading: Icon(Icons.camera_alt, color: isDark ? lightMaroon : primaryMaroon),
                 title: Text(
                   'Kamera',
-                  style: GoogleFonts.poppins(fontSize: 16),
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : Colors.black87,
+                  ),
                 ),
                 onTap: () async {
                   Navigator.of(context).pop();
@@ -208,7 +224,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               child: Text(
                 'Batal',
                 style: GoogleFonts.poppins(
-                  color: primaryMaroon,
+                  color: isDark ? lightMaroon : primaryMaroon,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -243,6 +259,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       required String textFieldHintTextKey,
       required TextEditingController textEditingController,
       IconData? prefixIcon}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -255,7 +272,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 Icon(
                   prefixIcon ?? Icons.person_outline,
                   size: 18,
-                  color: primaryMaroon,
+                  color: isDark ? lightMaroon : primaryMaroon,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -263,7 +280,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: accentMaroon,
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : accentMaroon,
                   ),
                 ),
               ],
@@ -272,10 +289,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
+              color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : Colors.grey.withValues(alpha: 0.1),
                   offset: const Offset(0, 3),
                   blurRadius: 10,
                   spreadRadius: 0,
@@ -286,13 +305,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               controller: textEditingController,
               style: GoogleFonts.poppins(
                 fontSize: 15,
-                color: Colors.black87,
+                color: isDark ? Theme.of(context).colorScheme.onSurface : Colors.black87,
               ),
               decoration: InputDecoration(
                 hintText: textFieldHintTextKey.tr,
                 hintStyle: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: Colors.black26,
+                  color: isDark
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)
+                      : Colors.black26,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -300,18 +321,22 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200,
+                      width: isDark ? 0.5 : 1),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200,
+                      width: isDark ? 0.5 : 1),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: primaryMaroon, width: 1.5),
+                  borderSide: BorderSide(color: isDark ? lightMaroon : primaryMaroon, width: 1.5),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
               ),
             ),
           ),
@@ -321,6 +346,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildDateOfBirthContainer() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -333,7 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 Icon(
                   Icons.cake_outlined,
                   size: 18,
-                  color: primaryMaroon,
+                  color: isDark ? lightMaroon : primaryMaroon,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -341,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: accentMaroon,
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : accentMaroon,
                   ),
                 ),
               ],
@@ -361,11 +387,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       colorScheme: ColorScheme.light(
                         primary: primaryMaroon,
                         onPrimary: Colors.white,
-                        onSurface: Colors.black,
+                        onSurface: isDark ? Colors.white : Colors.black,
+                        surface: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
                       ),
                       textButtonTheme: TextButtonThemeData(
                         style: TextButton.styleFrom(
-                          foregroundColor: primaryMaroon,
+                          foregroundColor: isDark ? lightMaroon : primaryMaroon,
                         ),
                       ),
                     ),
@@ -384,10 +411,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               height: 56,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.white,
+                color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.1),
                     offset: const Offset(0, 3),
                     blurRadius: 10,
                     spreadRadius: 0,
@@ -398,7 +427,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200, width: 1),
+                  border: Border.all(
+                      color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200,
+                      width: isDark ? 0.5 : 1),
                 ),
                 alignment: AlignmentDirectional.centerStart,
                 child: Row(
@@ -411,13 +442,13 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         color: dateOfBirth.text.isEmpty
-                            ? Colors.black26
-                            : Colors.black87,
+                            ? (isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38) : Colors.black26)
+                            : (isDark ? Theme.of(context).colorScheme.onSurface : Colors.black87),
                       ),
                     ),
                     Icon(
                       Icons.calendar_today,
-                      color: primaryMaroon,
+                      color: isDark ? lightMaroon : primaryMaroon,
                       size: 18,
                     ),
                   ],
@@ -431,6 +462,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   Widget _buildGenderSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -443,7 +475,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 Icon(
                   Icons.people_outline,
                   size: 18,
-                  color: primaryMaroon,
+                  color: isDark ? lightMaroon : primaryMaroon,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -451,7 +483,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: accentMaroon,
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : accentMaroon,
                   ),
                 ),
               ],
@@ -475,6 +507,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Widget _buildGenderOption(String gender, IconData icon) {
     bool isSelected = selectedGender == gender;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -487,16 +520,18 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         duration: const Duration(milliseconds: 300),
         height: 56,
         decoration: BoxDecoration(
-          color: isSelected ? primaryMaroon.withValues(alpha: 0.1) : Colors.white,
+          color: isSelected
+              ? (isDark ? lightMaroon.withValues(alpha: 0.2) : primaryMaroon.withValues(alpha: 0.1))
+              : (isDark ? Theme.of(context).colorScheme.surface : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? primaryMaroon : Colors.grey.shade200,
+            color: isSelected ? (isDark ? lightMaroon : primaryMaroon) : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: primaryMaroon.withValues(alpha: 0.15),
+                    color: (isDark ? lightMaroon : primaryMaroon).withValues(alpha: 0.15),
                     blurRadius: 8,
                     spreadRadius: 1,
                     offset: const Offset(0, 3),
@@ -504,7 +539,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 ]
               : [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
+                    color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 6,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -516,7 +551,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           children: [
             Icon(
               icon,
-              color: isSelected ? primaryMaroon : Colors.grey,
+              color: isSelected ? (isDark ? lightMaroon : primaryMaroon) : Colors.grey,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -525,7 +560,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? primaryMaroon : Colors.black87,
+                color: isSelected
+                    ? (isDark ? lightMaroon : primaryMaroon)
+                    : (isDark ? Theme.of(context).colorScheme.onSurface : Colors.black87),
               ),
             ),
           ],
@@ -633,8 +670,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: backgroundMaroon,
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : backgroundMaroon,
       appBar: CustomModernAppBar(
         title: editProfileKey.tr,
         icon: Icons.person_outline,
@@ -693,9 +731,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             children: [
               // Background container dengan rounded corners
               Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFDF6F8),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: isDark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFFDF6F8),
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
@@ -733,7 +771,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        primaryMaroon.withValues(alpha: 0.1),
+                                        (isDark ? lightMaroon : primaryMaroon).withValues(alpha: 0.1),
                                         lightMaroon.withValues(alpha: 0.05),
                                       ],
                                     ),
@@ -753,8 +791,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       begin: Alignment.topRight,
                                       end: Alignment.bottomLeft,
                                       colors: [
-                                        accentMaroon.withValues(alpha: 0.08),
-                                        primaryMaroon.withValues(alpha: 0.03),
+                                        (isDark ? accentMaroon : primaryMaroon).withValues(alpha: 0.08),
+                                        (isDark ? lightMaroon : primaryMaroon).withValues(alpha: 0.03),
                                       ],
                                     ),
                                   ),
@@ -776,7 +814,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   ),
                                   child: Icon(
                                     Icons.school_outlined,
-                                    color: primaryMaroon.withValues(alpha: 0.6),
+                                    color: isDark ? lightMaroon.withValues(alpha: 0.8) : primaryMaroon.withValues(alpha: 0.6),
                                     size: 24,
                                   ),
                                 ),
@@ -796,7 +834,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   ),
                                   child: Icon(
                                     Icons.star_outline,
-                                    color: accentMaroon.withValues(alpha: 0.7),
+                                    color: isDark ? lightMaroon.withValues(alpha: 0.8) : accentMaroon.withValues(alpha: 0.7),
                                     size: 20,
                                   ),
                                 ),
@@ -810,7 +848,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   height: 8,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: primaryMaroon.withValues(alpha: 0.3),
+                                    color: (isDark ? lightMaroon : primaryMaroon).withValues(alpha: 0.3),
                                   ),
                                 ),
                               ),
@@ -834,7 +872,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   height: 4,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: accentMaroon.withValues(alpha: 0.5),
+                                    color: (isDark ? lightMaroon : accentMaroon).withValues(alpha: 0.5),
                                   ),
                                 ),
                               ),
@@ -850,26 +888,28 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Colors.white,
-                                        Colors.white.withValues(alpha: 0.95),
+                                        isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+                                        isDark
+                                            ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.95)
+                                            : Colors.white.withValues(alpha: 0.95),
                                       ],
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: primaryMaroon.withValues(alpha: 0.15),
+                                        color: (isDark ? lightMaroon : primaryMaroon).withValues(alpha: 0.15),
                                         blurRadius: 20,
                                         spreadRadius: 8,
                                         offset: const Offset(0, 8),
                                       ),
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
+                                        color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.05),
                                         blurRadius: 15,
                                         spreadRadius: 2,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                     border: Border.all(
-                                      color: lightMaroon.withValues(alpha: 0.1),
+                                      color: isDark ? Colors.white.withValues(alpha: 0.1) : lightMaroon.withValues(alpha: 0.1),
                                       width: 2,
                                     ),
                                   ),
@@ -1017,7 +1057,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                                     ),
                                                   ],
                                                   border: Border.all(
-                                                    color: Colors.white,
+                                                    color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
                                                     width: 3,
                                                   ),
                                                 ),
@@ -1045,7 +1085,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: accentMaroon,
+                              color: isDark ? Theme.of(context).colorScheme.onSurface : accentMaroon,
                             ),
                           ),
                         ),
@@ -1084,7 +1124,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: accentMaroon,
+                                color: isDark ? Theme.of(context).colorScheme.onSurface : accentMaroon,
                               ),
                             ),
                           ),

@@ -1,7 +1,7 @@
-﻿import 'package:eschool_saas_staff/cubits/leave/generalPermissionCubit.dart';
+import 'package:eschool_saas_staff/cubits/leave/generalPermissionCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/system/permissionDetailsContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/stackedPermissionSwiper.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
@@ -165,6 +165,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Stack(
         children: [
@@ -277,7 +278,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                               Text(
                                 'Tanggal: ${Utils.formatDate(_selectedDateTime)}',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                                   fontSize: 14,
                                 ),
                               ),
@@ -318,7 +319,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                       style: GoogleFonts.poppins(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
-                                        color: _maroonPrimary,
+                                        color: isDark ? Colors.white : _maroonPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -326,7 +327,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                       'Izin siswa tanggal ${Utils.formatDate(_selectedDateTime)}',
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
-                                        color: Colors.grey[600],
+                                        color: isDark ? Colors.grey[300] : Colors.grey[600],
                                       ),
                                     ),
                                   ],
@@ -336,15 +337,13 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                   end: 0,
                                   curve: Curves.easeOutQuad),
 
-                              // Permission containers
-                              Column(
-                                children: filteredLeaves
-                                    .map((permissionDetails) =>
-                                        PermissionDetailsContainer(
-                                            permissionDetails:
-                                                permissionDetails,
-                                            onPermissionUpdated: getLeaves))
-                                    .toList(),
+                              // Permission containers (replaced with Tinder-style horizontal PageView carousel)
+                              SizedBox(
+                                height: 380,
+                                child: StackedPermissionSwiper(
+                                  permissions: filteredLeaves,
+                                  onPermissionUpdated: getLeaves,
+                                ),
                               ).animate().fadeIn(duration: 500.ms).slideY(
                                   begin: 0.05,
                                   end: 0,
@@ -378,8 +377,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 16),
                               child: Shimmer.fromColors(
-                                baseColor: Colors.grey.shade300,
-                                highlightColor: Colors.grey.shade100,
+                                baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                                highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -387,7 +386,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                       height: 24,
                                       width: 200,
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
@@ -396,7 +395,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                       height: 14,
                                       width: 300,
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
@@ -412,19 +411,22 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                   margin:
                                       const EdgeInsets.fromLTRB(16, 0, 16, 16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: isDark ? Theme.of(context).cardColor : Colors.white,
                                     borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
+                                    border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+                                    boxShadow: isDark
+                                        ? null
+                                        : [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(alpha: 0.05),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
                                   ),
                                   child: Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade100,
+                                    baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                                    highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
@@ -438,8 +440,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                               Container(
                                                 width: 50,
                                                 height: 50,
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
+                                                decoration: BoxDecoration(
+                                                  color: isDark ? Colors.grey.shade700 : Colors.white,
                                                   shape: BoxShape.circle,
                                                 ),
                                               ),
@@ -454,7 +456,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                       height: 16,
                                                       width: double.infinity,
                                                       decoration: BoxDecoration(
-                                                        color: Colors.white,
+                                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(8),
@@ -465,7 +467,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                       height: 14,
                                                       width: 120,
                                                       decoration: BoxDecoration(
-                                                        color: Colors.white,
+                                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(6),
@@ -479,7 +481,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                 width: 80,
                                                 height: 24,
                                                 decoration: BoxDecoration(
-                                                  color: Colors.white,
+                                                  color: isDark ? Colors.grey.shade700 : Colors.white,
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
@@ -493,7 +495,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                           Container(
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: Colors.grey.shade100,
+                                              color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -507,8 +509,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                     Container(
                                                       width: 16,
                                                       height: 16,
-                                                      decoration: const BoxDecoration(
-                                                        color: Colors.white,
+                                                      decoration: BoxDecoration(
+                                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),
                                                     ),
@@ -517,7 +519,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                       height: 14,
                                                       width: 150,
                                                       decoration: BoxDecoration(
-                                                        color: Colors.white,
+                                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(6),
@@ -532,8 +534,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                     Container(
                                                       width: 16,
                                                       height: 16,
-                                                      decoration: const BoxDecoration(
-                                                        color: Colors.white,
+                                                      decoration: BoxDecoration(
+                                                        color: isDark ? Colors.grey.shade700 : Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),
                                                     ),
@@ -543,7 +545,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                         height: 14,
                                                         decoration:
                                                             BoxDecoration(
-                                                          color: Colors.white,
+                                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(6),

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/exam/offlineExamStudentResultsCubit.dart';
+import 'package:eschool_saas_staff/cubits/exam/offlineExamStudentResultsCubit.dart';
 import 'package:eschool_saas_staff/cubits/exam/offlineExamsWithClassesAndSessionYearsCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
@@ -715,10 +715,12 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionTile.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -27,9 +27,6 @@ class FilterSelectionBottomsheet<T> extends StatelessWidget {
           "${showFilterByLabel ? '${Utils.getTranslatedLabel(filterByKey)} : ' : ''}${Utils.getTranslatedLabel(titleKey)}",
       child: Column(
         children: [
-          const SizedBox(
-            height: 25,
-          ),
           // Create list with Divider between each item
           ...values.asMap().entries.map((entry) {
             final index = entry.key;
@@ -49,10 +46,11 @@ class FilterSelectionBottomsheet<T> extends StatelessWidget {
                       : Utils().cleanClassName(value.toString()),
                 ),
                 // Add Divider if not the last item
-                if (index < values.length)
-                  const Divider(
-                    // color: Colors.grey, // Customize as needed
-                    thickness: 0.5, // Adjust the thickness
+                if (index < values.length - 1)
+                  Divider(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                    thickness: 1,
+                    height: 1,
                   ),
               ],
             );

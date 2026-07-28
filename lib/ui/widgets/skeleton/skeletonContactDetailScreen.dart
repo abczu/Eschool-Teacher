@@ -12,17 +12,17 @@ class SkeletonContactDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Contact Info Card Skeleton
-          _buildContactInfoCardSkeleton(),
+          _buildContactInfoCardSkeleton(context),
 
           const SizedBox(height: 16),
 
           // Message Card Skeleton
-          _buildMessageCardSkeleton(),
+          _buildMessageCardSkeleton(context),
 
           const SizedBox(height: 16),
 
-          // Replies Section Skeleton (optional, show sometimes)
-          _buildRepliesSectionSkeleton(),
+          // Replies Section Skeleton
+          _buildRepliesSectionSkeleton(context),
 
           const SizedBox(height: 100), // Space for reply input
         ],
@@ -30,22 +30,32 @@ class SkeletonContactDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactInfoCardSkeleton() {
+  Widget _buildContactInfoCardSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color ph = isDark ? Colors.grey.shade700 : Colors.white;
+    final Color subtleBg = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +67,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ph,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -66,12 +76,11 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Type and subject
                       Container(
                         height: 14,
                         width: 80,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: ph,
                           borderRadius: BorderRadius.circular(7),
                         ),
                       ),
@@ -80,7 +89,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                         height: 18,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: ph,
                           borderRadius: BorderRadius.circular(9),
                         ),
                       ),
@@ -92,14 +101,14 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ph,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Container(
                     height: 12,
                     width: 50,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: subtleBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
@@ -110,25 +119,25 @@ class SkeletonContactDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Contact Details
-            _buildDetailRowSkeleton(),
+            _buildDetailRowSkeleton(ph),
             const SizedBox(height: 12),
-            _buildDetailRowSkeleton(),
+            _buildDetailRowSkeleton(ph),
             const SizedBox(height: 12),
-            _buildDetailRowSkeleton(),
+            _buildDetailRowSkeleton(ph),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRowSkeleton() {
+  Widget _buildDetailRowSkeleton(Color ph) {
     return Row(
       children: [
         Container(
           width: 18,
           height: 18,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: ph,
             borderRadius: BorderRadius.circular(9),
           ),
         ),
@@ -137,7 +146,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
           height: 14,
           width: 60,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: ph,
             borderRadius: BorderRadius.circular(7),
           ),
         ),
@@ -146,7 +155,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
           child: Container(
             height: 14,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: ph,
               borderRadius: BorderRadius.circular(7),
             ),
           ),
@@ -155,22 +164,31 @@ class SkeletonContactDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageCardSkeleton() {
+  Widget _buildMessageCardSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color ph = isDark ? Colors.grey.shade700 : Colors.white;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +199,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ph,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -190,7 +208,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                   height: 16,
                   width: 60,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: ph,
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -202,7 +220,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
               height: 14,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ph,
                 borderRadius: BorderRadius.circular(7),
               ),
             ),
@@ -211,7 +229,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
               height: 14,
               width: 280,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ph,
                 borderRadius: BorderRadius.circular(7),
               ),
             ),
@@ -220,7 +238,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
               height: 14,
               width: 200,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ph,
                 borderRadius: BorderRadius.circular(7),
               ),
             ),
@@ -230,10 +248,17 @@ class SkeletonContactDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRepliesSectionSkeleton() {
+  Widget _buildRepliesSectionSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color ph = isDark ? Colors.grey.shade700 : Colors.white;
+    final Color subtleBorder = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
+    final Color replyBg = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -243,7 +268,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: ph,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -252,7 +277,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                 height: 16,
                 width: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: ph,
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -265,10 +290,10 @@ class SkeletonContactDetailScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: replyBg,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey.shade200,
+                  color: subtleBorder,
                 ),
               ),
               child: Column(
@@ -280,7 +305,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: ph,
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
@@ -293,7 +318,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                               height: 12,
                               width: 80,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: ph,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             ),
@@ -302,7 +327,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                               height: 10,
                               width: 60,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: ph,
                                 borderRadius: BorderRadius.circular(5),
                               ),
                             ),
@@ -316,7 +341,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                     height: 13,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: ph,
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
@@ -325,7 +350,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
                     height: 13,
                     width: 250,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: ph,
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),

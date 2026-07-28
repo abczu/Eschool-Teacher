@@ -265,7 +265,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                 height: 95,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5) : null,
                   boxShadow: [
                     BoxShadow(
@@ -335,7 +335,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.poppins(
-                                    color: isDark ? const Color(0xFFFF3D60) : maroonPrimary,
+                                    color: isDark ? const Color(0xFFE53935) : maroonPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18.0,
                                     height: 1.1,

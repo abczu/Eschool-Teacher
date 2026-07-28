@@ -122,7 +122,14 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
         backgroundColor: AppColorPalette.primaryMaroon,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -211,16 +218,17 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
-              surface: Colors.white,
+              surface: isDark ? Theme.of(context).cardColor : Colors.white,
             ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
         appBar: CustomModernAppBar(
           title: Utils.getTranslatedLabel(classSectionKey),
           icon: Icons.class_outlined,
@@ -327,6 +335,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   }
 
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Positioned(
       top: 0,
       left: 0,
@@ -339,11 +348,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
             ? Container(
                 margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -351,8 +360,10 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                 ),
                 child: TextField(
                   controller: _searchController,
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Cari kelas...',
+                    hintStyle: TextStyle(color: isDark ? Colors.white60 : Colors.black54),
                     prefixIcon: const Icon(Icons.search,
                         color: AppColorPalette.secondaryMaroon),
                     suffixIcon: IconButton(
@@ -382,6 +393,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -396,14 +408,14 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.05),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.08 : 0.05),
                   border: Border.all(
-                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.2 : 0.1),
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.15 : 0.08),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -421,7 +433,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+                              AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.25 : 0.15),
                               AppColorPalette.primaryMaroon.withValues(alpha: 0.0),
                             ],
                           ),
@@ -432,7 +444,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                       Icon(
                         Icons.school_outlined,
                         size: 80,
-                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.8),
+                        color: (isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon).withValues(alpha: isDark ? 0.95 : 0.8),
                       ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
                     ],
                   ),
@@ -447,7 +459,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColorPalette.primaryMaroon,
+                  color: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                 ),
               ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
               
@@ -459,7 +471,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 15,
-                  color: Colors.grey.shade600,
+                  color: isDark ? Colors.white70 : Colors.grey.shade600,
                   height: 1.5,
                 ),
               ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
@@ -742,10 +754,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
   Widget _buildEnhancedClassCard(
       BuildContext context, ClassSection classSection, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isEven = index.isEven;
     final cardGradient = [
-      Colors.white,
-      Colors.white,
+      isDark ? Theme.of(context).cardColor : Colors.white,
+      isDark ? Theme.of(context).cardColor : Colors.white,
     ];
 
     return TweenAnimationBuilder(
@@ -779,15 +792,17 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                         spreadRadius: 1,
                       ),
                     ],
                     border: Border.all(
-                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
-                      width: 1.5,
+                      color: isDark 
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                      width: isDark ? 1.0 : 1.5,
                     ),
                   ),
                   child: Column(
@@ -807,12 +822,15 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
   Widget _buildEnhancedCardHeader(
       BuildContext context, ClassSection details, bool isEven) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+            color: isDark 
+                ? Colors.white.withValues(alpha: 0.1)
+                : AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -820,8 +838,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
           begin: isEven ? Alignment.centerLeft : Alignment.centerRight,
           end: isEven ? Alignment.centerRight : Alignment.centerLeft,
           colors: [
-            AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
-            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.25 : 0.15),
+            AppColorPalette.secondaryMaroon.withValues(alpha: isDark ? 0.12 : 0.08),
           ],
         ),
         borderRadius: const BorderRadius.vertical(
@@ -839,7 +857,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColorPalette.primaryMaroon,
+                    color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                   ),
                 ),
               ],
@@ -933,6 +951,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   Widget _buildEnhancedInfoRow(
       BuildContext context, String label, String value, IconData icon,
       {required List<Color> gradient}) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       margin:
@@ -940,8 +959,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColorPalette.primaryMaroon.withValues(alpha: 0.12),
-            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.2 : 0.12),
+            AppColorPalette.secondaryMaroon.withValues(alpha: isDark ? 0.1 : 0.08),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -949,13 +968,15 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+          color: isDark 
+              ? Colors.white.withValues(alpha: 0.08)
+              : AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -964,11 +985,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
+              color: AppColorPalette.primaryMaroon,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.4 : 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -986,7 +1007,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: AppColorPalette.secondaryMaroon,
+                    color: isDark ? AppColorPalette.lightMaroon : AppColorPalette.secondaryMaroon,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -995,7 +1016,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColorPalette.primaryMaroon,
+                    color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                   ),
                 ),
               ],
@@ -1057,6 +1078,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return CustomBottomsheet(
       titleLabelKey: classSubjectsKey,
       child: Column(
@@ -1070,15 +1092,17 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
                 colors: [
-                  AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
-                  AppColorPalette.primaryMaroon.withValues(alpha: 0.85),
+                  isDark ? AppColorPalette.primaryMaroon : AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
+                  isDark ? AppColorPalette.secondaryMaroon : AppColorPalette.primaryMaroon.withValues(alpha: 0.85),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.shadowColor.withValues(alpha: 0.25),
+                  color: isDark 
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : AppColorPalette.shadowColor.withValues(alpha: 0.25),
                   blurRadius: 12,
                   spreadRadius: 2,
                   offset: const Offset(0, 6),
@@ -1149,16 +1173,17 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                             right:
                                 4), // Tambahkan margin horizontal kanan dan kiri
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).cardColor : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color:
-                                AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
-                            width: 1.5,
+                            color: isDark 
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+                            width: isDark ? 1.0 : 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
+                              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
                               blurRadius: 15,
                               spreadRadius: 1,
                               offset: const Offset(0, 5),
@@ -1188,7 +1213,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                                       style: GoogleFonts.poppins(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColorPalette.primaryMaroon,
+                                        color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                                       ),
                                     ),
 
@@ -1198,19 +1223,20 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                                           vertical: 12.0),
                                       child: Container(
                                         height: 1,
-                                        color: AppColorPalette.primaryMaroon
-                                            .withValues(alpha: 0.1),
+                                        color: isDark
+                                            ? AppColorPalette.primaryMaroon.withValues(alpha: 0.2)
+                                            : AppColorPalette.primaryMaroon
+                                                .withValues(alpha: 0.1),
                                       ),
                                     ),
 
                                     // Teacher info - elegant and simple
                                     Row(
                                       children: [
-                                        const Icon(
+                                        Icon(
                                           Icons.person_outline,
                                           size: 18,
-                                          color:
-                                              AppColorPalette.secondaryMaroon,
+                                          color: isDark ? AppColorPalette.lightMaroon : AppColorPalette.secondaryMaroon,
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
@@ -1218,8 +1244,7 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                                             teacher,
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
-                                              color: AppColorPalette
-                                                  .secondaryMaroon,
+                                              color: isDark ? AppColorPalette.lightMaroon : AppColorPalette.secondaryMaroon,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),

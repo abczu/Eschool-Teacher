@@ -5,6 +5,7 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 // import 'package:eschool_saas_staff/ui/widgets/leave/leaveDetailsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/permissionDetailsContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/stackedPermissionSwiper.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
@@ -13,13 +14,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class TeacherPermissionContainer extends StatelessWidget {
-  const TeacherPermissionContainer({super.key});
+class TeacherPermissionContainer extends StatefulWidget {
+  final VoidCallback? onPermissionUpdated;
+  const TeacherPermissionContainer({super.key, this.onPermissionUpdated});
 
   @override
-  Widget build(BuildContext context) {
-    final textScaleFactor = MediaQuery.textScalerOf(context).scale(1);
+  State<TeacherPermissionContainer> createState() =>
+      _TeacherPermissionContainerState();
+}
 
+class _TeacherPermissionContainerState
+    extends State<TeacherPermissionContainer> {
+  @override
+  Widget build(BuildContext context) {
     final todaysPermission =
         context.read<HomeScreenDataCubit>().getTodayPermission();
     return RoundedBackgroundContainer(
@@ -44,12 +51,12 @@ class TeacherPermissionContainer extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
                     decoration: BoxDecoration(
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.02)
+                          ? const Color(0xFF2A2A2C)
                           : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white.withValues(alpha: 0.05)
+                            ? Colors.white.withValues(alpha: 0.1)
                             : Colors.grey.shade100,
                       ),
                       boxShadow: [
@@ -93,22 +100,17 @@ class TeacherPermissionContainer extends StatelessWidget {
                     ),
                   ),
                 )
-              : Column(
-                  children: [
-                    PermissionDetailsContainer(
-                      permissionDetails: todaysPermission[0],
-                      overflow: true,
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 25),
+                  child: SizedBox(
+                    height: 380,
+                    child: StackedPermissionSwiper(
+                      permissions: todaysPermission,
+                      onPermissionUpdated: () {
+                        widget.onPermissionUpdated?.call();
+                      },
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    todaysPermission.length > 2
-                        ? PermissionDetailsContainer(
-                            permissionDetails: todaysPermission[1],
-                            overflow: true,
-                          )
-                        : const SizedBox(),
-                  ],
+                  ),
                 ),
         ],
       ),

@@ -77,10 +77,14 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
   int _currentPageIndex = 0;
 
   // Fresh Soft Maroon Palette - Consistent with allowancesAndDeductionsScreen
-  final Color _maroonPrimary = const Color(0xFF8B4A5B);
-  final Color _maroonLight = const Color(0xFFA6677A);
-  final Color _neutralBg = const Color(0xFFFBFAFA);
-  final Color _cardBg = const Color(0xFFFFFFFF);
+  Color get _maroonPrimary => const Color(0xFF8B4A5B);
+  Color get _maroonLight => const Color(0xFFA6677A);
+  Color get _neutralBg => Theme.of(context).brightness == Brightness.dark
+      ? Theme.of(context).scaffoldBackgroundColor
+      : const Color(0xFFFBFAFA);
+  Color get _cardBg => Theme.of(context).brightness == Brightness.dark
+      ? Theme.of(context).colorScheme.surface
+      : const Color(0xFFFFFFFF);
 
   /// Safely parse date string with multiple format support
   DateTime? _parseDate(String? dateString) {
@@ -322,7 +326,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     });
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 120),
       curve: Curves.easeInOut,
     );
   }

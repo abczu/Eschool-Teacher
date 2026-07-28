@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/leave/generalLeavesCubit.dart';
+import 'package:eschool_saas_staff/cubits/leave/generalLeavesCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/leave/leaveDetailsContainer.dart';
@@ -165,8 +165,10 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
       appBar: CustomModernAppBar(
         title: Utils.getTranslatedLabel(leavesKey),
         icon: Icons.event_note_rounded,
@@ -192,6 +194,9 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
               return Center(
                 child: CustomTextContainer(
                   textKey: Utils.getTranslatedLabel('Tidak ada guru yang cuti'),
+                  style: GoogleFonts.poppins(
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
                 ),
               );
             } else {
@@ -251,19 +256,22 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                     margin:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? Theme.of(context).cardColor : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+                      border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+                      boxShadow: isDark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                     ),
                     child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
+                      baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                      highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -276,8 +284,8 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                 Container(
                                   width: 50,
                                   height: 50,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
+                                  decoration: BoxDecoration(
+                                    color: isDark ? Colors.grey.shade700 : Colors.white,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -292,7 +300,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                         height: 16,
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
@@ -302,7 +310,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                         height: 14,
                                         width: 120,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
@@ -315,7 +323,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                   width: 80,
                                   height: 24,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: isDark ? Colors.grey.shade700 : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
@@ -329,7 +337,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                               width: double.infinity,
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -341,8 +349,8 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -351,7 +359,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                         height: 14,
                                         width: 150,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
@@ -365,8 +373,8 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -375,7 +383,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                         height: 14,
                                         width: 100,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
@@ -385,7 +393,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                         height: 14,
                                         width: 60,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
@@ -401,8 +409,8 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: isDark ? Colors.grey.shade700 : Colors.white,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -416,7 +424,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                               height: 14,
                                               width: double.infinity,
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: isDark ? Colors.grey.shade700 : Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                               ),
@@ -429,7 +437,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                                       .width *
                                                   0.6,
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: isDark ? Colors.grey.shade700 : Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                               ),

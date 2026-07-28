@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
+import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter/material.dart';
@@ -62,16 +62,23 @@ class CustomFileContainer extends StatelessWidget {
               onTap: () {
                 onDelete!();
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).extension<CustomColors>()!.redColor!,
-                ),
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.delete_outline,
-                  color: Theme.of(context).colorScheme.surface,
-                ),
+              child: Builder(
+                builder: (context) {
+                  final bool isDark = Theme.of(context).brightness == Brightness.dark;
+                  return Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark
+                          ? const Color(0xFFE53935)
+                          : Theme.of(context).extension<CustomColors>()!.redColor!,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: isDark ? Colors.white : Theme.of(context).colorScheme.surface,
+                    ),
+                  );
+                },
               ),
             ),
           ],

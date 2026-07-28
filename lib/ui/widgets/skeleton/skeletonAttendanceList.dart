@@ -9,6 +9,12 @@ class SkeletonAttendanceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color headerColor = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+    final Color itemColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -20,12 +26,12 @@ class SkeletonAttendanceList extends StatelessWidget {
             width: double.infinity,
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: headerColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 14, horizontal: 13),
@@ -110,18 +116,18 @@ class SkeletonAttendanceList extends StatelessWidget {
                 children: List.generate(itemCount, (index) {
                   return Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: itemColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.05),
                           blurRadius: 2,
                           offset: const Offset(0, 1),
                         ),
                       ],
                     ),
                     child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
+                      baseColor: shimmerBase,
+                      highlightColor: shimmerHighlight,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 12, horizontal: 13),

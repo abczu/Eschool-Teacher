@@ -1,4 +1,5 @@
-﻿import 'dart:convert';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
@@ -93,6 +94,40 @@ class AuthRepository {
       return (await FirebaseMessaging.instance.getToken()) ?? "";
     } catch (e) {
       return "";
+    }
+  }
+
+  /// Register FCM device token to backend for push notifications.
+  /// Called after login and on app startup when user is already authenticated.
+  Future<void> registerDeviceToken() async {
+    try {
+      final String fcmToken = await getFcmToken();
+      if (fcmToken.isEmpty) {
+        debugPrint('⚠️ [DEVICE-REG] FCM token is empty, skipping registration');
+        return;
+      }
+
+      final String platform = Platform.isIOS ? 'ios' : 'android';
+
+      debugPrint('📱 [DEVICE-REG] Registering device token...');
+      debugPrint('   - Platform: $platform');
+      debugPrint('   - FCM Token: ${fcmToken.substring(0, 20)}...');
+
+      final result = await Api.postJson(
+        body: {
+          "fcm_id": fcmToken,
+          "platform": platform,
+        },
+        url: Api.registerDeviceToken,
+        useAuthToken: true,
+      );
+
+      debugPrint('✅ [DEVICE-REG] Device token registered successfully');
+      debugPrint('   - Response: $result');
+    } on ApiException catch (e) {
+      debugPrint('❌ [DEVICE-REG] API Error: ${e.errorMessage}');
+    } catch (e) {
+      debugPrint('❌ [DEVICE-REG] Unexpected error: $e');
     }
   }
 

@@ -1,9 +1,12 @@
 import 'dart:math';
+import 'dart:io';
+import 'dart:convert';
 
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/roundedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddAttendanceSubjectScreen.dart';
@@ -119,6 +122,167 @@ class _TeacherTodaysTimetableContainerState
     return "-";
   }
 
+  String _normalizeTime(String? time) {
+    if (time == null || time.isEmpty) return "";
+    final parts = time.split(':');
+    if (parts.length >= 2) {
+      return "${parts[0].trim()}:${parts[1].trim()}";
+    }
+    return time.trim();
+  }
+
+  String _getSlotGroupKey(TimeTableSlot slot) {
+    final startTime = _normalizeTime(slot.startTime);
+    final endTime = _normalizeTime(slot.endTime);
+    final subjectName = slot.subject?.name?.trim().toLowerCase() ?? "-";
+    return "${startTime}_${endTime}_$subjectName";
+  }
+
+  String getMergedClassSectionName(List<TimeTableSlot> group) {
+    if (group.isEmpty) return "-";
+    
+    // Resolve all class section names
+    final classNames = <String>[];
+    for (var slot in group) {
+      final name = getClassSectionName(slot.classSectionId);
+      if (name != "-") {
+        classNames.add(name);
+      }
+    }
+    
+    final uniqueNames = classNames.toSet().toList();
+    if (uniqueNames.isEmpty) return "-";
+    if (uniqueNames.length == 1) return uniqueNames.first;
+    
+    final classParts = <String>[];
+    String? mediumPart;
+    for (var name in uniqueNames) {
+      if (name.contains(" (")) {
+        final parts = name.split(" (");
+        classParts.add(parts[0].trim());
+        if (mediumPart == null && parts.length > 1) {
+          mediumPart = parts[1].replaceAll(")", "").trim();
+        }
+      } else {
+        classParts.add(name);
+      }
+    }
+    
+    final classesString = classParts.join(", ");
+    if (mediumPart != null) {
+      return "$classesString ($mediumPart)";
+    }
+    return classesString;
+  }
+
+  void _onSlotTap(TimeTableSlot timeTableSlot, List<TimeTableSlot> group) {
+    if (group.length <= 1) {
+      _navigateToAttendance(timeTableSlot);
+      return;
+    }
+
+    // Show a premium bottom sheet to choose class section
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Pilih Kelas Untuk Absensi",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF800020), // Maroon Primary
+                ),
+              ),
+              const SizedBox(height: 15),
+              ...group.map((slot) {
+                final classSectionName = getClassSectionName(slot.classSectionId);
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  leading: const Icon(Icons.class_outlined, color: Color(0xFF800020)),
+                  title: Text(
+                    classSectionName,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _navigateToAttendance(slot);
+                  },
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _navigateToAttendance(TimeTableSlot timeTableSlot) {
+    if (timeTableSlot.classSectionId != null) {
+      final classState = context.read<ClassesCubit>().state;
+      if (classState is ClassesFetchSuccess) {
+        final classSection = [
+          ...classState.primaryClasses,
+          ...classState.classes
+        ].firstWhere(
+          (element) => element.id == timeTableSlot.classSectionId,
+          orElse: () => ClassSection(id: 0, name: "-", classId: 0),
+        );
+
+        TimeSlotStatus status = getTimeSlotStatus(
+          timeTableSlot.startTime ?? "",
+          timeTableSlot.endTime ?? "",
+        );
+
+        switch (status) {
+          case TimeSlotStatus.before:
+            Utils.showSnackBar(
+              message: "Anda belum memasuki jam pelajaran.",
+              context: context,
+            );
+            break;
+          case TimeSlotStatus.after:
+            break;
+          case TimeSlotStatus.during:
+            // Go to attendance page
+            Get.toNamed(
+              Routes.teacherAddAttendanceSubjectScreen,
+              arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                classSection: classSection,
+                timeTableSlot: timeTableSlot,
+              ),
+            );
+            return;
+        }
+
+        // Navigate to view-only mode for before & after status
+        Get.toNamed(
+          Routes.teacherAddAttendanceSubjectScreen,
+          arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+            classSection: classSection,
+            timeTableSlot: timeTableSlot,
+          ),
+        );
+      }
+    } else {
+      Utils.showSnackBar(
+        message: "Tidak ada ID bagian kelas",
+        context: context,
+      );
+    }
+  }
+
   bool isCurrentTimeWithinSlot(String startTime, String endTime) {
     DateTime now = DateTime.now();
     DateTime start = DateFormat('HH:mm:ss').parse(startTime);
@@ -207,20 +371,39 @@ class _TeacherTodaysTimetableContainerState
         return BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
           builder: (context, state) {
             if (state is TeacherMyTimetableFetchSuccess) {
+              try {
+                final file = File('c:/UBIG/Project/Eschool-Siswa/timetable_debug.json');
+                final jsonSlots = state.timeTableSlots.map((s) => s.toJson()).toList();
+                file.writeAsStringSync(jsonEncode(jsonSlots));
+              } catch (e) {
+                debugPrint("Error writing timetable debug file: $e");
+              }
               // Always filter for today's date
               final today = DateTime.now();
               final todayDayName = weekDays[today.weekday - 1].toLowerCase();
 
-              // Filter for today's slots and sort by start time
-              final slots = state.timeTableSlots.where((element) {
+              // Filter for today's slots
+              final rawSlots = state.timeTableSlots.where((element) {
                 return element.day?.toLowerCase() == todayDayName;
-              }).toList()
-                ..sort((a, b) {
-                  // Sort by start time
-                  final timeA = a.startTime ?? '';
-                  final timeB = b.startTime ?? '';
-                  return timeA.compareTo(timeB);
-                });
+              }).toList();
+
+              // Group today's slots by startTime, endTime, and subjectName to avoid duplicates
+              final Map<String, List<TimeTableSlot>> groupedSlots = {};
+              for (var slot in rawSlots) {
+                final key = _getSlotGroupKey(slot);
+                groupedSlots.putIfAbsent(key, () => []).add(slot);
+              }
+
+              // Create unique representative list of slots (first slot in each group)
+              final groupKeys = groupedSlots.keys.toList();
+              // Sort the group keys by start time
+              groupKeys.sort((a, b) {
+                final startA = a.split("_").first;
+                final startB = b.split("_").first;
+                return startA.compareTo(startB);
+              });
+
+              final slots = groupKeys.map((key) => groupedSlots[key]!.first).toList();
 
               if (slots.isEmpty) {
                 return Padding(
@@ -278,56 +461,19 @@ class _TeacherTodaysTimetableContainerState
                             : slots.length,
                         (index) {
                           final timeTableSlot = slots[index];
-                          final isWithinSlot = isCurrentTimeWithinSlot(
-                              timeTableSlot.startTime ?? "",
-                              timeTableSlot.endTime ?? "");
+                          final slotGroup = groupedSlots[_getSlotGroupKey(timeTableSlot)] ?? [timeTableSlot];
+                          final classSectionName = getMergedClassSectionName(slotGroup);
 
-                          // Update GestureDetector onTap
                           return GestureDetector(
-                            onTap: () {
-                              if (timeTableSlot.classSectionId != null) {
-                                final classState =
-                                    context.read<ClassesCubit>().state;
-                                if (classState is ClassesFetchSuccess) {
-                                  final classSection = [
-                                    ...classState.primaryClasses,
-                                    ...classState.classes
-                                  ].firstWhere(
-                                    (element) =>
-                                        element.id ==
-                                        timeTableSlot.classSectionId,
-                                    orElse: () => ClassSection(
-                                        id: 0, name: "-", classId: 0),
-                                  );
-
-                                  // Navigasi ke mode view-only untuk status before dan after
-                                  Get.toNamed(
-                                    Routes.teacherAddAttendanceSubjectScreen,
-                                    arguments: TeacherAddAttendanceSubjectScreen
-                                        .buildArguments(
-                                      classSection: classSection,
-                                      timeTableSlot: timeTableSlot,
-                                    ),
-                                  );
-                                }
-                              } else {
-                                Utils.showSnackBar(
-                                  message: "Tidak ada ID bagian kelas",
-                                  context: context,
-                                );
-                              }
-                            },
+                            onTap: () => _onSlotTap(timeTableSlot, slotGroup),
                             child: TimetableSlotContainer(
                               note: timeTableSlot.note ?? "",
                               endTime: timeTableSlot.endTime ?? "",
                               startTime: timeTableSlot.startTime ?? "",
                               subjectName: timeTableSlot.subject?.name ?? "-",
                               isForClass: false,
-                              classSectionName: getClassSectionName(
-                                  timeTableSlot.classSectionId),
-                              backgroundColor: isWithinSlot
-                                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                                  : Theme.of(context).colorScheme.surface,
+                              classSectionName: classSectionName,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
                             ),
                           );
                         },
@@ -348,92 +494,19 @@ class _TeacherTodaysTimetableContainerState
                                 (index) {
                                   final timeTableSlot = slots[
                                       index + itemsToShowWithoutExpansion];
-                                  final isWithinSlot = isCurrentTimeWithinSlot(
-                                      timeTableSlot.startTime ?? "",
-                                      timeTableSlot.endTime ?? "");
+                                  final slotGroup = groupedSlots[_getSlotGroupKey(timeTableSlot)] ?? [timeTableSlot];
+                                  final classSectionName = getMergedClassSectionName(slotGroup);
 
                                   return GestureDetector(
-                                    onTap: () {
-                                      if (timeTableSlot.classSectionId !=
-                                          null) {
-                                        final classState =
-                                            context.read<ClassesCubit>().state;
-                                        if (classState
-                                            is ClassesFetchSuccess) {
-                                          final classSection = [
-                                            ...classState.primaryClasses,
-                                            ...classState.classes
-                                          ].firstWhere(
-                                            (element) =>
-                                                element.id ==
-                                                timeTableSlot.classSectionId,
-                                            orElse: () => ClassSection(
-                                                id: 0, name: "-", classId: 0),
-                                          );
-
-                                          TimeSlotStatus status =
-                                              getTimeSlotStatus(
-                                            timeTableSlot.startTime ?? "",
-                                            timeTableSlot.endTime ?? "",
-                                          );
-
-                                          switch (status) {
-                                            case TimeSlotStatus.before:
-                                              Utils.showSnackBar(
-                                                message:
-                                                    "Anda belum memasuki jam pelajaran.",
-                                                context: context,
-                                              );
-                                              break;
-                                            case TimeSlotStatus.after:
-                                              break;
-                                            case TimeSlotStatus.during:
-                                              // Lanjutkan ke halaman pengisian
-                                              Get.toNamed(
-                                                Routes
-                                                    .teacherAddAttendanceSubjectScreen,
-                                                arguments:
-                                                    TeacherAddAttendanceSubjectScreen
-                                                        .buildArguments(
-                                                  classSection: classSection,
-                                                  timeTableSlot: timeTableSlot,
-                                                ),
-                                              );
-                                              return;
-                                          }
-
-                                          // Navigasi ke mode view-only untuk status before dan after
-                                          Get.toNamed(
-                                            Routes
-                                                .teacherAddAttendanceSubjectScreen,
-                                            arguments:
-                                                TeacherAddAttendanceSubjectScreen
-                                                    .buildArguments(
-                                              classSection: classSection,
-                                              timeTableSlot: timeTableSlot,
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        Utils.showSnackBar(
-                                          message: "Tidak ada ID bagian kelas",
-                                          context: context,
-                                        );
-                                      }
-                                    },
+                                    onTap: () => _onSlotTap(timeTableSlot, slotGroup),
                                     child: TimetableSlotContainer(
                                       note: timeTableSlot.note ?? "",
                                       endTime: timeTableSlot.endTime ?? "",
                                       startTime: timeTableSlot.startTime ?? "",
-                                      subjectName:
-                                          timeTableSlot.subject?.name ?? "-",
+                                      subjectName: timeTableSlot.subject?.name ?? "-",
                                       isForClass: false,
-                                      classSectionName: getClassSectionName(
-                                          timeTableSlot.classSectionId),
-                                      backgroundColor: isWithinSlot
-                                          ? Theme.of(context)
-                                              .scaffoldBackgroundColor
-                                          : Colors.grey[300],
+                                      classSectionName: classSectionName,
+                                      backgroundColor: Theme.of(context).colorScheme.surface,
                                     ),
                                   );
                                 },

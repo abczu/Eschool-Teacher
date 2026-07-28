@@ -84,9 +84,12 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
       debugPrint("Sample first student: ${widget.attendanceRankings.allStudents![0].studentName} - Alpha: ${widget.attendanceRankings.allStudents![0].alphaCount}");
     }
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: bgColor,
       ),
       child: FadeTransition(
         opacity: _fadeAnimation,
@@ -96,7 +99,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
             Positioned.fill(
               child: CustomPaint(
                 painter: BackgroundPainter(
-                  color: const Color.fromARGB(255, 255, 255, 255),
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02),
                 ),
               ),
             ),
@@ -411,13 +414,16 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
   }
 
   Widget _buildLeaderboard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

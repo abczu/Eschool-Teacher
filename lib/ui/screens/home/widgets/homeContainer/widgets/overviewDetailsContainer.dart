@@ -96,7 +96,7 @@ class OverviewDetailsContainer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.05)
+                      ? Theme.of(context).scaffoldBackgroundColor
                       : Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(8)),
               child: Row(

@@ -23,15 +23,22 @@ class _AttendanceRankingItemContainerState
     extends State<AttendanceRankingItemContainer> {
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark
+        ? (widget.index.isEven
+            ? Theme.of(context).cardColor.withValues(alpha: 0.8)
+            : Theme.of(context).cardColor)
+        : (widget.index.isEven ? Colors.grey.shade50 : Colors.white);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: widget.index.isEven ? Colors.grey.shade50 : Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -66,7 +73,7 @@ class _AttendanceRankingItemContainerState
                       child: Text(
                         widget.topStudents.className ?? '',
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
                           fontSize: 12,
                         ),
                         softWrap: true,

@@ -141,8 +141,12 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : AppColorPalette.warmBeige;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppColorPalette.warmBeige,
+      backgroundColor: bgColor,
       appBar: CustomModernAppBar(
         title: Utils.getTranslatedLabel(contactUsKey),
         icon: Icons.contact_support_outlined,
@@ -274,11 +278,11 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                                 width: double.infinity,
                                                 padding: const EdgeInsets.all(20),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.white,
+                                                  color: cardBgColor,
                                                   borderRadius: BorderRadius.circular(24),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                                                      color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                                                       blurRadius: 20,
                                                       offset: const Offset(0, 5),
                                                     ),
@@ -288,7 +292,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                                   data,
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 14,
-                                                    color: AppColorPalette.secondaryMaroon,
+                                                    color: isDark ? Colors.white70 : AppColorPalette.secondaryMaroon,
                                                     height: 1.6,
                                                   ),
                                                 ),
@@ -370,6 +374,9 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   }
 
   Widget _buildContactCard(IconData icon, String title, String content) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     void handleTap() async {
       HapticFeedback.lightImpact();
       String urlString = '';
@@ -411,11 +418,11 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                  color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 5),
                 ),
@@ -433,12 +440,12 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColorPalette.accentPink.withValues(alpha: 0.2),
+                          color: isDark ? Colors.grey.shade900 : AppColorPalette.accentPink.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
                           icon,
-                          color: AppColorPalette.primaryMaroon,
+                          color: isDark ? const Color(0xFFAC3B5C) : AppColorPalette.primaryMaroon,
                           size: 28,
                         ),
                       ),
@@ -452,7 +459,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: AppColorPalette.primaryMaroon,
+                                color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -460,7 +467,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               content,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: AppColorPalette.secondaryMaroon,
+                                color: isDark ? Colors.white70 : AppColorPalette.secondaryMaroon,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -470,7 +477,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.5),
+                        color: isDark ? Colors.white54 : AppColorPalette.primaryMaroon.withValues(alpha: 0.5),
                         size: 20,
                       ),
                     ],

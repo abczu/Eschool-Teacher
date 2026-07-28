@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/chatParentsUserChatHistoryCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/chatStaffsUserChatHistoryCubit.dart';
@@ -179,6 +179,9 @@ class _ChatContainerState extends State<ChatContainer> {
                   }
                 },
                 child: RefreshIndicator(
+                  backgroundColor: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).cardColor
+                      : Colors.white,
                   onRefresh: () async {
                     _fetchStudentsUserChatHistory();
                   },

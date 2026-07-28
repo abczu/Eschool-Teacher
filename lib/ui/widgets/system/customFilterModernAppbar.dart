@@ -647,7 +647,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                       color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                     ),
@@ -660,117 +660,29 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                   children: [
                                     // First filter item
                                     if (widget.firstFilterItem != null)
-                                      Expanded(
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap:
-                                                widget.firstFilterItem!.onTap,
-                                            highlightColor:
-                                                Colors.white.withValues(alpha: 0.1),
-                                            splashColor:
-                                                Colors.white.withValues(alpha: 0.2),
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    widget
-                                                        .firstFilterItem!.icon,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Flexible(
-                                                    child: Text(
-                                                      widget.firstFilterItem!
-                                                          .title,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        color: Colors.white,
-                                                        fontSize: 14,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                      _buildFilterItem(
+                                        widget.firstFilterItem!.icon,
+                                        widget.firstFilterItem!.title,
+                                        widget.firstFilterItem!.onTap,
+                                        expanded: true,
                                       ),
 
                                     // Divider between first and second filters
                                     if (widget.firstFilterItem != null &&
                                         widget.secondFilterItem != null)
                                       Container(
-                                        height: 24,
-                                        width: 1.5,
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Colors.white.withValues(alpha: 0.0),
-                                              Colors.white.withValues(alpha: 0.4),
-                                              Colors.white.withValues(alpha: 0.0),
-                                            ],
-                                          ),
-                                        ),
+                                        height: 26,
+                                        width: 1,
+                                        color: Colors.white.withValues(alpha: 0.35),
                                       ),
 
                                     // Second filter item
                                     if (widget.secondFilterItem != null)
-                                      Expanded(
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap:
-                                                widget.secondFilterItem!.onTap,
-                                            highlightColor:
-                                                Colors.white.withValues(alpha: 0.1),
-                                            splashColor:
-                                                Colors.white.withValues(alpha: 0.2),
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    widget
-                                                        .secondFilterItem!.icon,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Flexible(
-                                                    child: Text(
-                                                      widget.secondFilterItem!
-                                                          .title,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        color: Colors.white,
-                                                        fontSize: 14,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                      _buildFilterItem(
+                                        widget.secondFilterItem!.icon,
+                                        widget.secondFilterItem!.title,
+                                        widget.secondFilterItem!.onTap,
+                                        expanded: true,
                                       ),
                                   ],
                                 ),
@@ -778,60 +690,22 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
 
                               // Horizontal divider
                               Container(
-                                height: 1.5,
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.0),
-                                      Colors.white.withValues(alpha: 0.4),
-                                      Colors.white.withValues(alpha: 0.0),
-                                    ],
-                                  ),
-                                ),
+                                height: 1,
+                                color: Colors.white.withValues(alpha: 0.25),
                               ),
 
                               // Bottom row with third filter
                               if (widget.thirdFilterItem != null)
                                 Expanded(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: widget.thirdFilterItem!.onTap,
-                                      highlightColor:
-                                          Colors.white.withValues(alpha: 0.1),
-                                      splashColor:
-                                          Colors.white.withValues(alpha: 0.2),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              widget.thirdFilterItem!.icon,
-                                              color: Colors.white,
-                                              size: 16,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Flexible(
-                                              child: Text(
-                                                widget.thirdFilterItem!.title,
-                                                style: GoogleFonts.poppins(
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                  child: Row(
+                                    children: [
+                                      _buildFilterItem(
+                                        widget.thirdFilterItem!.icon,
+                                        widget.thirdFilterItem!.title,
+                                        widget.thirdFilterItem!.onTap,
+                                        expanded: true,
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
                             ],
@@ -851,22 +725,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                               if (widget.firstFilterItem != null &&
                                   widget.secondFilterItem != null)
                                 Container(
-                                  height: 24,
-                                  width: 1.5,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal:
-                                          12), // Increased horizontal margin for more spacing
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.white.withValues(alpha: 0.0),
-                                        Colors.white.withValues(alpha: 0.4),
-                                        Colors.white.withValues(alpha: 0.0),
-                                      ],
-                                    ),
-                                  ),
+                                  height: 26,
+                                  width: 1,
+                                  color: Colors.white.withValues(alpha: 0.35),
                                 ),
 
                               // Second filter item

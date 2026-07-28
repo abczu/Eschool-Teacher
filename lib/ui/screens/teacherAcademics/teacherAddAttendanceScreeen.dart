@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceCubit.dart';
@@ -253,6 +253,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+            final Color titleTextColor = isDark ? Colors.white : _maroonPrimary;
+
             if (state is AttendanceFetchSuccess) {
               if (state.isHoliday) {
                 return HolidayAttendanceContainer(
@@ -276,7 +280,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: _maroonPrimary,
+                            color: titleTextColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -293,10 +297,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                      color: cardBgColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -414,7 +418,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           width: 180,
                           height: 24,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -429,10 +433,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                      color: cardBgColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -445,7 +449,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: isDark ? Colors.grey.shade900 : Colors.grey.shade300,
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16)),
                           ),
@@ -520,6 +524,9 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               );
             }
           }, builder: (context, submitAttendanceState) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
             return Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -529,10 +536,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withValues(alpha: 0.0),
-                      Colors.white.withValues(alpha: 0.8),
-                      Colors.white,
-                      Colors.white,
+                      bgColor.withValues(alpha: 0.0),
+                      bgColor.withValues(alpha: 0.8),
+                      bgColor,
+                      bgColor,
                     ],
                     stops: const [0.0, 0.2, 0.5, 1.0],
                   ),

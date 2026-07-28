@@ -46,7 +46,7 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
     super.initState();
     noOfIcons = widget.items.length;
     controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 375));
+        vsync: this, duration: const Duration(milliseconds: 275));
   }
 
   @override
@@ -87,7 +87,7 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
   void animateDrop(int index) {
     double newPosition = getEndPosition(index);
     animation = Tween(begin: position, end: newPosition).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeOutBack));
+        CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
 
     controller.reset();
     controller.forward().then((value) {
@@ -126,8 +126,8 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                       widget.onItemSelected(index);
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 375),
-                      curve: Curves.easeOut,
+                      duration: const Duration(milliseconds: 275),
+                      curve: Curves.easeOutCubic,
                       height: 125,
                       width: (MediaQuery.of(context).size.width -
                               (2 * horizontalMargin) -
@@ -145,9 +145,9 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                             width: 35.0,
                             child: Center(
                               child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 375),
-                                switchInCurve: Curves.easeOut,
-                                switchOutCurve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 275),
+                                switchInCurve: Curves.easeOutCubic,
+                                switchOutCurve: Curves.easeOutCubic,
                                 child: SvgPicture.asset(
                                   Utils.getImagePath(isSelected
                                       ? item.selectedIconPath
@@ -169,20 +169,28 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                               ),
                             ),
                           ),
-                          if (!isSelected) ...[
-                            const SizedBox(height: 5),
-                            CustomTextContainer(
-                              textKey: item.title,
-                              style: TextStyle(
-                                fontSize: Utils.getScaledValue(context, 14.0),
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.8),
-                              ),
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeInOutCubic,
+                            opacity: isSelected ? 0.0 : 1.0,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 5),
+                                CustomTextContainer(
+                                  textKey: item.title,
+                                  style: TextStyle(
+                                    fontSize: Utils.getScaledValue(context, 14.0),
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ],
                       ),
                     ),

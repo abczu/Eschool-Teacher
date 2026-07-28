@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherCreateAnnouncementCubit.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherCreateAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherEditAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
@@ -376,18 +376,19 @@ class _TeacherAddEditAnnouncementScreenState
   }
 
   Widget _buildFormContent(ClassSectionsAndSubjectsState state) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         // Basic Info Section
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                spreadRadius: 5,
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                spreadRadius: 2,
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -467,12 +468,12 @@ class _TeacherAddEditAnnouncementScreenState
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                spreadRadius: 5,
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                spreadRadius: 2,
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -513,11 +514,11 @@ class _TeacherAddEditAnnouncementScreenState
         // Attachments Section - Clean & Minimalist Design
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -553,7 +554,7 @@ class _TeacherAddEditAnnouncementScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: isDark ? Colors.white : Colors.grey.shade800,
                       ),
                     ),
                   ],
@@ -565,9 +566,11 @@ class _TeacherAddEditAnnouncementScreenState
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +580,7 @@ class _TeacherAddEditAnnouncementScreenState
                         Icon(
                           Icons.info_outline,
                           size: 16,
-                          color: Colors.grey.shade600,
+                          color: isDark ? Colors.white54 : Colors.grey.shade600,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -585,7 +588,7 @@ class _TeacherAddEditAnnouncementScreenState
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700,
+                            color: isDark ? Colors.white70 : Colors.grey.shade700,
                           ),
                         ),
                       ],
@@ -605,12 +608,6 @@ class _TeacherAddEditAnnouncementScreenState
                         _buildFormatChip('YouTube'),
                       ],
                     ),
-                    // SizedBox(height: 8),
-                    // // Text(
-                    //   'Batasan ukuran file adalah 2                                                                                                                                                                                                                                                                                                                                                             MB',
-                    //   style: TextStyle(
-                    //     fontSize: 12,
-                    //     color: Colors.grey.shade600,
                     //     fontStyle: FontStyle.italic,
                     //   ),
                     // ),
@@ -633,7 +630,7 @@ class _TeacherAddEditAnnouncementScreenState
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
+                          color: isDark ? Colors.white70 : Colors.grey.shade700,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -663,7 +660,7 @@ class _TeacherAddEditAnnouncementScreenState
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
+                          color: isDark ? Colors.white70 : Colors.grey.shade700,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -965,6 +962,7 @@ class _TeacherAddEditAnnouncementScreenState
     TextInputType? keyboardType,
     bool autoExpand = false,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
       maxLines: autoExpand ? null : maxLines,
@@ -977,7 +975,7 @@ class _TeacherAddEditAnnouncementScreenState
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: Colors.grey.shade600,
+          color: isDark ? Colors.white54 : Colors.grey.shade600,
         ),
         prefixIcon: Icon(
           icon,
@@ -988,7 +986,7 @@ class _TeacherAddEditAnnouncementScreenState
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
@@ -1001,19 +999,22 @@ class _TeacherAddEditAnnouncementScreenState
   }
 
   Widget _buildFormatChip(String label) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.grey.shade300,
+        ),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: Colors.grey.shade700,
+          color: isDark ? Colors.white70 : Colors.grey.shade700,
         ),
       ),
     );

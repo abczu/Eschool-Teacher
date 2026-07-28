@@ -84,12 +84,18 @@ class RecapAttendanceContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
     final availableMonths = selectedYear < now.year
         ? 12
         : selectedYear > now.year
             ? 0
             : now.month;
+
+    final cardBg = isDark ? Theme.of(context).cardColor : AppColorPalette.warmBeige;
+    final titleColor = isDark ? Colors.white : AppColorPalette.primaryMaroon;
+    final subtitleColor = isDark ? Colors.white70 : AppColorPalette.secondaryMaroon;
+    final iconColor = isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon.withValues(alpha: 0.5);
 
     if (availableMonths == 0) {
       return FadeIn(
@@ -98,11 +104,11 @@ class RecapAttendanceContainer extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColorPalette.warmBeige,
+              color: cardBg,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -114,23 +120,23 @@ class RecapAttendanceContainer extends StatelessWidget {
                 Icon(
                   Icons.calendar_today_outlined,
                   size: 64,
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.5),
+                  color: iconColor,
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Data Rekap Belum Tersedia',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColorPalette.primaryMaroon,
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Tahun $selectedYear',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
-                    color: AppColorPalette.secondaryMaroon,
+                    color: subtitleColor,
                   ),
                 ),
               ],
@@ -149,11 +155,11 @@ class RecapAttendanceContainer extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColorPalette.warmBeige,
+              color: cardBg,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -165,24 +171,24 @@ class RecapAttendanceContainer extends StatelessWidget {
                 Icon(
                   Icons.event_busy_outlined,
                   size: 64,
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.5),
+                  color: iconColor,
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Pilih Bulan dan Tahun',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColorPalette.primaryMaroon,
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Silakan pilih bulan dan tahun untuk melihat rekap absensi',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColorPalette.secondaryMaroon,
+                    color: subtitleColor,
                   ),
                 ),
               ],
@@ -201,11 +207,11 @@ class RecapAttendanceContainer extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColorPalette.warmBeige,
+              color: cardBg,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -220,21 +226,21 @@ class RecapAttendanceContainer extends StatelessWidget {
                   color: Colors.orange[700],
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Data Belum Tersedia',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColorPalette.primaryMaroon,
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Rekap absensi untuk ${_getMonthName(selectedMonth!)} $selectedYear belum tersedia',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: AppColorPalette.secondaryMaroon,
+                    color: subtitleColor,
                   ),
                 ),
               ],
@@ -245,7 +251,7 @@ class RecapAttendanceContainer extends StatelessWidget {
     }
 
     return Container(
-      color: AppColorPalette.warmBeige.withValues(alpha: 0.5),
+      color: isDark ? Colors.transparent : AppColorPalette.warmBeige.withValues(alpha: 0.5),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       child: Column(
         children: [
@@ -255,11 +261,11 @@ class RecapAttendanceContainer extends StatelessWidget {
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -340,13 +346,12 @@ class RecapAttendanceContainer extends StatelessWidget {
   }
 
   Widget _buildClassList(int monthIndex, BuildContext context) {
-    // Tampilkan semua kelas yang tersedia
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          // Header kolom diubah menjadi lebih sesuai dengan layout baru
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -354,39 +359,39 @@ class RecapAttendanceContainer extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColorPalette.primaryMaroon,
+                  color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                   letterSpacing: 0.5,
                 ),
               ),
             ],
           ),
-          const Divider(
-            color: AppColorPalette.lightMaroon,
+          Divider(
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColorPalette.lightMaroon,
             thickness: 1,
             height: 32,
           ),
           // Menampilkan daftar kelas yang kosong
           if (classSections.isEmpty)
-            _buildNoClassesMessage()
+            _buildNoClassesMessage(context)
           // Menampilkan semua kelas yang tersedia
           else
             ...classSections
-                .map((section) => _buildClassItem(section, monthIndex, context))
-                ,
+                .map((section) => _buildClassItem(section, monthIndex, context)),
         ],
       ),
     );
   }
 
   // Widget untuk menampilkan pesan ketika tidak ada kelas
-  Widget _buildNoClassesMessage() {
+  Widget _buildNoClassesMessage(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.grey.shade300,
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300,
           width: 1,
         ),
       ),
@@ -404,7 +409,7 @@ class RecapAttendanceContainer extends StatelessWidget {
               'Tidak ada kelas ditemukan',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade700,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -416,20 +421,21 @@ class RecapAttendanceContainer extends StatelessWidget {
 
   Widget _buildClassItem(
       ClassSection section, int monthIndex, BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return SlideInRight(
       duration: const Duration(milliseconds: 400),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: section.pkl == 1
-              ? Colors.grey.shade100
-              : AppColorPalette.warmBeige.withValues(alpha: 0.3),
+          color: isDark
+              ? (section.pkl == 1 ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.05))
+              : (section.pkl == 1 ? Colors.grey.shade100 : Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: section.pkl == 1
-                ? Colors.grey.shade300
-                : AppColorPalette.lightMaroon,
+            color: isDark
+                ? (section.pkl == 1 ? Colors.grey.shade800 : Colors.white.withValues(alpha: 0.08))
+                : (section.pkl == 1 ? Colors.grey.shade300 : Colors.grey.shade200),
             width: 1,
           ),
         ),
@@ -444,9 +450,9 @@ class RecapAttendanceContainer extends StatelessWidget {
                   section.pkl == 1
                       ? Icons.business_center_rounded
                       : Icons.school_rounded,
-                  color: section.pkl == 1
-                      ? Colors.grey
-                      : AppColorPalette.secondaryMaroon,
+                  color: isDark
+                      ? (section.pkl == 1 ? Colors.grey.shade500 : const Color(0xFFE53935))
+                      : (section.pkl == 1 ? Colors.grey : AppColorPalette.secondaryMaroon),
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -455,9 +461,9 @@ class RecapAttendanceContainer extends StatelessWidget {
                     section.name ?? '',
                     style: TextStyle(
                       fontSize: 16,
-                      color: section.pkl == 1
-                          ? Colors.grey.shade700
-                          : AppColorPalette.primaryMaroon,
+                      color: isDark
+                          ? (section.pkl == 1 ? Colors.grey.shade400 : Colors.white)
+                          : (section.pkl == 1 ? Colors.grey.shade700 : AppColorPalette.primaryMaroon),
                       fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -568,6 +574,14 @@ class _ActionButtonState extends State<_ActionButton> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonBg = widget.isPKL
+        ? (isDark ? Colors.grey.shade800 : Colors.grey.shade300)
+        : (widget.isPrimary ? AppColorPalette.primaryMaroon : AppColorPalette.secondaryMaroon);
+    final textIconColor = widget.isPKL
+        ? (isDark ? Colors.grey.shade500 : Colors.grey.shade600)
+        : Colors.white;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) {
@@ -589,17 +603,13 @@ class _ActionButtonState extends State<_ActionButton> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: widget.isPKL
-                  ? Colors.grey.shade300
-                  : widget.isPrimary
-                      ? AppColorPalette.primaryMaroon
-                      : AppColorPalette.secondaryMaroon,
+              color: buttonBg,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: widget.isPKL
-                      ? Colors.grey.withValues(alpha: 0.2)
-                      : AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                      ? Colors.grey.withValues(alpha: isDark ? 0.05 : 0.2)
+                      : AppColorPalette.primaryMaroon.withValues(alpha: isDark ? 0.1 : 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -611,13 +621,13 @@ class _ActionButtonState extends State<_ActionButton> {
                 Icon(
                   widget.icon,
                   size: 20,
-                  color: Colors.white,
+                  color: textIconColor,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   widget.label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: textIconColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),

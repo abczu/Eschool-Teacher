@@ -1121,6 +1121,7 @@ class _StudentsScreenState extends State<StudentsScreen>
   }
 
   Widget _buildStudentsSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1128,11 +1129,11 @@ class _StudentsScreenState extends State<StudentsScreen>
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                   spreadRadius: 0,
@@ -1140,8 +1141,8 @@ class _StudentsScreenState extends State<StudentsScreen>
               ],
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: isDark ? Colors.grey.shade900 : Colors.grey.shade300,
+              highlightColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
               child: Stack(
                 children: [
                   // Status indicator strip skeleton
@@ -1408,9 +1409,9 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 10),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
+                          decoration: BoxDecoration(
+                            color: isDark ? Theme.of(context).cardColor : Colors.white,
+                            borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(8),
                               bottomRight: Radius.circular(16),
                             ),
@@ -1461,13 +1462,18 @@ class _StudentsScreenState extends State<StudentsScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      cardColor: Theme.of(context).cardColor,
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
+      ).copyWith(
+        surface: Theme.of(context).colorScheme.surface,
       ),
       appBarTheme: const AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle(

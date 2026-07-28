@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -32,8 +32,8 @@ class CustomBottomsheet extends StatelessWidget {
         ),
         Container(
           width: double.maxFinite,
-          height: 2,
-          color: Theme.of(context).colorScheme.tertiary,
+          height: 1,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
         ),
         Flexible(child: SingleChildScrollView(child: child))
       ],

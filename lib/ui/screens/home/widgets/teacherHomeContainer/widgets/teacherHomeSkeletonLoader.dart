@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 
@@ -72,9 +72,10 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
     Color? highlightColor,
     Duration? period,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
-      baseColor: baseColor ?? Colors.grey[300]!,
-      highlightColor: highlightColor ?? Colors.grey[50]!,
+      baseColor: baseColor ?? (isDark ? Colors.grey.shade800 : Colors.grey[300]!),
+      highlightColor: highlightColor ?? (isDark ? Colors.grey.shade700 : Colors.grey[50]!),
       period: period ?? const Duration(milliseconds: 1800),
       child: child,
     );
@@ -88,13 +89,14 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
     EdgeInsetsGeometry? padding,
     Color? color,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: height,
       width: width,
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: color ?? Colors.white,
+        color: color ?? (isDark ? Colors.grey.shade700 : Colors.white),
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
@@ -105,6 +107,7 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
     required List<Widget> children,
     double? margin,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: margin ?? 16.0,
@@ -112,15 +115,18 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
       ),
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: isDark ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(20.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,6 +157,8 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
   }
 
   Widget _buildTimetableSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return _buildContainerSkeleton(
       context: context,
       children: [
@@ -170,10 +178,10 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
               child: Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Colors.grey.shade900 : Colors.white,
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
-                    color: Colors.grey[200]!,
+                    color: isDark ? Colors.grey.shade800 : Colors.grey[200]!,
                     width: 1.0,
                   ),
                 ),
@@ -242,6 +250,8 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
   }
 
   Widget _buildPermissionSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return _buildContainerSkeleton(
       context: context,
       children: [
@@ -261,10 +271,10 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
               child: Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Colors.grey.shade900 : Colors.white,
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
-                    color: Colors.grey[200]!,
+                    color: isDark ? Colors.grey.shade800 : Colors.grey[200]!,
                     width: 1.0,
                   ),
                 ),
@@ -324,6 +334,8 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
   }
 
   Widget _buildLeavesSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return _buildContainerSkeleton(
       context: context,
       children: [
@@ -343,10 +355,10 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
               child: Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Colors.grey.shade900 : Colors.white,
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
-                    color: Colors.grey[200]!,
+                    color: isDark ? Colors.grey.shade800 : Colors.grey[200]!,
                     width: 1.0,
                   ),
                 ),
@@ -406,6 +418,8 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
   }
 
   Widget _buildHolidaysSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         const SizedBox(height: 15),
@@ -435,19 +449,21 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
                   width: MediaQuery.of(context).size.width * 0.925,
                   margin: const EdgeInsetsDirectional.only(end: 25),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.grey.shade900 : Colors.white,
                     borderRadius: BorderRadius.circular(16.0),
                     border: Border.all(
-                      color: Colors.grey[200]!,
+                      color: isDark ? Colors.grey.shade800 : Colors.grey[200]!,
                       width: 1.0,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -458,7 +474,7 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
                           width: 60,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: isDark ? Colors.grey.shade800 : Colors.grey[300],
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           child: Column(
@@ -468,14 +484,14 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
                                 height: 18,
                                 width: 30,
                                 borderRadius: 4,
-                                color: Colors.grey[400],
+                                color: isDark ? Colors.grey.shade700 : Colors.grey[400],
                               ),
                               const SizedBox(height: 6),
                               _buildRoundedContainer(
                                 height: 14,
                                 width: 40,
                                 borderRadius: 4,
-                                color: Colors.grey[400],
+                                color: isDark ? Colors.grey.shade700 : Colors.grey[400],
                               ),
                             ],
                           ),

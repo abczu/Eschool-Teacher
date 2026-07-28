@@ -72,7 +72,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         },
       ),
       body: Container(
-        color: const Color(0xFFF9F9F9), // Very light grey backround
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: BlocBuilder<LocalNotificationsCubit, LocalNotificationsState>(
           builder: (context, state) {
             if (state is LocalNotificationsFetchSuccess) {
@@ -88,18 +88,25 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                     children: [
                       SizedBox(
                           height: MediaQuery.of(context).size.height * 0.2),
-                      const Center(
+                      Center(
                         child: Icon(Icons.notifications_none_rounded,
-                            size: 80, color: Colors.grey),
+                            size: 80,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.35)),
                       ),
                       const SizedBox(height: 20),
-                      const Center(
+                      Center(
                         child: Text(
                           "Belum Ada Notifikasi",
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.45)),
                         ),
                       ),
                     ],
@@ -161,24 +168,36 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.delete_forever_rounded, color: Colors.red),
-            SizedBox(width: 10),
-            Text("Hapus Semua?"),
+            const Icon(Icons.delete_forever_rounded, color: Colors.red),
+            const SizedBox(width: 10),
+            Text("Hapus Semua?",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface)),
           ],
         ),
-        content: const Text(
+        content: Text(
           "Apakah Anda yakin ingin menghapus semua riwayat notifikasi lokal? Tindakan ini tidak dapat dibatalkan.",
-          style: TextStyle(fontSize: 14),
+          style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.8)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               "Batal",
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6)),
             ),
           ),
           ElevatedButton(
@@ -205,13 +224,27 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     showDialog(
       context: context,
       builder: (confirmContext) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Hapus Notifikasi?"),
-        content: const Text("Apakah Anda yakin ingin menghapus notifikasi ini saja?"),
+        title: Text("Hapus Notifikasi?",
+            style:
+                TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text(
+            "Apakah Anda yakin ingin menghapus notifikasi ini saja?",
+            style: TextStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.8))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(confirmContext),
-            child: const Text("Batal", style: TextStyle(color: Colors.grey)),
+            child: Text("Batal",
+                style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6))),
           ),
           TextButton(
             onPressed: () {
@@ -220,7 +253,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
               );
               Navigator.pop(confirmContext);
             },
-            child: const Text("Hapus", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text("Hapus",
+                style: TextStyle(
+                    color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

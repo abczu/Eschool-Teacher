@@ -170,7 +170,14 @@ class _TeacherManageAnnouncementScreenState
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2), // Shorter duration to avoid persisting after back
@@ -201,6 +208,11 @@ class _TeacherManageAnnouncementScreenState
   // Show dialog with full description
   void _showFullDescriptionDialog(
       BuildContext context, TeacherAnnouncement announcement) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color itemTextColor = isDark ? Colors.white : const Color(0xFF2D2D2D);
+    final Color itemTextMediumColor = isDark ? Colors.white70 : const Color(0xFF717171);
+    final Color primaryColor = isDark ? const Color(0xFFE53935) : maroonPrimary;
+    final Color itemCardColor = isDark ? Theme.of(context).cardColor : Colors.white;
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -211,6 +223,7 @@ class _TeacherManageAnnouncementScreenState
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
           child: Container(
+            color: itemCardColor,
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.9,
               maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -284,7 +297,7 @@ class _TeacherManageAnnouncementScreenState
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: textDarkColor,
+                            color: itemTextColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -292,20 +305,20 @@ class _TeacherManageAnnouncementScreenState
                           padding:
                               const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: maroonPrimary.withValues(alpha: 0.08),
+                            color: primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: maroonPrimary.withValues(alpha: 0.15),
+                              color: primaryColor.withValues(alpha: isDark ? 0.3 : 0.15),
                               width: 1,
                             ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today_outlined,
                                 size: 14,
-                                color: maroonPrimary,
+                                color: primaryColor,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -313,7 +326,7 @@ class _TeacherManageAnnouncementScreenState
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: maroonPrimary,
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
@@ -324,7 +337,7 @@ class _TeacherManageAnnouncementScreenState
                           announcement.description,
                           style: GoogleFonts.poppins(
                             fontSize: 15,
-                            color: textMediumColor,
+                            color: itemTextMediumColor,
                             height: 1.6,
                             letterSpacing: 0.1,
                           ),
@@ -339,7 +352,7 @@ class _TeacherManageAnnouncementScreenState
                   padding: const EdgeInsets.all(16),
                   child: Material(
                     borderRadius: BorderRadius.circular(16),
-                    color: maroonPrimary,
+                    color: primaryColor,
                     child: InkWell(
                       onTap: () => Navigator.pop(context),
                       borderRadius: BorderRadius.circular(16),
@@ -528,6 +541,13 @@ class _TeacherManageAnnouncementScreenState
             }
           },
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color primaryColor = isDark ? const Color(0xFFE53935) : maroonPrimary;
+            final Color itemCardColor = isDark ? Theme.of(context).cardColor : Colors.white;
+            final Color itemTextColor = isDark ? Colors.white : const Color(0xFF2D2D2D);
+            final Color itemTextMediumColor = isDark ? Colors.white70 : const Color(0xFF717171);
+            final Color itemBorderColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200;
+
             return TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 600),
@@ -544,11 +564,11 @@ class _TeacherManageAnnouncementScreenState
               child: Container(
                 margin: const EdgeInsets.only(bottom: 30),
                 decoration: BoxDecoration(
-                  color: cardColor,
+                  color: itemCardColor,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withValues(alpha: 0.1),
+                      color: primaryColor.withValues(alpha: 0.1),
                       blurRadius: 25,
                       offset: const Offset(0, 12),
                       spreadRadius: 0,
@@ -573,12 +593,17 @@ class _TeacherManageAnnouncementScreenState
                             duration: const Duration(milliseconds: 300),
                             height: 130,
                             width: double.infinity,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFFF9F0F5),
-                                  Color(0xFFFDF7FA),
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Colors.white.withValues(alpha: 0.03),
+                                        Colors.white.withValues(alpha: 0.01),
+                                      ]
+                                    : [
+                                        const Color(0xFFF9F0F5),
+                                        const Color(0xFFFDF7FA),
+                                      ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -596,8 +621,8 @@ class _TeacherManageAnnouncementScreenState
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withValues(alpha: 0.08),
-                                    maroonPrimary.withValues(alpha: 0.03)
+                                    primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                                    primaryColor.withValues(alpha: 0.03)
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -615,8 +640,8 @@ class _TeacherManageAnnouncementScreenState
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withValues(alpha: 0.06),
-                                    maroonPrimary.withValues(alpha: 0.02)
+                                    primaryColor.withValues(alpha: isDark ? 0.12 : 0.06),
+                                    primaryColor.withValues(alpha: 0.02)
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -633,14 +658,16 @@ class _TeacherManageAnnouncementScreenState
                             child: Container(
                               height: 6,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [maroonPrimary, maroonLight],
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                      ? [const Color(0xFFE53935), const Color(0xFFEF5350)]
+                                      : [maroonPrimary, maroonLight],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: maroonPrimary.withValues(alpha: 0.2),
+                                    color: primaryColor.withValues(alpha: 0.2),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                     spreadRadius: -2,
@@ -667,7 +694,7 @@ class _TeacherManageAnnouncementScreenState
                                         style: GoogleFonts.poppins(
                                           fontSize: 22,
                                           fontWeight: FontWeight.w700,
-                                          color: textDarkColor,
+                                          color: itemTextColor,
                                           letterSpacing: -0.3,
                                           height: 1.2,
                                         ),
@@ -680,22 +707,22 @@ class _TeacherManageAnnouncementScreenState
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
                                           color:
-                                              maroonPrimary.withValues(alpha: 0.08),
+                                              primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
                                             color:
-                                                maroonPrimary.withValues(alpha: 0.15),
+                                                primaryColor.withValues(alpha: isDark ? 0.3 : 0.15),
                                             width: 1,
                                           ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
+                                            Icon(
                                               Icons.calendar_today_outlined,
                                               size: 14,
-                                              color: maroonPrimary,
+                                              color: primaryColor,
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
@@ -704,7 +731,7 @@ class _TeacherManageAnnouncementScreenState
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600,
-                                                color: maroonPrimary,
+                                                color: primaryColor,
                                               ),
                                             ),
                                           ],
@@ -723,7 +750,7 @@ class _TeacherManageAnnouncementScreenState
                                     ),
                                     elevation: 12,
                                     offset: const Offset(0, 50),
-                                    color: Colors.white,
+                                    color: isDark ? Theme.of(context).cardColor : Colors.white,
                                     onSelected: (value) {
                                       if (value == 'edit') {
                                         HapticFeedback.lightImpact();
@@ -943,19 +970,29 @@ class _TeacherManageAnnouncementScreenState
                                               gradient: state
                                                       is TeacherDeleteAnnouncementInProgress
                                                   ? LinearGradient(
-                                                      colors: [
-                                                        Colors.grey.shade300,
-                                                        Colors.grey.shade400
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Colors.white.withValues(alpha: 0.04),
+                                                              Colors.white.withValues(alpha: 0.02)
+                                                            ]
+                                                          : [
+                                                              Colors.grey.shade300,
+                                                              Colors.grey.shade400
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
                                                     )
                                                   : LinearGradient(
-                                                      colors: [
-                                                        Colors.white,
-                                                        Colors.grey.shade100
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Colors.white.withValues(alpha: 0.08),
+                                                              Colors.white.withValues(alpha: 0.03)
+                                                            ]
+                                                          : [
+                                                              Colors.white,
+                                                              Colors.grey.shade100
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
@@ -963,12 +1000,12 @@ class _TeacherManageAnnouncementScreenState
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               border: Border.all(
-                                                color: Colors.grey.shade300,
+                                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300,
                                                 width: 1.5,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: maroonPrimary
+                                                  color: primaryColor
                                                       .withValues(alpha: 0.1),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
@@ -978,20 +1015,20 @@ class _TeacherManageAnnouncementScreenState
                                             ),
                                             child: state
                                                     is TeacherDeleteAnnouncementInProgress
-                                                ? const Center(
+                                                ? Center(
                                                     child: SizedBox(
                                                       width: 20,
                                                       height: 20,
                                                       child:
                                                           CircularProgressIndicator(
-                                                        color: maroonPrimary,
+                                                        color: primaryColor,
                                                         strokeWidth: 2,
                                                       ),
                                                     ),
                                                   )
-                                                : const Icon(
+                                                : Icon(
                                                     Icons.more_vert_rounded,
-                                                    color: maroonPrimary,
+                                                    color: primaryColor,
                                                     size: 22,
                                                   ),
                                           ),
@@ -1010,10 +1047,10 @@ class _TeacherManageAnnouncementScreenState
                       Container(
                         padding: const EdgeInsets.fromLTRB(26, 22, 26, 24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: itemCardColor,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.shade100,
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                               width: 1,
                             ),
                           ),
@@ -1026,12 +1063,12 @@ class _TeacherManageAnnouncementScreenState
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: maroonPrimary.withValues(alpha: 0.08),
+                                    color: primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.description_outlined,
-                                    color: maroonPrimary,
+                                    color: primaryColor,
                                     size: 18,
                                   ),
                                 ),
@@ -1041,7 +1078,7 @@ class _TeacherManageAnnouncementScreenState
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: textDarkColor,
+                                    color: itemTextColor,
                                   ),
                                 ),
                               ],
@@ -1050,74 +1087,74 @@ class _TeacherManageAnnouncementScreenState
 
                             // Elegant description container with enhanced readability and ellipsis support
                             Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
-                                borderRadius: BorderRadius.circular(18),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    announcement.description,
-                                    maxLines: _isDescriptionLong(
-                                            announcement.description)
-                                        ? 3
-                                        : null,
-                                    overflow: _isDescriptionLong(
-                                            announcement.description)
-                                        ? TextOverflow.ellipsis
-                                        : TextOverflow.visible,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14.5,
-                                      color: textMediumColor,
-                                      height: 1.6,
-                                      letterSpacing: 0.1,
-                                    ),
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 20),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: itemBorderColor,
+                                    width: 1,
                                   ),
-                                  if (_isDescriptionLong(
-                                      announcement.description))
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: InkWell(
-                                        onTap: () {
-                                          _showFullDescriptionDialog(
-                                              context, announcement);
-                                        },
-                                        child: Text(
-                                          "Lihat selengkapnya",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: maroonPrimary,
-                                            decoration:
-                                                TextDecoration.underline,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      announcement.description,
+                                      maxLines: _isDescriptionLong(
+                                              announcement.description)
+                                          ? 3
+                                          : null,
+                                      overflow: _isDescriptionLong(
+                                              announcement.description)
+                                          ? TextOverflow.ellipsis
+                                          : TextOverflow.visible,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14.5,
+                                        color: itemTextMediumColor,
+                                        height: 1.6,
+                                        letterSpacing: 0.1,
+                                      ),
+                                    ),
+                                    if (_isDescriptionLong(
+                                        announcement.description))
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            _showFullDescriptionDialog(
+                                                context, announcement);
+                                          },
+                                          child: Text(
+                                            "Lihat selengkapnya",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: primaryColor,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
                       // Attachments section with enhanced styling
                       if (announcement.files.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.all(26),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: itemCardColor,
                             border: Border(
                               bottom: BorderSide(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                                 width: 1,
                               ),
                             ),
@@ -1130,12 +1167,12 @@ class _TeacherManageAnnouncementScreenState
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: maroonPrimary.withValues(alpha: 0.08),
+                                      color: primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.attach_file_rounded,
-                                      color: maroonPrimary,
+                                      color: primaryColor,
                                       size: 18,
                                     ),
                                   ),
@@ -1145,7 +1182,7 @@ class _TeacherManageAnnouncementScreenState
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: textDarkColor,
+                                      color: itemTextColor,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -1162,11 +1199,11 @@ class _TeacherManageAnnouncementScreenState
                                               horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
                                             color:
-                                                maroonPrimary.withValues(alpha: 0.1),
+                                                primaryColor.withValues(alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: maroonPrimary
+                                              color: primaryColor
                                                   .withValues(alpha: 0.2),
                                               width: 1,
                                             ),
@@ -1176,7 +1213,7 @@ class _TeacherManageAnnouncementScreenState
                                             style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              color: maroonPrimary,
+                                              color: primaryColor,
                                             ),
                                           ),
                                         ),
@@ -1190,10 +1227,10 @@ class _TeacherManageAnnouncementScreenState
                               // Enhanced file list container
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: itemBorderColor,
                                     width: 1,
                                   ),
                                 ),
@@ -1209,11 +1246,11 @@ class _TeacherManageAnnouncementScreenState
 
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade50,
+                                          color: isDark ? Colors.transparent : Colors.grey.shade50,
                                           border: index > 0
                                               ? Border(
                                                   top: BorderSide(
-                                                    color: Colors.grey.shade200,
+                                                    color: itemBorderColor,
                                                     width: 1,
                                                   ),
                                                 )
@@ -1228,14 +1265,14 @@ class _TeacherManageAnnouncementScreenState
                                               height: 48,
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                color: maroonPrimary
-                                                    .withValues(alpha: 0.1),
+                                                color: primaryColor
+                                                    .withValues(alpha: isDark ? 0.15 : 0.1),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
                                               child: Icon(
                                                 _getFileTypeIcon(file.fileName),
-                                                color: maroonPrimary,
+                                                color: primaryColor,
                                                 size: 20,
                                               ),
                                             ),
@@ -1256,7 +1293,7 @@ class _TeacherManageAnnouncementScreenState
                                                       fontSize: 14,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: textDarkColor,
+                                                      color: itemTextColor,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 4),
@@ -1264,7 +1301,7 @@ class _TeacherManageAnnouncementScreenState
                                                     _getFileType(file.fileName),
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 12,
-                                                      color: textMediumColor,
+                                                      color: itemTextMediumColor,
                                                     ),
                                                   ),
                                                 ],
@@ -1291,16 +1328,16 @@ class _TeacherManageAnnouncementScreenState
                                                   padding:
                                                       const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
-                                                    color: maroonPrimary
+                                                    color: primaryColor
                                                         .withValues(
-                                                            alpha: 0.07),
+                                                            alpha: isDark ? 0.15 : 0.07),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             14),
                                                   ),
-                                                  child: const Icon(
+                                                  child: Icon(
                                                     Icons.download_rounded,
-                                                    color: maroonPrimary,
+                                                    color: primaryColor,
                                                     size: 20,
                                                   ),
                                                 ),
@@ -1393,7 +1430,7 @@ class _TeacherManageAnnouncementScreenState
     }
   }
 
-  Widget _buildAnnouncementList() {
+   Widget _buildAnnouncementList() {
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -1402,32 +1439,35 @@ class _TeacherManageAnnouncementScreenState
         child:
             BlocBuilder<TeacherAnnouncementsCubit, TeacherAnnouncementsState>(
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color itemTextMediumColor = isDark ? Colors.white70 : textMediumColor;
+            final Color primaryColor = isDark ? const Color(0xFFE53935) : maroonPrimary;
             if (state is TeacherAnnouncementsFetchSuccess) {
               if (state.announcements.isEmpty) {
                 return Center(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 50),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.campaign_outlined,
-                            color: textMediumColor,
+                            color: itemTextMediumColor,
                             size: 80,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             "Tidak ada pengumuman yang tersedia",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
-                              color: textMediumColor,
+                              color: itemTextMediumColor,
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -1465,7 +1505,7 @@ class _TeacherManageAnnouncementScreenState
                     onRetry: () {
                       getAnnouncements();
                     },
-                    primaryColor: maroonPrimary,
+                    primaryColor: primaryColor,
                   ),
                 ),
               );
@@ -1481,22 +1521,22 @@ class _TeacherManageAnnouncementScreenState
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(40),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.campaign_outlined,
                           size: 40,
-                          color: maroonPrimary,
+                          color: primaryColor,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         "Pilih kelas dan mata pelajaran terlebih dahulu",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
-                          color: textMediumColor,
+                          color: itemTextMediumColor,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                         ),
@@ -1870,21 +1910,28 @@ class _TeacherManageAnnouncementScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color screenBgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : bgColor;
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
-      scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      scaffoldBackgroundColor: screenBgColor,
+      cardColor: Theme.of(context).cardColor,
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
+      ).copyWith(
+        surface: Theme.of(context).colorScheme.surface,
       ),
     );
 
     return Theme(
       data: theme,
       child: Scaffold(
-        backgroundColor: bgColor,
+        backgroundColor: screenBgColor,
         body: BlocBuilder<ClassSectionsAndSubjectsCubit,
             ClassSectionsAndSubjectsState>(
           builder: (context, state) {

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
@@ -167,6 +167,8 @@ class _TeacherViewAttendanceScreenState
     required Color color,
     bool small = false,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color subtextColor = isDark ? Colors.grey[350]! : Colors.grey[700]!;
     final percentage =
         total > 0 ? (count / total * 100).toStringAsFixed(0) : '0';
 
@@ -216,7 +218,7 @@ class _TeacherViewAttendanceScreenState
             style: GoogleFonts.poppins(
               fontSize: small ? 11 : 13,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+              color: subtextColor,
             ),
           ),
           const SizedBox(height: 2),
@@ -241,6 +243,10 @@ class _TeacherViewAttendanceScreenState
         padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+            final Color titleTextColor = isDark ? Colors.white : _maroonPrimary;
+
             if (state is AttendanceFetchSuccess) {
               if (state.isHoliday) {
                 return HolidayAttendanceContainer(
@@ -323,7 +329,7 @@ class _TeacherViewAttendanceScreenState
                           style: GoogleFonts.poppins(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: _maroonPrimary,
+                            color: titleTextColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -342,10 +348,10 @@ class _TeacherViewAttendanceScreenState
                         vertical: 16, horizontal: 20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                      color: cardBgColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -467,10 +473,10 @@ class _TeacherViewAttendanceScreenState
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                      color: cardBgColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),

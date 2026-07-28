@@ -6,8 +6,10 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      color: Colors.grey.shade50,
+      color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
       child: SingleChildScrollView(
         physics: const NeverScrollableScrollPhysics(),
         child: Column(
@@ -17,12 +19,12 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: isDark ? Theme.of(context).cardColor : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -121,12 +123,12 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).cardColor : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade300,
-                        highlightColor: Colors.grey.shade100,
+                        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -189,12 +191,12 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).cardColor : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade300,
-                        highlightColor: Colors.grey.shade100,
+                        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -260,12 +262,12 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                 child: Row(
                   children: [
                     Expanded(
@@ -303,12 +305,12 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
+                  baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                  highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                   child: Row(
                     children: [
                       // Icon container

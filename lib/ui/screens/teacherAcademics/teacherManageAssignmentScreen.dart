@@ -317,6 +317,8 @@ class _TeacherManageAssignmentScreenState
             }
           },
           builder: (context, state) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
+            final Color primaryColor = isDark ? const Color(0xFFE53935) : maroonPrimary;
             return TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 600),
@@ -337,7 +339,7 @@ class _TeacherManageAssignmentScreenState
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withValues(alpha: 0.1),
+                      color: primaryColor.withValues(alpha: 0.1),
                       blurRadius: 25,
                       offset: const Offset(0, 12),
                       spreadRadius: 0,
@@ -362,12 +364,17 @@ class _TeacherManageAssignmentScreenState
                             duration: const Duration(milliseconds: 300),
                             height: 130,
                             width: double.infinity,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFFF9F0F5),
-                                  Color(0xFFFDF7FA),
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Theme.of(context).cardColor,
+                                        Theme.of(context).cardColor.withValues(alpha: 0.9),
+                                      ]
+                                    : [
+                                        const Color(0xFFF9F0F5),
+                                        const Color(0xFFFDF7FA),
+                                      ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -385,8 +392,8 @@ class _TeacherManageAssignmentScreenState
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withValues(alpha: 0.08),
-                                    maroonPrimary.withValues(alpha: 0.03)
+                                    primaryColor.withValues(alpha: 0.08),
+                                    primaryColor.withValues(alpha: 0.03)
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -404,8 +411,8 @@ class _TeacherManageAssignmentScreenState
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withValues(alpha: 0.06),
-                                    maroonPrimary.withValues(alpha: 0.02)
+                                    primaryColor.withValues(alpha: 0.06),
+                                    primaryColor.withValues(alpha: 0.02)
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -422,14 +429,16 @@ class _TeacherManageAssignmentScreenState
                             child: Container(
                               height: 6,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [maroonPrimary, maroonLight],
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                      ? [const Color(0xFFE53935), const Color(0xFFEF5350)]
+                                      : [maroonPrimary, maroonLight],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: maroonPrimary.withValues(alpha: 0.2),
+                                    color: primaryColor,
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                     spreadRadius: -2,
@@ -468,22 +477,22 @@ class _TeacherManageAssignmentScreenState
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: maroonPrimary.withValues(
-                                              alpha: 0.08),
+                                          color: primaryColor.withValues(
+                                              alpha: isDark ? 0.15 : 0.08),
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
-                                            color: maroonPrimary.withValues(
-                                                alpha: 0.15),
+                                            color: primaryColor.withValues(
+                                                alpha: isDark ? 0.3 : 0.15),
                                             width: 1,
                                           ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
+                                            Icon(
                                               Icons.calendar_today_rounded,
-                                              color: maroonPrimary,
+                                              color: primaryColor,
                                               size: 14,
                                             ),
                                             const SizedBox(width: 6),
@@ -493,7 +502,7 @@ class _TeacherManageAssignmentScreenState
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600,
-                                                color: maroonPrimary,
+                                                color: primaryColor,
                                               ),
                                             ),
                                           ],
@@ -512,7 +521,7 @@ class _TeacherManageAssignmentScreenState
                                     ),
                                     elevation: 12,
                                     offset: const Offset(0, 50),
-                                    color: Colors.white,
+                                    color: isDark ? Theme.of(context).cardColor : Colors.white,
                                     onSelected: (value) {
                                       if (value == 'edit') {
                                         HapticFeedback.lightImpact();
@@ -749,10 +758,15 @@ class _TeacherManageAssignmentScreenState
                                                           Alignment.bottomRight,
                                                     )
                                                   : LinearGradient(
-                                                      colors: [
-                                                        Colors.white,
-                                                        Colors.grey.shade100
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Theme.of(context).cardColor,
+                                                              Theme.of(context).cardColor.withValues(alpha: 0.8),
+                                                            ]
+                                                          : [
+                                                              Colors.white,
+                                                              Colors.grey.shade100
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
@@ -760,12 +774,12 @@ class _TeacherManageAssignmentScreenState
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               border: Border.all(
-                                                color: Colors.grey.shade300,
+                                                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300,
                                                 width: 1.5,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: maroonPrimary
+                                                  color: primaryColor
                                                       .withValues(alpha: 0.1),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
@@ -775,20 +789,20 @@ class _TeacherManageAssignmentScreenState
                                             ),
                                             child: state
                                                     is DeleteAssignmentInProgress
-                                                ? const Center(
+                                                ? Center(
                                                     child: SizedBox(
                                                       width: 20,
                                                       height: 20,
                                                       child:
                                                           CircularProgressIndicator(
-                                                        color: maroonPrimary,
+                                                        color: primaryColor,
                                                         strokeWidth: 2,
                                                       ),
                                                     ),
                                                   )
-                                                : const Icon(
+                                                : Icon(
                                                     Icons.more_vert_rounded,
-                                                    color: maroonPrimary,
+                                                    color: primaryColor,
                                                     size: 22,
                                                   ),
                                           ),
@@ -807,10 +821,10 @@ class _TeacherManageAssignmentScreenState
                       Container(
                         padding: const EdgeInsets.fromLTRB(26, 22, 26, 24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).cardColor : Colors.white,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.shade100,
+                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                               width: 1,
                             ),
                           ),
@@ -838,10 +852,10 @@ class _TeacherManageAssignmentScreenState
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 20),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                   width: 1,
                                 ),
                               ),
@@ -863,10 +877,10 @@ class _TeacherManageAssignmentScreenState
                       Container(
                         padding: const EdgeInsets.all(26),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).cardColor : Colors.white,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.shade100,
+                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                               width: 1,
                             ),
                           ),
@@ -880,12 +894,12 @@ class _TeacherManageAssignmentScreenState
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color:
-                                        maroonPrimary.withValues(alpha: 0.08),
+                                        primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.info_outline_rounded,
-                                    color: maroonPrimary,
+                                    color: primaryColor,
                                     size: 18,
                                   ),
                                 ),
@@ -907,10 +921,10 @@ class _TeacherManageAssignmentScreenState
                               width: double.infinity,
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                   width: 1,
                                 ),
                               ),
@@ -1049,10 +1063,10 @@ class _TeacherManageAssignmentScreenState
                         Container(
                           padding: const EdgeInsets.all(26),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).cardColor : Colors.white,
                             border: Border(
                               bottom: BorderSide(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                                 width: 1,
                               ),
                             ),
@@ -1066,12 +1080,12 @@ class _TeacherManageAssignmentScreenState
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color:
-                                          maroonPrimary.withValues(alpha: 0.08),
+                                          primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.attach_file_rounded,
-                                      color: maroonPrimary,
+                                      color: primaryColor,
                                       size: 18,
                                     ),
                                   ),
@@ -1097,12 +1111,12 @@ class _TeacherManageAssignmentScreenState
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: maroonPrimary.withValues(
+                                            color: primaryColor.withValues(
                                                 alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: maroonPrimary.withValues(
+                                              color: primaryColor.withValues(
                                                   alpha: 0.2),
                                               width: 1,
                                             ),
@@ -1112,7 +1126,7 @@ class _TeacherManageAssignmentScreenState
                                             style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              color: maroonPrimary,
+                                              color: primaryColor,
                                             ),
                                           ),
                                         ),
@@ -1126,10 +1140,10 @@ class _TeacherManageAssignmentScreenState
                               // Enhanced file list container
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.grey.shade50,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                     width: 1,
                                   ),
                                 ),
@@ -1145,11 +1159,11 @@ class _TeacherManageAssignmentScreenState
 
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade50,
+                                          color: isDark ? Colors.transparent : Colors.grey.shade50,
                                           border: index > 0
                                               ? Border(
                                                   top: BorderSide(
-                                                    color: Colors.grey.shade200,
+                                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                                     width: 1,
                                                   ),
                                                 )
@@ -1164,15 +1178,15 @@ class _TeacherManageAssignmentScreenState
                                               height: 48,
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                color: maroonPrimary.withValues(
-                                                    alpha: 0.08),
+                                                color: primaryColor.withValues(
+                                                    alpha: isDark ? 0.15 : 0.08),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
                                               child: Icon(
                                                 _getFileTypeIcon(
                                                     material.fileName),
-                                                color: maroonPrimary,
+                                                color: primaryColor,
                                                 size: 20,
                                               ),
                                             ),
@@ -1223,23 +1237,22 @@ class _TeacherManageAssignmentScreenState
                                                     studyMaterial: material,
                                                   );
                                                 },
-
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                                 child: Container(
                                                   padding:
                                                       const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
-                                                    color: maroonPrimary
+                                                    color: primaryColor
                                                         .withValues(
-                                                            alpha: 0.07),
+                                                            alpha: isDark ? 0.15 : 0.07),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             14),
                                                   ),
-                                                  child: const Icon(
+                                                  child: Icon(
                                                     Icons.download_rounded,
-                                                    color: maroonPrimary,
+                                                    color: primaryColor,
                                                     size: 20,
                                                   ),
                                                 ),
@@ -1276,15 +1289,17 @@ class _TeacherManageAssignmentScreenState
                             borderRadius: BorderRadius.circular(20),
                             child: Ink(
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [maroonPrimary, maroonDark],
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                      ? [const Color(0xFFE53935), const Color(0xFFD32F2F)]
+                                      : [maroonPrimary, maroonDark],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: maroonPrimary.withValues(alpha: 0.3),
+                                    color: primaryColor.withValues(alpha: 0.3),
                                     blurRadius: 18,
                                     offset: const Offset(0, 8),
                                     spreadRadius: -6,
@@ -1428,8 +1443,8 @@ class _TeacherManageAssignmentScreenState
                 return Center(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 50),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1513,7 +1528,7 @@ class _TeacherManageAssignmentScreenState
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         "Pilih kelas dan mata pelajaran untuk melihat tugas",
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -1929,7 +1944,14 @@ class _TeacherManageAssignmentScreenState
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2), // Shorter duration
@@ -1944,13 +1966,18 @@ class _TeacherManageAssignmentScreenState
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      cardColor: Theme.of(context).cardColor,
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
+      ).copyWith(
+        surface: Theme.of(context).colorScheme.surface,
       ),
     );
 

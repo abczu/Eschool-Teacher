@@ -60,9 +60,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
           width: widget.width,
           constraints: const BoxConstraints(minHeight: 150),
           decoration: BoxDecoration(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(24.0),
             boxShadow: [
               BoxShadow(
@@ -231,7 +229,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 Text(
                                   'Lihat Detail',
                                   style: TextStyle(
-                                    color: isDark ? const Color(0xFFFF3D60) : maroonColor,
+                                    color: isDark ? const Color(0xFFE53935) : maroonColor,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 12,
                                   ),
@@ -240,7 +238,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   size: 10,
-                                  color: isDark ? const Color(0xFFFF3D60) : maroonColor,
+                                  color: isDark ? const Color(0xFFE53935) : maroonColor,
                                 ),
                               ],
                             ),

@@ -1319,7 +1319,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         onTap: () {
                           _getPageController(question.id).animateToPage(
                             index, // Directly use index instead of inverting it
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 120),
                             curve: Curves.easeInOut,
                           );
                         },

@@ -452,9 +452,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -509,7 +507,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         child: Icon(
                           icon,
                           color: Theme.of(context).brightness == Brightness.dark
-                              ? const Color(0xFFFF3D60)
+                              ? const Color(0xFFE53935)
                               : iconColor,
                           size: 24,
                         ),
@@ -625,7 +623,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: Icon(
                         icon,
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFF3D60)
+                            ? const Color(0xFFE53935)
                             : (isHovered
                                 ? AppColorPalette.primaryMaroon
                                 : AppColorPalette.secondaryMaroon),
@@ -651,7 +649,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       child: Icon(
                         Icons.arrow_forward_ios,
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFF3D60).withValues(alpha: 0.6)
+                            ? const Color(0xFFE53935).withValues(alpha: 0.6)
                             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         size: 16,
                       ),

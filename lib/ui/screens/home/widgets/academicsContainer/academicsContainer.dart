@@ -166,6 +166,9 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                 if (state is StaffAllowedPermissionsAndModulesFetchSuccess) {
                   return RefreshIndicator(
                     color: maroonPrimary,
+                    backgroundColor: isDark
+                        ? Theme.of(context).cardColor
+                        : Colors.white,
                     onRefresh: () async {
                       context
                           .read<StaffAllowedPermissionsAndModulesCubit>()
@@ -392,7 +395,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                       height: 95,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
@@ -469,7 +472,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                                     fontSize: 20,
                                     fontWeight: FontWeight.w700,
                                     color: Theme.of(context).brightness == Brightness.dark
-                                        ? const Color(0xFFFF3D60)
+                                        ? const Color(0xFFE53935)
                                         : maroonPrimary,
                                   ),
                                 ),

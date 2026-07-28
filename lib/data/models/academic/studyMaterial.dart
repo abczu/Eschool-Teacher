@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 
 enum StudyMaterialType { file, youtubeVideo, uploadedVideoUrl, other }
 
@@ -58,7 +58,7 @@ class StudyMaterial {
   late final Map<String, dynamic> fullFileData;
 
   StudyMaterial.fromJson(Map<String, dynamic> json) {
-    studyMaterialType = getStudyMaterialType(int.parse(json['type'] ?? "0"));
+    studyMaterialType = getStudyMaterialType(int.tryParse(json['type']?.toString() ?? "0") ?? 0);
 
     id = json['id'] ?? 0;
     fileName = json['file_name'] ?? "";

@@ -157,6 +157,7 @@ class _MyAppState extends State<MyApp> {
                 textTheme:
                     GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
                 scaffoldBackgroundColor: darkMainBackgroundColor,
+                cardColor: darkCardBackgroundColor,
                 cardTheme: CardThemeData(
                   color: darkCardBackgroundColor,
                   elevation: 4,

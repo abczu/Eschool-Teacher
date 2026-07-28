@@ -11,10 +11,10 @@ Color tertiaryColor =
     const Color(0xffEBEEF3); //Border color define in design style
 
 // Warna untuk Tema Gelap (Warm Dark Maroon/Rose)
-const Color darkMainBackgroundColor = Color(0xFF120A0C); // Maroon/Rose Hitam Sangat Gelap
-const Color darkCardBackgroundColor = Color(0xFF1F1416); // Lighter Maroon/Rose Hitam
-const Color darkBottomNavBackgroundColor = Color(0xFF190F11);
-const Color darkPrimaryColor = Color(0xFFFF3D60); // Vibrant Pinkish Red
+const Color darkMainBackgroundColor = Color(0xFF121212); // Hitam netral
+const Color darkCardBackgroundColor = Color(0xFF1C1C1E); // Abu-abu gelap netral
+const Color darkBottomNavBackgroundColor = Color(0xFF1C1C1E);
+const Color darkPrimaryColor = Color(0xFFE53935); // Matches darkSecondaryColor / red
 const Color darkSecondaryColor = Color(0xFFE53935);
 const Color darkTextPrimaryColor = Color(0xFFFFFFFF);
 const Color darkTextSecondaryColor = Color(0xFFE2E8F0); // Teks abu-abu terang yang bersih

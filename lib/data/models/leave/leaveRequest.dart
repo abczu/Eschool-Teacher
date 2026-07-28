@@ -83,9 +83,24 @@ class LeaveRequest {
 
   LeaveRequest.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
-        attachments = (json['file'] as List?)
-            ?.map((e) => StudyMaterial.fromJson(Map.from(e)))
-            .toList(),
+        attachments = (() {
+          final rawFiles = json['file'] ?? json['files'];
+          print("DEBUG LeaveRequest.fromJson - id: ${json['id']} - rawFiles: $rawFiles (type: ${rawFiles?.runtimeType})");
+          if (rawFiles != null && rawFiles is List && rawFiles.isNotEmpty) {
+            List targetList;
+            if (rawFiles[0] is List) {
+              // Nested list: [[file1, file2]]
+              targetList = rawFiles[0] as List;
+            } else {
+              // Flat list: [file1, file2]
+              targetList = rawFiles;
+            }
+            return targetList
+                .map((e) => StudyMaterial.fromJson(Map.from(e as Map)))
+                .toList();
+          }
+          return null;
+        })(),
         userId = json['user_id'] as int?,
         reason = json['reason'] as String?,
         fromDate = json['from_date'] as String?,

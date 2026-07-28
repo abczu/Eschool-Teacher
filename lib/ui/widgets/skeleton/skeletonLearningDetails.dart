@@ -6,14 +6,22 @@ class SkeletonLearningDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -25,12 +33,12 @@ class SkeletonLearningDetails extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: headerBg,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Row(
                 children: [
                   // Icon placeholder
@@ -61,8 +69,8 @@ class SkeletonLearningDetails extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -145,7 +153,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.grey.shade300,
+                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300,
                         width: 1,
                       ),
                     ),
@@ -155,8 +163,8 @@ class SkeletonLearningDetails extends StatelessWidget {
                         Container(
                           width: 32,
                           height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -165,7 +173,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                           height: 14,
                           width: 180,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),

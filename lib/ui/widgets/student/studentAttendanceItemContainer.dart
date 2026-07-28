@@ -242,20 +242,29 @@ class _StudentAttendanceItemContainerState
     // Apply animation based on index for staggered entry
     final animationDelay = (widget.index * 50).clamp(0, 500);
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color itemColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color borderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+    final Color? nameColor = isDark
+        ? (isStudentActive ? Colors.white : Colors.grey[500])
+        : (isStudentActive ? Colors.grey[800] : Colors.grey[500]);
+    final Color numberTextColor = isDark ? const Color(0xFFE53935) : _maroonPrimary;
+    final Color numberBgColor = isDark ? const Color(0xFFE53935).withValues(alpha: 0.15) : _maroonPrimary.withValues(alpha: 0.1);
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: itemColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: borderColor,
           width: 1,
         ),
       ),
@@ -282,7 +291,7 @@ class _StudentAttendanceItemContainerState
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: _maroonPrimary.withValues(alpha: 0.1),
+                      color: numberBgColor,
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -291,7 +300,7 @@ class _StudentAttendanceItemContainerState
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: _maroonPrimary,
+                        color: numberTextColor,
                       ),
                     ),
                   ),
@@ -315,9 +324,7 @@ class _StudentAttendanceItemContainerState
                               style: GoogleFonts.poppins(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: isStudentActive
-                                    ? Colors.grey[800]
-                                    : Colors.grey[500],
+                                color: nameColor,
                                 decoration: isStudentActive
                                     ? TextDecoration.none
                                     : TextDecoration.lineThrough,

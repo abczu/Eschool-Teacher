@@ -128,16 +128,19 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color scaffoldBg = isDark ? Theme.of(context).scaffoldBackgroundColor : AppColorPalette.warmBeige;
+
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
-              surface: AppColorPalette.warmBeige,
+              surface: scaffoldBg,
             ),
       ),
       child: Scaffold(
-        backgroundColor: AppColorPalette.warmBeige,
+        backgroundColor: scaffoldBg,
         appBar: CustomModernAppBar(
           title: "Kebijakan Privasi",
           icon: Icons.privacy_tip_outlined,
@@ -162,7 +165,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                 opacity: 0.1,
                 child: CustomPaint(
                   painter: BackgroundPainter(
-                    color: AppColorPalette.primaryMaroon,
+                    color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                   ),
                 ),
               ),
@@ -322,21 +325,26 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
     required String title,
     required String description,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return FadeInUp(
       duration: const Duration(milliseconds: 800),
       child: Container(
         height: 180, // Further increased from 175 to 180 to fit all text
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -345,7 +353,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
             Icon(
               icon,
               size: 36,
-              color: AppColorPalette.primaryMaroon,
+              color: isDark ? const Color(0xFFAC3B5C) : AppColorPalette.primaryMaroon,
             ),
             const SizedBox(height: 8),
             Text(
@@ -354,7 +362,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               style: GoogleFonts.poppins(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: AppColorPalette.primaryMaroon,
+                color: isDark ? const Color(0xFFAC3B5C) : AppColorPalette.primaryMaroon,
               ),
             ),
             const SizedBox(height: 2),
@@ -363,7 +371,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
           ],
@@ -373,19 +381,24 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
   }
 
   Widget _buildContentSection(String content) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: HtmlWidget(
         content,
@@ -395,7 +408,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               'font-family': 'Poppins',
               'font-size': '16px',
               'line-height': '1.8',
-              'color': '#333333',
+              'color': isDark ? '#E0E0E0' : '#333333',
               'margin': '16px 0',
             };
           }
@@ -404,7 +417,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               element.localName == 'h3') {
             return {
               'font-family': 'Poppins',
-              'color': AppColorPalette.primaryMaroon.toString(),
+              'color': isDark ? '#FF80AB' : AppColorPalette.primaryMaroon.toString(),
               'margin': '24px 0 16px 0',
             };
           }
@@ -412,7 +425,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
         },
         textStyle: GoogleFonts.poppins(
           fontSize: 16,
-          color: Colors.black87,
+          color: isDark ? Colors.white70 : Colors.black87,
           height: 1.8,
         ),
       ),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactDetailCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
@@ -56,8 +56,11 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFF8F9FA);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       body: Column(
         children: [
           CustomModernAppBar(
@@ -127,11 +130,15 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildContactInfoCard(Contact contact) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
+        border: isDark ? Border.all(color: Colors.grey.shade800) : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -179,7 +186,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                   ],
@@ -210,12 +217,14 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Row(
       children: [
         Icon(
           icon,
           size: 18,
-          color: Colors.grey[600],
+          color: isDark ? Colors.white70 : Colors.grey[600],
         ),
         const SizedBox(width: 12),
         Text(
@@ -223,7 +232,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
+            color: isDark ? Colors.white70 : Colors.grey[600],
           ),
         ),
         const SizedBox(width: 8),
@@ -232,7 +241,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             value,
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.black87,
+              color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.black87,
             ),
           ),
         ),
@@ -241,11 +250,15 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildMessageCard(Contact contact) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
+        border: isDark ? Border.all(color: Colors.grey.shade800) : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -261,7 +274,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             children: [
               Icon(
                 Icons.message_rounded,
-                color: _primaryColor,
+                color: isDark ? const Color(0xFFAC3B5C) : _primaryColor,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -270,7 +283,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
             ],
@@ -280,7 +293,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             contact.message,
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.black87,
+              color: isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black87,
               height: 1.6,
             ),
           ),
@@ -293,6 +306,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildRepliesSection(List<ContactReply> replies) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -300,7 +315,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           children: [
             Icon(
               Icons.reply_rounded,
-              color: _primaryColor,
+              color: isDark ? const Color(0xFFAC3B5C) : _primaryColor,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -309,7 +324,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
           ],
@@ -325,14 +340,18 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildReplyItem(ContactReply reply, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withValues(alpha: 0.05),
+        color: isDark
+            ? const Color(0xFF064E3B).withValues(alpha: 0.2)
+            : Colors.green.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.green.withValues(alpha: 0.2),
+          color: const Color(0xFF059669).withValues(alpha: isDark ? 0.35 : 0.2),
         ),
       ),
       child: Column(
@@ -343,12 +362,12 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: const Color(0xFF059669).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.admin_panel_settings_rounded,
-                  color: Colors.green,
+                  color: Color(0xFF10B981),
                   size: 16,
                 ),
               ),
@@ -362,14 +381,14 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.green,
+                        color: const Color(0xFF10B981),
                       ),
                     ),
                     Text(
                       _formatDateTime(reply.createdAt),
                       style: GoogleFonts.poppins(
                         fontSize: 10,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -382,7 +401,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             reply.reply,
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: Colors.black87,
+              color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.black87,
               height: 1.5,
             ),
           ),
@@ -395,7 +414,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildReplyInput(Contact contact) {
-    // Only show for staff/admin (not for teachers) and if contact is not closed
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final isTeacher = context.read<AuthCubit>().isTeacher();
 
     if (isTeacher) {
@@ -403,20 +422,20 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDark ? Theme.of(context).cardColor : Colors.grey[100],
           border: Border(
-            top: BorderSide(color: Colors.grey[300]!),
+            top: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
           ),
         ),
         child: Row(
           children: [
-            Icon(Icons.info_outline_rounded, color: Colors.grey[600], size: 20),
+            Icon(Icons.info_outline_rounded, color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
             const SizedBox(width: 8),
             Text(
               'Hanya admin/staff yang dapat membalas pesan',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
           ],
@@ -428,20 +447,20 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDark ? Theme.of(context).cardColor : Colors.grey[100],
           border: Border(
-            top: BorderSide(color: Colors.grey[300]!),
+            top: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
           ),
         ),
         child: Row(
           children: [
-            Icon(Icons.lock_rounded, color: Colors.grey[600], size: 20),
+            Icon(Icons.lock_rounded, color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
             const SizedBox(width: 8),
             Text(
               'Kontak ini sudah ditutup',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
           ],
@@ -452,9 +471,9 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         border: Border(
-          top: BorderSide(color: Colors.grey[300]!),
+          top: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
         ),
         boxShadow: [
           BoxShadow(
@@ -470,22 +489,26 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           TextField(
             controller: _replyController,
             maxLines: 3,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
             decoration: InputDecoration(
               hintText: 'Tulis balasan untuk ${contact.name}...',
               hintStyle: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: isDark ? Colors.grey[500] : Colors.grey[500],
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide: BorderSide(color: isDark ? Colors.grey.shade800 : Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: _primaryColor),
+                borderSide: BorderSide(color: isDark ? const Color(0xFFAC3B5C) : _primaryColor),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: isDark ? Colors.grey.shade900 : Colors.grey[50],
             ),
           ),
           const SizedBox(height: 12),
@@ -500,7 +523,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                     style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
+                    backgroundColor: isDark ? const Color(0xFF8B1F41) : _primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -512,18 +535,19 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
               const SizedBox(width: 12),
               PopupMenuButton<String>(
                 onSelected: (value) => _updateStatus(contact, value),
+                color: isDark ? Colors.grey.shade900 : Colors.white,
                 icon: Icon(
                   Icons.more_vert_rounded,
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.white70 : Colors.grey[600],
                 ),
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'replied',
-                    child: Text('Tandai Sudah Dibalas'),
+                    child: Text('Tandai Sudah Dibalas', style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black87)),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'closed',
-                    child: Text('Tutup Kontak'),
+                    child: Text('Tutup Kontak', style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black87)),
                   ),
                 ],
               ),
@@ -574,6 +598,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
   }
 
   Widget _buildErrorState(String message) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -589,7 +615,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 8),
@@ -598,7 +624,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.grey[600],
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 16),
@@ -607,7 +633,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                 .read<ContactDetailCubit>()
                 .getContactDetail(widget.contactId),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryColor,
+              backgroundColor: isDark ? const Color(0xFF8B1F41) : _primaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

@@ -1,7 +1,7 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/academics/timetableSlotContainer.dart';
@@ -226,6 +226,8 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color effectivePrimaryColor = isDark ? const Color(0xFFE53935) : _maroonPrimary;
     final state = context.watch<TeacherMyTimetableCubit>().state;
     debugPrint("Current state: $state");
     if (state is TeacherMyTimetableFetchSuccess) {
@@ -270,9 +272,20 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                     _selectedDayKey;
 
             // Filter slots locally by the selected day
-            final slots = state.timeTableSlots.where((slot) {
+            final rawSlots = state.timeTableSlots.where((slot) {
               return slot.day?.toLowerCase() == fullDayToFilter.toLowerCase();
             }).toList();
+
+            // Deduplicate slots by unique day, start, end, subject, and class combination
+            final seenKeys = <String>{};
+            final slots = <TimeTableSlot>[];
+            for (var slot in rawSlots) {
+              final key = "${slot.day?.toLowerCase()}_${slot.startTime}_${slot.endTime}_${slot.subjectId}_${slot.classSectionId}";
+              if (!seenKeys.contains(key)) {
+                seenKeys.add(key);
+                slots.add(slot);
+              }
+            }
 
             debugPrint("Selected day key: $_selectedDayKey -> $fullDayToFilter");
             debugPrint("Filtered slots: ${slots.length} out of ${state.timeTableSlots.length}");
@@ -296,9 +309,9 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                           height: 160,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _maroonPrimary.withValues(alpha: 0.05),
+                            color: effectivePrimaryColor.withValues(alpha: isDark ? 0.08 : 0.05),
                             border: Border.all(
-                              color: _maroonPrimary.withValues(alpha: 0.1),
+                              color: effectivePrimaryColor.withValues(alpha: isDark ? 0.2 : 0.1),
                               width: 2,
                             ),
                           ),
@@ -314,8 +327,8 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        _maroonPrimary.withValues(alpha: 0.15),
-                                        _maroonPrimary.withValues(alpha: 0.0),
+                                        effectivePrimaryColor.withValues(alpha: isDark ? 0.25 : 0.15),
+                                        effectivePrimaryColor.withValues(alpha: 0.0),
                                       ],
                                     ),
                                   ),
@@ -325,7 +338,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                                 Icon(
                                   Icons.event_busy_rounded,
                                   size: 70,
-                                  color: _maroonPrimary.withValues(alpha: 0.7),
+                                  color: effectivePrimaryColor.withValues(alpha: isDark ? 0.95 : 0.7),
                                 ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
                               ],
                             ),
@@ -340,7 +353,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: _maroonPrimary,
+                            color: effectivePrimaryColor,
                           ),
                         ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
                         
@@ -352,7 +365,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.grey.shade600,
+                            color: isDark ? Colors.white70 : Colors.grey.shade600,
                             height: 1.5,
                           ),
                         ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),

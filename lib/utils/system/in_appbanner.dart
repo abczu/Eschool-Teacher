@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,10 +25,7 @@ void showPushBanner({
 
   final config = _getNotificationConfig(type);
 
-  Get.snackbar(
-    '',
-    '',
-    titleText: const SizedBox.shrink(),
+  Get.rawSnackbar(
     messageText: _CleanNotificationCard(
       title: title,
       body: body,
@@ -38,17 +34,12 @@ void showPushBanner({
     ),
     snackPosition: SnackPosition.TOP,
     backgroundColor: Colors.transparent,
-    colorText: Colors.transparent,
     borderRadius: 0,
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     padding: EdgeInsets.zero,
     duration: duration,
-    isDismissible: true,
-    dismissDirection: DismissDirection.horizontal,
-    forwardAnimationCurve: Curves.easeOutQuart,
-    reverseAnimationCurve: Curves.easeInQuart,
     animationDuration: const Duration(milliseconds: 400),
-    boxShadows: [],
+    isDismissible: true,
   );
 }
 
@@ -146,56 +137,42 @@ class _CleanNotificationCardState extends State<_CleanNotificationCard>
           HapticFeedback.selectionClick();
           widget.onTap?.call();
         },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: Stack(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                widget.config.backgroundColor.withValues(alpha: 0.98),
+                Colors.white.withValues(alpha: 0.95),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(
+              color: Colors.white,
+              width: 1.2,
+            ),
+          ),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Glassmorphism background
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  color: Colors.transparent,
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      widget.config.backgroundColor.withValues(alpha: 0.92),
-                      Colors.white.withValues(alpha: 0.85),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    width: 1.2,
-                  ),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildIconSection(),
-                    const SizedBox(width: 14),
-                    Expanded(child: _buildContentSection()),
-                    if (widget.onTap != null) ...[
-                      const SizedBox(width: 10),
-                      _buildActionSection(),
-                    ],
-                  ],
-                ),
-              ),
+              _buildIconSection(),
+              const SizedBox(width: 14),
+              Expanded(child: _buildContentSection()),
+              if (widget.onTap != null) ...[
+                const SizedBox(width: 10),
+                _buildActionSection(),
+              ],
             ],
           ),
         ),

@@ -8,6 +8,12 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -16,8 +22,8 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             width: double.infinity,
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -41,18 +47,18 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
+              color: cardBg,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Column(
                 children: [
                   // Summary header
@@ -82,9 +88,9 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   // Present and Absent stats (large cards)
                   Row(
                     children: [
-                      Expanded(child: _buildStatCardSkeleton()),
+                      Expanded(child: _buildStatCardSkeleton(context)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildStatCardSkeleton()),
+                      Expanded(child: _buildStatCardSkeleton(context)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -92,11 +98,11 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   // Sick, Permission, and Alpa stats (small cards)
                   Row(
                     children: [
-                      Expanded(child: _buildStatCardSkeleton(small: true)),
+                      Expanded(child: _buildStatCardSkeleton(context, small: true)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCardSkeleton(small: true)),
+                      Expanded(child: _buildStatCardSkeleton(context, small: true)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCardSkeleton(small: true)),
+                      Expanded(child: _buildStatCardSkeleton(context, small: true)),
                     ],
                   ),
                 ],
@@ -109,10 +115,10 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
+              color: cardBg,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -126,13 +132,13 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: headerBg,
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: shimmerBase,
+                    highlightColor: shimmerHighlight,
                     child: Row(
                       children: [
                         Container(
@@ -176,8 +182,8 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: shimmerBase,
+                    highlightColor: shimmerHighlight,
                     child: Column(
                       children: [
                         // Info rows
@@ -229,10 +235,10 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
+              color: cardBg,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -245,13 +251,13 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: headerBg,
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: shimmerBase,
+                    highlightColor: shimmerHighlight,
                     child: Row(
                       children: [
                         Container(
@@ -295,12 +301,12 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                       return Container(
                         margin: const EdgeInsets.symmetric(vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardBg,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
+                          baseColor: shimmerBase,
+                          highlightColor: shimmerHighlight,
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
@@ -371,16 +377,17 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCardSkeleton({bool small = false}) {
+  Widget _buildStatCardSkeleton(BuildContext context, {bool small = false}) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: small ? 10 : 16,
         horizontal: small ? 8 : 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
       ),
       child: Column(
         children: [

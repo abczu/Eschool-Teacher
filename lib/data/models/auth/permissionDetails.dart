@@ -162,13 +162,27 @@ class PermissionDetails {
             leaveMasterId: null,
             createdAt: null,
             updatedAt: null,
-            file: (json['files'] as List<dynamic>?)?.isNotEmpty == true
-                ? (json['files'][0] as List<dynamic>?)
-                    ?.map((fileData) =>
-                        File.fromJson(fileData as Map<String, dynamic>))
-                    .toList()
-                : null,
-            leaveDetail: (json['leave_details'] as List<dynamic>?)
+            file: (() {
+              final rawFiles = json['files'] ?? json['file'];
+              print("DEBUG PermissionDetails.fromApiData - leaveId: ${json['leave_id']} - rawFiles: $rawFiles (type: ${rawFiles?.runtimeType})");
+              if (rawFiles != null) {
+                if (rawFiles is List && rawFiles.isNotEmpty) {
+                  if (rawFiles[0] is List) {
+                    return (rawFiles[0] as List<dynamic>)
+                        .map((fileData) => File.fromJson(fileData as Map<String, dynamic>))
+                        .toList();
+                  } else {
+                    return (rawFiles as List<dynamic>)
+                        .map((fileData) => File.fromJson(fileData as Map<String, dynamic>))
+                        .toList();
+                  }
+                } else if (rawFiles is Map) {
+                  return [File.fromJson(Map<String, dynamic>.from(rawFiles))];
+                }
+              }
+              return null;
+            })(),
+            leaveDetail: ((json['leave_details'] ?? json['leave_detail']) as List<dynamic>?)
                 ?.map((detail) =>
                     LeaveDetail.fromJson(detail as Map<String, dynamic>))
                 .toList(),

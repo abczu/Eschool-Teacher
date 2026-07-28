@@ -6,6 +6,8 @@ class SkeletonPayrollCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(
@@ -15,8 +17,8 @@ class SkeletonPayrollCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             width: double.infinity,
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+              highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -47,10 +49,10 @@ class SkeletonPayrollCard extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -63,13 +65,13 @@ class SkeletonPayrollCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                    highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                     child: Row(
                       children: [
                         // Icon container
@@ -128,11 +130,11 @@ class SkeletonPayrollCard extends StatelessWidget {
                     margin:
                         const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? Theme.of(context).cardColor : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: Colors.black.withValues(alpha: isDark ? 0.1 : 0.03),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -141,8 +143,8 @@ class SkeletonPayrollCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade300,
-                        highlightColor: Colors.grey.shade100,
+                        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                         child: Column(
                           children: [
                             // Header row
@@ -198,7 +200,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                             // Salary info section
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               padding: const EdgeInsets.all(12),
@@ -236,7 +238,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                   Container(
                                     height: 40,
                                     width: 1,
-                                    color: Colors.grey.shade200,
+                                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                     margin:
                                         const EdgeInsets.symmetric(horizontal: 12),
                                   ),

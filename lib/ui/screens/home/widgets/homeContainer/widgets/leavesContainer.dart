@@ -7,6 +7,7 @@ import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/leave/leaveDetailsContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,9 +25,7 @@ class LeavesContainer extends StatelessWidget {
           horizontal: appContentHorizontalPadding,
           vertical: appContentHorizontalPadding),
       decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -66,10 +65,50 @@ class LeavesContainer extends StatelessWidget {
           ),
           todaysLeave.isEmpty
               ? Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: appContentHorizontalPadding),
-                  child: const CustomTextContainer(
-                      textKey: everyoneIsPresentTodayKey),
+                  padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
+                  child: Container(
+                    width: double.maxFinite,
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF2A2A2C)
+                          : Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.grey.shade100,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.event_available_rounded,
+                          color: Colors.grey[400],
+                          size: 48,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextContainer(
+                          textKey: everyoneIsPresentTodayKey,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            letterSpacing: 0.1,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               : Column(
                   children: [

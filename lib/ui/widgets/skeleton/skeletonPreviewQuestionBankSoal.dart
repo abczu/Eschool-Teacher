@@ -11,37 +11,45 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50;
+
     return Container(
-      color: Colors.grey.shade50,
+      color: bgColor,
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 8, bottom: 24),
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: itemCount,
         itemBuilder: (context, index) {
-          return _buildQuestionCardSkeleton();
+          return _buildQuestionCardSkeleton(context);
         },
       ),
     );
   }
 
-  Widget _buildQuestionCardSkeleton() {
+  Widget _buildQuestionCardSkeleton(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
+          baseColor: shimmerBase,
+          highlightColor: shimmerHighlight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

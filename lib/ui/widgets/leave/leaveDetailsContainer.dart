@@ -417,9 +417,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
@@ -636,7 +634,9 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                               widget.leaveDetails.leave!.reason!,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: _maroonDark,
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)
+                                    : _maroonDark,
                                 height: 1.5,
                               ),
                             ),
@@ -732,7 +732,9 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: _maroonDark,
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : _maroonDark,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -767,7 +769,9 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                   Icon(
                                     Icons.calendar_today_rounded,
                                     size: 20,
-                                    color: _maroonDark,
+                                    color: isDark
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                                        : _maroonDark,
                                   ),
                                   SizedBox(width: isSmallScreen ? 10 : 14),
                                   Expanded(
@@ -775,7 +779,9 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                       '${formatDateToIndonesian(widget.leaveDetails.leave?.fromDate)} - ${formatDateToIndonesian(widget.leaveDetails.leave?.toDate)}',
                                       style: TextStyle(
                                         fontSize: isSmallScreen ? 12 : 14,
-                                        color: _maroonDark,
+                                        color: isDark
+                                            ? Theme.of(context).colorScheme.onSurface
+                                            : _maroonDark,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       overflow: TextOverflow.ellipsis,

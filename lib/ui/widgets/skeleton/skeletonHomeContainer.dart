@@ -6,33 +6,39 @@ class SkeletonHomeContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(
           top: 70, // Small padding to align closely with appbar
           bottom: 100),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           children: [
             // Home Overview Details Container
-            _buildSkeletonOverviewSection(),
+            _buildSkeletonOverviewSection(context),
 
             // Teachers TimeTable Container (conditional)
-            _buildSkeletonTeachersTimetableSection(),
+            _buildSkeletonTeachersTimetableSection(context),
 
             // Leaves Container
-            _buildSkeletonLeavesSection(),
+            _buildSkeletonLeavesSection(context),
 
             // Holidays Container
-            _buildSkeletonHolidaysSection(),
+            _buildSkeletonHolidaysSection(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSkeletonOverviewSection() {
+  Widget _buildSkeletonOverviewSection(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     return Column(
       children: [
         // Title section
@@ -67,11 +73,13 @@ class SkeletonHomeContainer extends StatelessWidget {
                 width: 140,
                 margin: const EdgeInsets.only(right: 15),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -138,7 +146,10 @@ class SkeletonHomeContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonTeachersTimetableSection() {
+  Widget _buildSkeletonTeachersTimetableSection(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -186,9 +197,9 @@ class SkeletonHomeContainer extends StatelessWidget {
                   height: 110,
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: borderColor),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,11 +236,14 @@ class SkeletonHomeContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonLeavesSection() {
+  Widget _buildSkeletonLeavesSection(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color itemBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade50;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(2.5),
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -274,7 +288,7 @@ class SkeletonHomeContainer extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 15),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: itemBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -355,7 +369,10 @@ class SkeletonHomeContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonHolidaysSection() {
+  Widget _buildSkeletonHolidaysSection(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
     return Column(
       children: [
         const SizedBox(height: 15),
@@ -400,11 +417,13 @@ class SkeletonHomeContainer extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * (0.85),
                 margin: const EdgeInsetsDirectional.only(end: 25),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -418,7 +437,7 @@ class SkeletonHomeContainer extends StatelessWidget {
                       padding:
                           const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
+                        color: headerBg,
                         borderRadius:
                             const BorderRadius.vertical(top: Radius.circular(16)),
                       ),

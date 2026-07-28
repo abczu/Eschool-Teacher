@@ -26,14 +26,14 @@ import 'dart:ui';
 
 // Define our theme colors (kept local: teacherManageTopicScreen import re-exports same names)
 const Color maroonPrimary = Color(0xFF8B1F41);
-const Color maroonLight = Color(0xFFAC3B5C);
+const Color maroonLight = Color(0xFFE53935);
 const Color maroonDark = Color(0xFF6A0F2A);
-const Color accentColor = Color(0xFFF5EBE0);
-const Color bgColor = Color(0xFFFAF6F2);
-const Color cardColor = Colors.white;
-const Color textDarkColor = Color(0xFF2D2D2D);
-const Color textMediumColor = Color(0xFF717171);
-const Color borderColor = Color(0xFFE8E8E8);
+const Color defaultAccentColor = Color(0xFFF5EBE0);
+const Color defaultBgColor = Color(0xFFFAF6F2);
+const Color defaultCardColor = Colors.white;
+const Color defaultTextDarkColor = Color(0xFF2D2D2D);
+const Color defaultTextMediumColor = Color(0xFF717171);
+const Color defaultBorderColor = Color(0xFFE8E8E8);
 
 class TeacherManageLessonScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -63,6 +63,14 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   GradeLevel? _selectedGradeLevel;
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get bgColor => isDark ? Theme.of(context).scaffoldBackgroundColor : defaultBgColor;
+  Color get cardColor => isDark ? Theme.of(context).cardColor : defaultCardColor;
+  Color get textDarkColor => isDark ? Colors.white : defaultTextDarkColor;
+  Color get textMediumColor => isDark ? Colors.white70 : defaultTextMediumColor;
+  Color get borderColor => isDark ? Colors.white.withValues(alpha: 0.08) : defaultBorderColor;
 
   // Animation controllers
   late final AnimationController _fadeController;
@@ -135,7 +143,14 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2), // Shorter duration
@@ -342,12 +357,17 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                             duration: const Duration(milliseconds: 300),
                             height: 130,
                             width: double.infinity,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFFF9F0F5),
-                                  Color(0xFFFDF7FA),
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Colors.grey.shade900,
+                                        Theme.of(context).cardColor,
+                                      ]
+                                    : const [
+                                        Color(0xFFF9F0F5),
+                                        Color(0xFFFDF7FA),
+                                      ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -485,7 +505,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                     ),
                                     elevation: 12,
                                     offset: const Offset(0, 50),
-                                    color: Colors.white,
+                                    color: cardColor,
                                     onSelected: (value) {
                                       if (value == 'edit') {
                                         HapticFeedback.lightImpact();
@@ -710,19 +730,29 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                               gradient: state
                                                       is DeleteLessonInProgress
                                                   ? LinearGradient(
-                                                      colors: [
-                                                        Colors.grey.shade300,
-                                                        Colors.grey.shade400
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Colors.grey.shade800,
+                                                              Colors.grey.shade900,
+                                                            ]
+                                                          : [
+                                                              Colors.grey.shade300,
+                                                              Colors.grey.shade400
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
                                                     )
                                                   : LinearGradient(
-                                                      colors: [
-                                                        Colors.white,
-                                                        Colors.grey.shade100
-                                                      ],
+                                                      colors: isDark
+                                                          ? [
+                                                              Theme.of(context).cardColor,
+                                                              Colors.grey.shade900,
+                                                            ]
+                                                          : [
+                                                              Colors.white,
+                                                              Colors.grey.shade100
+                                                            ],
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
@@ -730,7 +760,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               border: Border.all(
-                                                color: Colors.grey.shade300,
+                                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300,
                                                 width: 1.5,
                                               ),
                                               boxShadow: [
@@ -822,10 +852,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 20),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: isDark ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                   width: 1,
                                 ),
                               ),
@@ -848,10 +878,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                         Container(
                           padding: const EdgeInsets.all(26),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: cardColor,
                             border: Border(
                               bottom: BorderSide(
-                                color: Colors.grey.shade100,
+                                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                                 width: 1,
                               ),
                             ),
@@ -925,10 +955,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               // Enhanced file list container
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: isDark ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.grey.shade50,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                     width: 1,
                                   ),
                                 ),
@@ -944,11 +974,11 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade50,
+                                          color: Colors.transparent,
                                           border: index > 0
                                               ? Border(
                                                   top: BorderSide(
-                                                    color: Colors.grey.shade200,
+                                                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                                     width: 1,
                                                   ),
                                                 )
@@ -963,21 +993,21 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                               height: 48,
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: isDark ? Colors.grey.shade800 : Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
                                                         .withValues(
-                                                            alpha: 0.05),
+                                                            alpha: isDark ? 0.3 : 0.05),
                                                     blurRadius: 10,
                                                     offset: const Offset(0, 3),
                                                     spreadRadius: -2,
                                                   ),
                                                 ],
                                                 border: Border.all(
-                                                  color: Colors.grey.shade100,
+                                                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100,
                                                   width: 1,
                                                 ),
                                               ),
@@ -1016,7 +1046,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                         vertical: 3),
                                                     decoration: BoxDecoration(
                                                       color:
-                                                          Colors.grey.shade200,
+                                                          isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               6),
@@ -1287,19 +1317,19 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                           Icon(
                             Icons.menu_book_outlined,
-                            color: textMediumColor,
+                            color: isDark ? const Color(0xFFE53935) : textMediumColor,
                             size: 80,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             Utils.getTranslatedLabel(noLessonKey),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
-                              color: textMediumColor,
+                              color: isDark ? Colors.white70 : textMediumColor,
                             ),
                           ),
                           if (_selectedClassSection != null &&
@@ -1359,22 +1389,22 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(40),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.menu_book_outlined,
                           size: 40,
-                          color: maroonPrimary,
+                          color: isDark ? const Color(0xFFE53935) : maroonPrimary,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         "Pilih kelas dan mata pelajaran terlebih dahulu",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
-                          color: textMediumColor,
+                          color: isDark ? Colors.white70 : textMediumColor,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                         ),
@@ -1783,13 +1813,18 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      cardColor: Theme.of(context).cardColor,
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
+      ).copyWith(
+        surface: Theme.of(context).colorScheme.surface,
       ),
     );
 

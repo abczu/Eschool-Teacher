@@ -229,7 +229,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
+              colorScheme: ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
                 onSurface: textDarkColor,
@@ -240,7 +240,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   foregroundColor: maroonPrimary,
                 ),
               ),
-              dialogTheme: const DialogThemeData(backgroundColor: cardColor),
+              dialogTheme: DialogThemeData(backgroundColor: cardColor),
             ),
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
@@ -307,7 +307,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
+              colorScheme: ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
                 onSurface: textDarkColor,
@@ -318,7 +318,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   foregroundColor: maroonPrimary,
                 ),
               ),
-              dialogTheme: const DialogThemeData(backgroundColor: cardColor),
+              dialogTheme: DialogThemeData(backgroundColor: cardColor),
             ),
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
@@ -1176,12 +1176,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: maroonPrimary.withValues(alpha: 0.1),
+                color: leavePrimaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: maroonPrimary,
+                color: leavePrimaryColor,
                 size: 22,
               ),
             ),
@@ -1192,7 +1192,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: textMediumColor,
                       fontFamily: 'Poppins',
@@ -1222,7 +1222,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               padding: EdgeInsets.all(selectedDate != null ? 8 : 0),
               decoration: BoxDecoration(
                 color: selectedDate != null
-                    ? maroonPrimary.withValues(alpha: 0.1)
+                    ? leavePrimaryColor.withValues(alpha: 0.1)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
@@ -1232,7 +1232,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     : Icons.calendar_month_rounded,
                 size: 20,
                 color: selectedDate != null
-                    ? maroonPrimary
+                    ? leavePrimaryColor
                     : textMediumColor.withValues(alpha: 0.5),
               ),
             )
@@ -1305,14 +1305,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     children: [
                       Text(
                         formattedDate,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
                           color: textDarkColor,
                         ),
                       ),
-                      const Text(
+                      Text(
                         "Pilih jenis izin",
                         style: TextStyle(
                           fontSize: 12,
@@ -1382,10 +1382,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           decoration: BoxDecoration(
             color: isSelected
                 ? maroonPrimary.withValues(alpha: 0.1)
-                : Colors.grey.shade50,
+                : (Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black26
+                    : Colors.grey.shade50),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? maroonPrimary : Colors.grey.shade300,
+              color: isSelected
+                  ? maroonPrimary
+                  : (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white12
+                      : Colors.grey.shade300),
               width: isSelected ? 1.5 : 1,
             ),
           ),
@@ -1450,7 +1456,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Detail Hari Cuti",
                       style: TextStyle(
                         fontSize: 16,
@@ -1461,7 +1467,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     ),
                     Text(
                       "${dateTimes.length} hari yang perlu diatur",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: textMediumColor,
                         fontFamily: 'Poppins',
@@ -1509,12 +1515,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: maroonPrimary.withValues(alpha: 0.1),
+              color: leavePrimaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: maroonPrimary,
+              color: leavePrimaryColor,
               size: 20,
             ),
           ),
@@ -1524,7 +1530,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
@@ -1575,12 +1581,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withValues(alpha: 0.1),
+                      color: leavePrimaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       icon,
-                      color: maroonPrimary,
+                      color: leavePrimaryColor,
                       size: 22,
                     ),
                   ),
@@ -1591,7 +1597,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
@@ -1602,7 +1608,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         if (subtitle != null)
                           Text(
                             subtitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: textMediumColor,
                               fontFamily: 'Poppins',
@@ -1619,12 +1625,18 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       decoration: BoxDecoration(
                         color: isExpanded
                             ? maroonPrimary.withValues(alpha: 0.1)
-                            : Colors.grey.shade100,
+                            : (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white10
+                                : Colors.grey.shade100),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: isExpanded ? maroonPrimary : textMediumColor,
+                        color: isExpanded
+                            ? maroonPrimary
+                            : (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white70
+                                : textMediumColor),
                         size: 20,
                       ),
                     ),
@@ -1668,7 +1680,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black26
+                  : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: borderColor,
@@ -1678,7 +1692,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             child: TextField(
               controller: _textEditingController,
               maxLines: 5,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontFamily: 'Poppins',
                 color: textDarkColor,
@@ -1695,7 +1709,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             ),
           ),
           const SizedBox(height: 8),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
             child: Text(
               "Min. 10 karakter",
@@ -1733,7 +1747,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black26
+                    : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: maroonPrimary.withValues(alpha: 0.3),
@@ -1742,24 +1758,24 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 // For dashed border, consider adding the dotted_border package
                 // and wrapping this Container with a DottedBorder widget
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Icon(
                     Icons.file_upload_outlined,
-                    color: maroonPrimary,
+                    color: leavePrimaryColor,
                     size: 36,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     "Tambahkan File",
                     style: TextStyle(
-                      color: maroonPrimary,
+                      color: leavePrimaryColor,
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
                       fontFamily: 'Poppins',
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     "PDF, JPG, PNG (maks. 5MB)",
                     style: TextStyle(
@@ -1797,7 +1813,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: borderColor,
@@ -1825,7 +1841,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                           children: [
                             Text(
                               file.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: 'Poppins',
@@ -1837,7 +1853,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                             const SizedBox(height: 2),
                             Text(
                               _formatFileSize(file.size),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: textMediumColor,
                                 fontFamily: 'Poppins',
@@ -1867,8 +1883,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           ),
 
           if (_uploadedFiles.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 "Belum ada file yang diunggah",
                 style: TextStyle(
@@ -1997,10 +2013,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
@@ -2080,18 +2098,24 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                         child: Container(
                                           padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
-                                            color: Colors.blue.shade50,
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.blue.shade900.withValues(alpha: 0.2)
+                                                : Colors.blue.shade50,
                                             borderRadius:
                                                 BorderRadius.circular(16),
                                             border: Border.all(
-                                              color: Colors.blue.shade200,
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.blue.shade800.withValues(alpha: 0.4)
+                                                  : Colors.blue.shade200,
                                             ),
                                           ),
                                           child: Row(
                                             children: [
                                               Icon(
                                                 Icons.info_rounded,
-                                                color: Colors.blue.shade700,
+                                                color: Theme.of(context).brightness == Brightness.dark
+                                                    ? Colors.blue.shade300
+                                                    : Colors.blue.shade700,
                                                 size: 24,
                                               ),
                                               const SizedBox(width: 14),
@@ -2105,8 +2129,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                       style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.w600,
-                                                        color: Colors
-                                                            .blue.shade800,
+                                                        color: Theme.of(context).brightness == Brightness.dark
+                                                            ? Colors.blue.shade300
+                                                            : Colors.blue.shade800,
                                                         fontSize: 14,
                                                         fontFamily: 'Poppins',
                                                       ),
@@ -2115,8 +2140,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                     Text(
                                                       "Pengajuan cuti akan diproses dalam 1-2 hari kerja. Pastikan data yang diisi sudah benar.",
                                                       style: TextStyle(
-                                                        color: Colors
-                                                            .blue.shade800,
+                                                        color: Theme.of(context).brightness == Brightness.dark
+                                                            ? Colors.blue.shade200
+                                                            : Colors.blue.shade800,
                                                         fontSize: 13,
                                                         fontFamily: 'Poppins',
                                                       ),

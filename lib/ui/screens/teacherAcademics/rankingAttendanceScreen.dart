@@ -731,51 +731,61 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
               children: [
                 // Search field appears when search is active
                 if (_isSearchActive)
-                  Container(
-                    height: 56,
-                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1.0,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+                  Builder(
+                    builder: (context) {
+                      final bool isDark = Theme.of(context).brightness == Brightness.dark;
+                      final Color searchBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+                      final Color searchBorderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade300;
+                      final Color searchTextColor = isDark ? Colors.white : Colors.black87;
+                      final Color searchHintColor = isDark ? Colors.white60 : Colors.grey.shade500;
+
+                      return Container(
+                        height: 56,
+                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        decoration: BoxDecoration(
+                          color: searchBgColor,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: searchBorderColor,
+                            width: 1.0,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      style: GoogleFonts.poppins(
-                        color: Colors.black87,
-                        fontSize: 16,
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Cari nama siswa...',
-                        hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey.shade500,
-                          fontSize: 16,
+                        child: TextField(
+                          controller: _searchController,
+                          style: GoogleFonts.poppins(
+                            color: searchTextColor,
+                            fontSize: 16,
+                          ),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Cari nama siswa...',
+                            hintStyle: GoogleFonts.poppins(
+                              color: searchHintColor,
+                              fontSize: 16,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: isDark ? Colors.white70 : _maroonPrimary,
+                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value;
+                            });
+                          },
+                          autofocus: true,
                         ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: _maroonPrimary,
-                        ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                      autofocus: true,
-                    ),
+                      );
+                    }
                   )
                       .animate()
                       .fadeIn(duration: 300.ms)

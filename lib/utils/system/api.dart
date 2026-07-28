@@ -98,6 +98,9 @@ class Api {
   static String get login => "${databaseUrl}teacher/login";
   static String get logout => "${databaseUrl}logout";
 
+  /// Device token registration for push notifications
+  static String get registerDeviceToken => "${databaseUrl}devices/register";
+
   static String get passwordResetEmail => "${databaseUrl}forgot-password";
   static String get changepassword => "${databaseUrl}change-password";
   // Jika terjadi redirect 301/302 yang mengubah POST ke GET, coba tambahkan slash di akhir: "${databaseUrl}update-profile/"

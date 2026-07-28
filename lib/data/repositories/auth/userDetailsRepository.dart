@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:flutter/foundation.dart';
 
@@ -8,14 +8,24 @@ class UserDetailsRepository {
     try {
       final result = await Api.get(url: Api.getStaffPermissionAndFeatures);
 
+      if (kDebugMode) {
+        print("🔍 [DEBUG] getPermissionAndAllowedModules raw: $result");
+      }
+      final permissionsList = ((result['data']['permissions'] ?? []) as List)
+          .map((e) => e.toString())
+          .toList();
+      if (kDebugMode) {
+        print("🔍 [DEBUG] getPermissionAndAllowedModules permissions: $permissionsList");
+      }
       return (
         enabledModules:
             Map<String, String>.from(result['data']['features'] ?? {}),
-        permissions: ((result['data']['permissions'] ?? []) as List)
-            .map((e) => e.toString())
-            .toList()
+        permissions: permissionsList,
       );
     } catch (e) {
+      if (kDebugMode) {
+        print("❌ [DEBUG] getPermissionAndAllowedModules failed with error: $e");
+      }
       // TEMPORARY WORKAROUND: If backend returns HTML/empty response, return empty permissions
       // This allows user to continue but with restricted access until backend is fixed
       debugPrint(

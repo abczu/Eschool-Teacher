@@ -6,6 +6,8 @@ class SkeletonLeavesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(
@@ -15,19 +17,25 @@ class SkeletonLeavesCard extends StatelessWidget {
             margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark
+                  ? Theme.of(context).cardColor
+                  : Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: isDark
+                  ? Colors.grey.shade900
+                  : Colors.grey.shade300,
+              highlightColor: isDark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade100,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -78,7 +86,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                         child: Container(
                           height: 120,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           padding: const EdgeInsets.all(16),
@@ -90,7 +98,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                 width: 80,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
@@ -104,7 +112,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                         width: 40,
                                         height: 32,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade200,
+                                          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -114,7 +122,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                         width: 30,
                                         height: 13,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade200,
+                                          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -126,7 +134,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                     width: double.infinity,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
+                                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -142,7 +150,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                         child: Container(
                           height: 120,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           padding: const EdgeInsets.all(16),
@@ -154,7 +162,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                 width: 90,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
+                                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
@@ -168,7 +176,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                         width: 40,
                                         height: 32,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade200,
+                                          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -178,7 +186,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                         width: 30,
                                         height: 13,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade200,
+                                          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -190,7 +198,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                     width: double.infinity,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
+                                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -211,19 +219,25 @@ class SkeletonLeavesCard extends StatelessWidget {
           Container(
             margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).cardColor
+                  : Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey.shade900
+                  : Colors.grey.shade300,
+              highlightColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade100,
               child: Column(
                 children: [
                   // Header section
@@ -279,7 +293,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                   Container(
                     height: 1,
                     margin: const EdgeInsets.symmetric(horizontal: 24),
-                    color: Colors.grey.shade200,
+                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                   ),
                   // Leave items
                   ...List.generate(

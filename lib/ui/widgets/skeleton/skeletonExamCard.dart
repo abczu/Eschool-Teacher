@@ -6,14 +6,28 @@ class SkeletonExamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Adaptive colors for dark/light mode
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color headerBg = isDark ? Colors.grey.shade800.withValues(alpha: 0.6) : Colors.grey.shade200;
+    final Color placeholderBg = isDark ? Colors.grey.shade700 : Colors.white;
+    final Color innerPlaceholder = isDark ? Colors.grey.shade600 : Colors.grey.shade200;
+    final Color footerBg = isDark ? Colors.grey.shade800.withValues(alpha: 0.3) : Colors.grey.shade50;
+    final Color footerBorder = isDark ? Colors.grey.shade700 : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
             spreadRadius: 2,
@@ -25,7 +39,7 @@ class SkeletonExamCard extends StatelessWidget {
           // Header dengan status & date (mirip dengan exam card asli)
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: headerBg,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -33,16 +47,16 @@ class SkeletonExamCard extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Row(
                 children: [
                   // Status indicator
                   Container(
                     width: 34,
                     height: 34,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: placeholderBg,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -51,7 +65,7 @@ class SkeletonExamCard extends StatelessWidget {
                     height: 16,
                     width: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: placeholderBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -60,7 +74,7 @@ class SkeletonExamCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: placeholderBg,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -69,7 +83,7 @@ class SkeletonExamCard extends StatelessWidget {
                           width: 14,
                           height: 14,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),
@@ -78,7 +92,7 @@ class SkeletonExamCard extends StatelessWidget {
                           height: 12,
                           width: 40,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
@@ -94,8 +108,8 @@ class SkeletonExamCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,7 +118,7 @@ class SkeletonExamCard extends StatelessWidget {
                     width: 65,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: placeholderBg,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
@@ -114,7 +128,7 @@ class SkeletonExamCard extends StatelessWidget {
                           height: 24,
                           width: 30,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -123,7 +137,7 @@ class SkeletonExamCard extends StatelessWidget {
                           height: 14,
                           width: 40,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -142,7 +156,7 @@ class SkeletonExamCard extends StatelessWidget {
                           height: 18,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: placeholderBg,
                             borderRadius: BorderRadius.circular(9),
                           ),
                         ),
@@ -151,7 +165,7 @@ class SkeletonExamCard extends StatelessWidget {
                           height: 16,
                           width: 150,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: placeholderBg,
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -161,7 +175,7 @@ class SkeletonExamCard extends StatelessWidget {
                           padding:
                               const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: placeholderBg,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
@@ -171,7 +185,7 @@ class SkeletonExamCard extends StatelessWidget {
                                 width: 16,
                                 height: 16,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
+                                  color: innerPlaceholder,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
@@ -180,7 +194,7 @@ class SkeletonExamCard extends StatelessWidget {
                                 height: 14,
                                 width: 60,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
+                                  color: innerPlaceholder,
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
@@ -199,21 +213,21 @@ class SkeletonExamCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: footerBg,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
               ),
               border: Border(
                 top: BorderSide(
-                  color: Colors.grey.shade200,
+                  color: footerBorder,
                   width: 1,
                 ),
               ),
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: shimmerBase,
+              highlightColor: shimmerHighlight,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -223,7 +237,7 @@ class SkeletonExamCard extends StatelessWidget {
                         width: 16,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: placeholderBg,
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
@@ -232,7 +246,7 @@ class SkeletonExamCard extends StatelessWidget {
                         height: 13,
                         width: 120,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: placeholderBg,
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
@@ -242,7 +256,7 @@ class SkeletonExamCard extends StatelessWidget {
                     height: 13,
                     width: 80,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: placeholderBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),

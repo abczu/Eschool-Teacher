@@ -132,16 +132,19 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color scaffoldBg = isDark ? Theme.of(context).scaffoldBackgroundColor : AppColorPalette.warmBeige;
+
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
-              surface: AppColorPalette.warmBeige,
+              surface: scaffoldBg,
             ),
       ),
       child: Scaffold(
-        backgroundColor: AppColorPalette.warmBeige,
+        backgroundColor: scaffoldBg,
         appBar: CustomModernAppBar(
           title: Utils.getTranslatedLabel(termsAndConditionKey),
           icon: Icons.gavel_rounded,
@@ -168,7 +171,7 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                     opacity: 0.1,
                     child: CustomPaint(
                       painter: BackgroundPainter(
-                        color: AppColorPalette.primaryMaroon,
+                        color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                       ),
                     ),
                   ),
@@ -241,15 +244,18 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                         margin: const EdgeInsets.all(20),
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: isDark ? Theme.of(context).cardColor : Colors.white.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
+                          border: isDark ? Border.all(color: Colors.grey.shade800) : null,
+                          boxShadow: isDark
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
                         ),
                         child: state is SettingsSuccess
                             ? FadeIn(
@@ -258,16 +264,21 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                                   textStyle: GoogleFonts.poppins(
                                     fontSize: 15,
                                     height: 1.6,
-                                    color: Colors.black87,
+                                    color: isDark ? Colors.white70 : Colors.black87,
                                   ),
                                   customStylesBuilder: (element) {
                                     if (element.localName == 'h1' ||
                                         element.localName == 'h2') {
                                       return {
-                                        'color': AppColorPalette.primaryMaroon
+                                        'color': isDark ? '#FF80AB' : AppColorPalette.primaryMaroon
                                             .toString(),
                                         'font-weight': 'bold',
                                         'margin': '16px 0',
+                                      };
+                                    }
+                                    if (element.localName == 'p') {
+                                      return {
+                                        'color': isDark ? '#E0E0E0' : '#333333',
                                       };
                                     }
                                     return null;

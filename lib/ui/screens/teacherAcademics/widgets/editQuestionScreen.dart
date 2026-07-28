@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -45,7 +45,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   static const Color _highlightColor =
       Color(0xFFB84D4D); // Softer bright maroon
-  static const Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
   static const Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   void _loadImage() async {
@@ -412,14 +411,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Set status bar to dark icons since background is white
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    // Set status bar icons dynamically
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Make status bar transparent
       statusBarIconBrightness:
-          Brightness.dark, // Dark icons for white background
+          isDark ? Brightness.light : Brightness.dark,
     ));
 
     return Scaffold(
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
       appBar: CustomModernAppBar(
         title: "Edit Soal",
         icon: Icons.edit_note,
@@ -432,7 +433,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       body: SafeArea(
         top: false, // Don't pad the top
         child: Container(
-          color: Colors.grey[50],
+          color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -455,11 +456,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? Theme.of(context).cardColor : Colors.white,
                       borderRadius: BorderRadius.circular(15),
+                      border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.08)) : null,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.1),
+                          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 1,
                           blurRadius: 3,
                         ),
@@ -473,7 +475,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: isDark ? Colors.white : Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -524,19 +526,19 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                             child: Container(
                               height: 100,
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
+                                border: Border.all(color: isDark ? Colors.white12 : Colors.grey.shade300),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.add_photo_alternate_outlined,
-                                        size: 40, color: Colors.grey),
-                                    SizedBox(height: 8),
+                                        size: 40, color: isDark ? Colors.white38 : Colors.grey),
+                                    const SizedBox(height: 8),
                                     Text(
                                       'Tambah Gambar',
-                                      style: TextStyle(color: Colors.grey),
+                                      style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -560,14 +562,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildQuestionInfoCard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.08)) : null,
         boxShadow: [
           BoxShadow(
-            color: _glowColor.withValues(alpha: 0.08),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : _glowColor.withValues(alpha: 0.08),
             spreadRadius: 5,
             blurRadius: 15,
             offset: const Offset(0, 5),
@@ -696,6 +700,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     String? Function(String?)? validator,
     void Function(String)? onChanged,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -704,14 +709,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           padding: const EdgeInsets.only(left: 2, bottom: 8),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: _primaryColor),
+              Icon(icon, size: 18, color: isDark ? Colors.white70 : _primaryColor),
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: _primaryColor,
+                  color: isDark ? Colors.white : _primaryColor,
                 ),
               ),
             ],
@@ -725,12 +730,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             maxLines: maxLines,
             minLines: minLines,
             keyboardType: keyboardType,
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
             decoration: InputDecoration(
               hintText: hint,
+              hintStyle: TextStyle(color: isDark ? Colors.white38 : null),
               helperText: helperText,
+              helperStyle: TextStyle(color: isDark ? Colors.white60 : null),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300, width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -745,7 +753,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 borderSide: BorderSide(color: Colors.red.shade400, width: 2),
               ),
               filled: true,
-              fillColor: Colors.grey.shade50,
+              fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
@@ -764,16 +772,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildQuestionTypeSelector() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInUp(
       duration: const Duration(milliseconds: 900),
       child: Container(
         padding: const EdgeInsets.all(0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.08)) : null,
           boxShadow: [
             BoxShadow(
-              color: _glowColor.withValues(alpha: 0.08),
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : _glowColor.withValues(alpha: 0.08),
               spreadRadius: 5,
               blurRadius: 15,
               offset: const Offset(0, 5),
@@ -788,7 +798,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_accentColor, _highlightColor],
+                  colors: [_primaryColor, _accentColor],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -828,7 +838,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     'Pilih tipe soal yang sesuai:',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade700,
+                      color: isDark ? Colors.white70 : Colors.grey.shade700,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -844,6 +854,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildTypeDropdownEnhanced() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // Map of question types with their details
     final questionTypes = {
       'multiple_choice': {
@@ -871,13 +882,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        color: Colors.grey.shade50,
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300, width: 1.5),
+        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
       ),
       child: DropdownButtonFormField<String>(
         initialValue: selectedType,
+        dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         icon:
-            const Icon(Icons.keyboard_arrow_down_rounded, color: _primaryColor),
+            Icon(Icons.keyboard_arrow_down_rounded, color: isDark ? const Color(0xFFE53935) : _primaryColor),
         decoration: const InputDecoration(
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -890,16 +903,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               children: [
                 Icon(
                   type.value['icon'] as IconData,
-                  color: _primaryColor,
+                  color: isDark ? const Color(0xFFE53935) : _primaryColor,
                   size: 22,
                 ),
                 const SizedBox(width: 12),
                 Flexible(
                   child: Text(
                     type.value['label'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: isDark ? Colors.white : Colors.black87,
                       fontSize: 15,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -969,16 +982,21 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildMultipleChoiceOrder() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInUp(
       duration: const Duration(milliseconds: 800),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.transparent,
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 5,
               blurRadius: 10,
             ),
@@ -992,27 +1010,29 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                color: isDark ? Colors.white : Theme.of(context).colorScheme.secondary,
               ),
             ),
             const SizedBox(height: 15),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButtonFormField<String>(
                   initialValue: selectedOrderType,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                   items: [
                     _buildDropdownItem(
-                        'roman_uppercase', 'Romawi Kapital', null),
+                      'roman_uppercase', 'Romawi Kapital', null),
                     _buildDropdownItem('roman_lowercase', 'Romawi', null),
                     _buildDropdownItem('numeric', 'Angka', null),
                     _buildDropdownItem(
-                        'alphabet_uppercase', 'Alfabet Kapital', null),
+                      'alphabet_uppercase', 'Alfabet Kapital', null),
                     _buildDropdownItem('alphabet_lowercase', 'Alfabet', null),
                   ],
                   onChanged: (value) => _onOrderTypeChanged(value!),
@@ -1029,16 +1049,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildAnswerOptionsCard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInUp(
       duration: const Duration(milliseconds: 1000),
       child: Container(
         padding: const EdgeInsets.all(0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.08)) : null,
           boxShadow: [
             BoxShadow(
-              color: _glowColor.withValues(alpha: 0.08),
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : _glowColor.withValues(alpha: 0.08),
               spreadRadius: 5,
               blurRadius: 15,
               offset: const Offset(0, 5),
@@ -1053,7 +1075,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_highlightColor, _energyColor],
+                  colors: [_primaryColor, _accentColor],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1135,9 +1157,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey.shade50,
                 border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade200),
+                  bottom: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
                 ),
               ),
               child: Row(
@@ -1154,7 +1176,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                               : 'Tambahkan jawaban yang diterima untuk soal ini',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade700,
+                        color: isDark ? Colors.white60 : Colors.grey.shade700,
                       ),
                     ),
                   ),
@@ -1188,6 +1210,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildMultipleChoiceOptionEnhanced(int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // Get the appropriate prefix based on selected order type
     String prefix = selectedOrderType == 'roman_uppercase'
         ? toRomanNumeral(index + 1).toUpperCase()
@@ -1199,24 +1222,26 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     ? toBaseAZ(index + 1).toLowerCase()
                     : (index + 1).toString();
 
+    bool isCorrect = options[index]['percentage'] == 100;
+
     return FadeInLeft(
       delay: Duration(milliseconds: 100 * index),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: options[index]['percentage'] == 100
-              ? Colors.green.shade50
-              : Colors.white,
+          color: isCorrect
+              ? (isDark ? Colors.green.withValues(alpha: 0.15) : Colors.green.shade50)
+              : (isDark ? Theme.of(context).cardColor : Colors.white),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: options[index]['percentage'] == 100
+            color: isCorrect
                 ? Colors.green.shade300
-                : Colors.grey.shade200,
-            width: options[index]['percentage'] == 100 ? 2 : 1,
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
+            width: isCorrect ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.07),
+              color: isDark ? Colors.black.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.07),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 2),
@@ -1230,18 +1255,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: options[index]['percentage'] == 100
-                    ? Colors.green.shade100.withValues(alpha: 0.5)
-                    : Colors.grey.shade50,
+                color: isCorrect
+                    ? (isDark ? Colors.green.withValues(alpha: 0.2) : Colors.green.shade100.withValues(alpha: 0.5))
+                    : (isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey.shade50),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(14),
                   topRight: Radius.circular(14),
                 ),
                 border: Border(
                   bottom: BorderSide(
-                    color: options[index]['percentage'] == 100
+                    color: isCorrect
                         ? Colors.green.shade200
-                        : Colors.grey.shade200,
+                        : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
                   ),
                 ),
               ),
@@ -1252,9 +1277,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     height: 30,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: options[index]['percentage'] == 100
+                      color: isCorrect
                           ? Colors.green
-                          : _primaryColor.withValues(alpha: 0.1),
+                          : (isDark ? Colors.white.withValues(alpha: 0.04) : _primaryColor.withValues(alpha: 0.1)),
                     ),
                     child: Center(
                       child: Text(
@@ -1262,9 +1287,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: options[index]['percentage'] == 100
+                          color: isCorrect
                               ? Colors.white
-                              : _primaryColor,
+                              : (isDark ? const Color(0xFFE53935) : _primaryColor),
                         ),
                       ),
                     ),
@@ -1272,15 +1297,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      options[index]['percentage'] == 100
+                      isCorrect
                           ? 'Jawaban Benar'
                           : 'Pilihan Jawaban',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
-                        color: options[index]['percentage'] == 100
+                        color: isCorrect
                             ? Colors.green.shade700
-                            : Colors.grey.shade700,
+                            : (isDark ? Colors.white70 : Colors.grey.shade700),
                       ),
                     ),
                   ),
@@ -1288,7 +1313,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     IconButton(
                       icon: Icon(
                         Icons.delete_outline,
-                        color: Colors.red.shade400,
+                        color: isDark ? const Color(0xFFE53935) : Colors.red.shade400,
                       ),
                       onPressed: () => _removeAnswerOption(index),
                       tooltip: 'Hapus pilihan jawaban',
@@ -1310,19 +1335,29 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   // Text input
                   TextFormField(
                     initialValue: options[index]['text'],
+                    style: TextStyle(color: isDark ? Colors.white : null),
                     maxLines: null,
                     minLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Teks Jawaban',
-                      prefixIcon: const Icon(
+                      labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
+                      prefixIcon: Icon(
                         Icons.text_fields_rounded,
-                        color: _primaryColor,
+                        color: isDark ? Colors.white38 : Colors.grey,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: _primaryColor, width: 2),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                     ),
                     validator: (v) => v?.isEmpty ?? true ? 'Wajib diisi' : null,
                     onChanged: (value) {
@@ -1339,9 +1374,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                     ),
                     child: Row(
                       children: [
@@ -1370,7 +1405,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           'Tandai Benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700,
+                            color: isDark ? Colors.white70 : Colors.grey.shade700,
                           ),
                         ),
                       ],
@@ -1382,17 +1417,27 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   // Feedback input
                   TextFormField(
                     initialValue: options[index]['feedback'],
+                    style: TextStyle(color: isDark ? Colors.white : null),
                     decoration: InputDecoration(
                       labelText: 'Umpan Balik untuk jawaban ini',
-                      prefixIcon: const Icon(
+                      labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
+                      prefixIcon: Icon(
                         Icons.comment_outlined,
-                        color: _primaryColor,
+                        color: isDark ? Colors.white38 : Colors.grey,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: _primaryColor, width: 2),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                       helperText: '* Wajib diisi',
                       helperStyle: const TextStyle(color: Colors.red),
                     ),
@@ -1417,6 +1462,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildTrueFalseOptionEnhanced(int index, String text) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     bool isSelected = options[index]['percentage'] == 100;
 
     return FadeInLeft(
@@ -1424,15 +1470,19 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green.shade50 : Colors.white,
+          color: isSelected
+              ? (isDark ? Colors.green.withValues(alpha: 0.15) : Colors.green.shade50)
+              : (isDark ? Theme.of(context).cardColor : Colors.white),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isSelected ? Colors.green.shade300 : Colors.grey.shade200,
+            color: isSelected
+                ? Colors.green.shade300
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.07),
+              color: isDark ? Colors.black.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.07),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 2),
@@ -1447,8 +1497,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.green.shade100.withValues(alpha: 0.5)
-                    : Colors.grey.shade50,
+                    ? (isDark ? Colors.green.withValues(alpha: 0.2) : Colors.green.shade100.withValues(alpha: 0.5))
+                    : (isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey.shade50),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(14),
                   topRight: Radius.circular(14),
@@ -1457,7 +1507,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   bottom: BorderSide(
                     color: isSelected
                         ? Colors.green.shade200
-                        : Colors.grey.shade200,
+                        : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
                   ),
                 ),
               ),
@@ -1469,7 +1519,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         : Icons.cancel_outlined,
                     color: isSelected
                         ? Colors.green.shade700
-                        : Colors.grey.shade700,
+                        : (isDark ? Colors.white70 : Colors.grey.shade700),
                     size: 22,
                   ),
                   const SizedBox(width: 10),
@@ -1480,7 +1530,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       fontSize: 16,
                       color: isSelected
                           ? Colors.green.shade700
-                          : Colors.grey.shade700,
+                          : (isDark ? Colors.white70 : Colors.grey.shade700),
                     ),
                   ),
                   if (isSelected) ...[
@@ -1517,9 +1567,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                     ),
                     child: Row(
                       children: [
@@ -1542,7 +1592,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           'Tandai Benar',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700,
+                            color: isDark ? Colors.white70 : Colors.grey.shade700,
                           ),
                         ),
                       ],
@@ -1554,17 +1604,27 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   // Feedback input
                   TextFormField(
                     initialValue: options[index]['feedback'],
+                    style: TextStyle(color: isDark ? Colors.white : null),
                     decoration: InputDecoration(
                       labelText: 'Umpan Balik',
-                      prefixIcon: const Icon(
+                      labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
+                      prefixIcon: Icon(
                         Icons.comment_outlined,
-                        color: _primaryColor,
+                        color: isDark ? Colors.white38 : Colors.grey,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: _primaryColor, width: 2),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                       helperText: '* Wajib diisi',
                       helperStyle: const TextStyle(color: Colors.red),
                     ),
@@ -1589,6 +1649,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildEssayOptionEnhanced() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         ...List.generate(
@@ -1598,12 +1659,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.07),
+                    color: isDark ? Colors.black.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.07),
                     spreadRadius: 1,
                     blurRadius: 3,
                     offset: const Offset(0, 2),
@@ -1618,13 +1679,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: _primaryColor.withValues(alpha: 0.08),
+                      color: isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFC62828).withValues(alpha: 0.08),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(14),
                         topRight: Radius.circular(14),
                       ),
                       border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
+                        bottom: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
                       ),
                     ),
                     child: Row(
@@ -1635,7 +1696,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: _primaryColor.withValues(alpha: 0.1),
+                                color: isDark ? Colors.white.withValues(alpha: 0.04) : _primaryColor.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -1644,7 +1705,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                     : selectedType == 'short_answer'
                                         ? Icons.short_text_rounded
                                         : Icons.numbers_rounded,
-                                color: _primaryColor,
+                                color: isDark ? const Color(0xFFE53935) : _primaryColor,
                                 size: 18,
                               ),
                             ),
@@ -1655,10 +1716,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                   : selectedType == 'short_answer'
                                       ? 'Jawaban Singkat'
                                       : 'Jawaban Numerik',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: _primaryColor,
+                                color: isDark ? const Color(0xFFE53935) : _primaryColor,
                               ),
                             ),
                           ],
@@ -1666,7 +1727,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         if (options.length > 1)
                           IconButton(
                             icon: Icon(Icons.delete_outline,
-                                color: Colors.red.shade400),
+                                color: isDark ? const Color(0xFFE53935) : Colors.red.shade400),
                             onPressed: () => _removeAnswerOption(index),
                             tooltip: 'Hapus jawaban ini',
                             padding: EdgeInsets.zero,
@@ -1685,26 +1746,35 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         // Answer text field
                         TextFormField(
                           initialValue: options[index]['text'],
-                          style: const TextStyle(fontSize: 15),
+                          style: TextStyle(fontSize: 15, color: isDark ? Colors.white : null),
                           decoration: InputDecoration(
                             labelText: selectedType == 'short_answer'
                                 ? 'Jawaban Singkat'
                                 : selectedType == 'numeric'
                                     ? 'Jawaban Numerik'
                                     : 'Jawaban Essay',
+                            labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
                             prefixIcon: Icon(
                               selectedType == 'short_answer'
                                   ? Icons.short_text
                                   : selectedType == 'numeric'
                                       ? Icons.numbers
                                       : Icons.edit_note,
-                              color: _primaryColor,
+                              color: isDark ? Colors.white38 : Colors.grey,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: _primaryColor, width: 2),
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                           ),
                           keyboardType: selectedType == 'numeric'
                               ? TextInputType.number
@@ -1731,16 +1801,26 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         // Percentage field
                         TextFormField(
                           initialValue: options[index]['percentage'].toString(),
+                          style: TextStyle(color: isDark ? Colors.white : null),
                           decoration: InputDecoration(
                             labelText: 'Persentase Nilai',
+                            labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
                             prefixIcon:
-                                const Icon(Icons.percent, color: _primaryColor),
+                                Icon(Icons.percent, color: isDark ? Colors.white38 : Colors.grey),
                             suffixText: '%',
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: _primaryColor, width: 2),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -1761,15 +1841,25 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         // Feedback field
                         TextFormField(
                           initialValue: options[index]['feedback'],
+                          style: TextStyle(color: isDark ? Colors.white : null),
                           decoration: InputDecoration(
                             labelText: 'Umpan Balik',
-                            prefixIcon: const Icon(Icons.comment_outlined,
-                                color: _primaryColor),
+                            labelStyle: TextStyle(color: isDark ? Colors.white60 : null),
+                            prefixIcon: Icon(Icons.comment_outlined,
+                                color: isDark ? Colors.white38 : Colors.grey),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: _primaryColor, width: 2),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey.shade50,
                             helperText: '*Wajib diisi',
                             helperStyle: const TextStyle(color: Colors.red),
                           ),
@@ -1801,6 +1891,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildAddOptionButtonEnhanced() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Container(
         margin: const EdgeInsets.only(top: 8),
@@ -1810,23 +1901,23 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border.all(color: _primaryColor.withValues(alpha: 0.5)),
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade100,
+              border: Border.all(color: isDark ? Colors.white24 : const Color(0xFFC62828).withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.add_circle_outline,
-                  color: _primaryColor,
+                  color: isDark ? const Color(0xFFE53935) : _primaryColor,
                   size: 18,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Tambah Pilihan Jawaban',
                   style: TextStyle(
-                    color: _primaryColor,
+                    color: isDark ? const Color(0xFFE53935) : _primaryColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -1840,6 +1931,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   }
 
   Widget _buildAddAnswerButtonEnhanced() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Container(
         margin: const EdgeInsets.only(top: 8),
@@ -1849,23 +1941,23 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border.all(color: _primaryColor.withValues(alpha: 0.5)),
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey.shade100,
+              border: Border.all(color: isDark ? Colors.white24 : const Color(0xFFC62828).withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.add_circle_outline,
-                  color: _primaryColor,
+                  color: isDark ? const Color(0xFFE53935) : _primaryColor,
                   size: 18,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Tambah Jawaban',
                   style: TextStyle(
-                    color: _primaryColor,
+                    color: isDark ? const Color(0xFFE53935) : _primaryColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),

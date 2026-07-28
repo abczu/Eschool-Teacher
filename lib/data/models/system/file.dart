@@ -77,7 +77,14 @@ class File {
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
         deletedAt = json['deleted_at'] as String?,
-        fileExtension = json['file_extension'] as String?,
+        fileExtension = (json['file_extension'] as String?) ??
+            (() {
+              final name = (json['file_name'] ?? json['file_url'] ?? '').toString();
+              if (name.contains('.')) {
+                return name.split('.').last.split('?').first;
+              }
+              return null;
+            })(),
         typeDetail = json['type_detail'] as String?,
         youtubeUrlAction = json['youtube_url_action'] as String?;
 

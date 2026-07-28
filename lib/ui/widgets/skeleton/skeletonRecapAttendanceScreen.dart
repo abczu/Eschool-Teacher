@@ -8,9 +8,15 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+
     return SingleChildScrollView(
       child: Container(
-        color: Colors.grey.shade100,
+        color: isDark ? Colors.transparent : Colors.grey.shade100,
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
           children: [
@@ -18,11 +24,11 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -34,13 +40,13 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: headerBg,
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
+                      baseColor: shimmerBase,
+                      highlightColor: shimmerHighlight,
                       child: Row(
                         children: [
                           Container(
@@ -88,8 +94,8 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                       children: [
                         // Header skeleton
                         Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
+                          baseColor: shimmerBase,
+                          highlightColor: shimmerHighlight,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -105,14 +111,14 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                           ),
                         ),
                         Divider(
-                          color: Colors.grey.shade300,
+                          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300,
                           thickness: 1,
                           height: 32,
                         ),
 
                         // Class items skeleton
                         ...List.generate(itemCount,
-                            (index) => _buildClassItemSkeleton(index)),
+                            (index) => _buildClassItemSkeleton(context, index)),
                       ],
                     ),
                   ),
@@ -125,21 +131,29 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClassItemSkeleton(int index) {
+  Widget _buildClassItemSkeleton(BuildContext context, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final itemBg = isDark ? Colors.grey.shade900.withValues(alpha: 0.5) : Colors.grey.shade50;
+    final borderCol = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200;
+    final buttonBg = isDark ? Colors.grey.shade900 : Colors.white;
+    final innerPlaceholder = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: itemBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: borderCol,
           width: 1,
         ),
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -179,7 +193,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: buttonBg,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -189,7 +203,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -198,7 +212,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                           width: 50,
                           height: 14,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),
@@ -212,7 +226,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: buttonBg,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -222,7 +236,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -231,7 +245,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                           width: 40,
                           height: 14,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: innerPlaceholder,
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),

@@ -27,9 +27,7 @@ class RoundedBackgroundContainer extends StatelessWidget {
               horizontal: appContentHorizontalPadding,
               vertical: appContentHorizontalPadding),
       decoration: BoxDecoration(
-          color: color ?? (isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Theme.of(context).colorScheme.surface),
+          color: color ?? Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(radius),
           boxShadow: [
             BoxShadow(

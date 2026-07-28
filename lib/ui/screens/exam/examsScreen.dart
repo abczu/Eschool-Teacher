@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/academics/sessionYearsAndMediumsCubit.dart';
+import 'package:eschool_saas_staff/cubits/academics/sessionYearsAndMediumsCubit.dart';
 import 'package:eschool_saas_staff/cubits/exam/offlineExamsCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/medium.dart';
 import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
@@ -179,16 +179,18 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   void _showFilterBottomSheet(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // Allow the modal to take up more space
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       builder: (BuildContext modalContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
             return Padding(
               padding: EdgeInsets.only(
                 left: 16,
@@ -208,7 +210,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                         height: 4,
                         margin: const EdgeInsets.only(top: 8, bottom: 16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[400],
+                          color: isDark ? Colors.grey[700] : Colors.grey[400],
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -219,7 +221,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                        color: isDark ? Colors.white : primaryColor,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -249,7 +251,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                               padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 16),
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -258,17 +260,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                                         .format(_startDate!)
                                     : 'Dari',
                                 style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[800]),
+                                    fontSize: 16, color: isDark ? Colors.white70 : Colors.grey[800]),
                               ),
                             ),
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
                             '-',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black),
                           ),
                         ),
                         Expanded(
@@ -293,7 +295,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                               padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 16),
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -301,7 +303,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                     ? DateFormat('dd/MM/yyyy').format(_endDate!)
                                     : 'Sampai',
                                 style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[800]),
+                                    fontSize: 16, color: isDark ? Colors.white70 : Colors.grey[800]),
                               ),
                             ),
                           ),
@@ -347,7 +349,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
+                          backgroundColor: isDark ? const Color(0xFFE53935) : primaryColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -381,7 +383,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                           },
                           style: TextButton.styleFrom(
                             foregroundColor:
-                                primaryColor, // Changed to maroon color
+                                isDark ? const Color(0xFFE53935) : primaryColor, // Changed to maroon/bright red color
                           ),
                           child: const Text(
                             'Reset Filter',
@@ -402,6 +404,7 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   Widget _buildFilterOption(String label, StateSetter setModalState) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         InkWell(
@@ -422,17 +425,17 @@ class _ExamsScreenState extends State<ExamsScreen>
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                  style: TextStyle(fontSize: 16, color: isDark ? Colors.white70 : Colors.grey[800]),
                 ),
                 Radio<String>(
                   value: label,
-                  activeColor: primaryColor,
+                  activeColor: isDark ? const Color(0xFFE53935) : primaryColor,
                 ),
               ],
             ),
           ),
         ),
-        Divider(height: 1, color: Colors.grey[300]),
+        Divider(height: 1, color: isDark ? Colors.grey[800] : Colors.grey[300]),
       ],
     );
   }
@@ -517,6 +520,8 @@ class _ExamsScreenState extends State<ExamsScreen>
 
     // Generate random angle for the background pattern
     final randomAngle = (index * 37) % 360;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color displayStatusColor = isDark ? const Color(0xFFE53935) : statusColor;
 
     return Hero(
         tag: 'exam-${exam.id}',
@@ -527,8 +532,8 @@ class _ExamsScreenState extends State<ExamsScreen>
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              splashColor: statusColor.withValues(alpha: 0.1),
-              highlightColor: statusColor.withValues(alpha: 0.05),
+              splashColor: displayStatusColor.withValues(alpha: 0.15),
+              highlightColor: displayStatusColor.withValues(alpha: 0.08),
               onTap: () {
                 if (hasTimetable) {
                   HapticFeedback.mediumImpact();
@@ -551,7 +556,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       borderRadius: BorderRadius.circular(20),
                       child: CustomPaint(
                         painter: ExamCardBackgroundPainter(
-                          color: statusColor.withValues(alpha: 0.06),
+                          color: displayStatusColor.withValues(alpha: isDark ? 0.06 : 0.06),
                           angle: randomAngle.toDouble(),
                         ),
                       ),
@@ -562,17 +567,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                   Container(
                     padding: const EdgeInsets.all(0),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: isDark ? Theme.of(context).cardColor : Colors.white.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: statusColor.withValues(alpha: 0.1),
+                          color: displayStatusColor.withValues(alpha: isDark ? 0.15 : 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                           spreadRadius: 2,
                         ),
                         BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.5),
                           blurRadius: 15,
                           offset: const Offset(0, 4),
                           spreadRadius: -5,
@@ -590,14 +595,14 @@ class _ExamsScreenState extends State<ExamsScreen>
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  headerStartColor,
-                                  headerEndColor,
-                                ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    headerStartColor,
+                                    headerEndColor,
+                                  ],
+                                ),
                               ),
-                            ),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 20),
                             child: Row(
@@ -748,7 +753,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                       style: GoogleFonts.poppins(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
+                                        color: isDark ? Colors.white : Colors.black87,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -759,11 +764,11 @@ class _ExamsScreenState extends State<ExamsScreen>
                                           horizontal: 10, vertical: 5),
                                       decoration: BoxDecoration(
                                         color:
-                                            statusColor.withValues(alpha: 0.08),
+                                            displayStatusColor.withValues(alpha: isDark ? 0.15 : 0.08),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
-                                          color: statusColor.withValues(
-                                              alpha: 0.2),
+                                          color: displayStatusColor.withValues(
+                                              alpha: isDark ? 0.3 : 0.2),
                                           width: 1,
                                         ),
                                       ),
@@ -773,17 +778,21 @@ class _ExamsScreenState extends State<ExamsScreen>
                                           Icon(
                                             Icons.groups_rounded,
                                             size: 16,
-                                            color: statusColor.withValues(
-                                                alpha: 0.7),
+                                            color: displayStatusColor.withValues(
+                                                alpha: isDark ? 0.9 : 0.7),
                                           ),
                                           const SizedBox(width: 6),
-                                          Text(
-                                            Utils().cleanClassName(
-                                                exam.className ?? "-"),
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
+                                          Flexible(
+                                            child: Text(
+                                              Utils().cleanClassName(
+                                                  exam.className ?? "-"),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.black87,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
                                             ),
                                           ),
                                         ],
@@ -799,14 +808,14 @@ class _ExamsScreenState extends State<ExamsScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.05),
+                            color: displayStatusColor.withValues(alpha: isDark ? 0.08 : 0.05),
                             borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(20),
                               bottomRight: Radius.circular(20),
                             ),
                             border: Border(
                               top: BorderSide(
-                                color: statusColor.withValues(alpha: 0.1),
+                                color: displayStatusColor.withValues(alpha: isDark ? 0.15 : 0.1),
                                 width: 1,
                               ),
                             ),
@@ -819,7 +828,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   Icon(
                                     Icons.schedule,
                                     size: 16,
-                                    color: statusColor.withValues(alpha: 0.7),
+                                    color: displayStatusColor.withValues(alpha: isDark ? 0.9 : 0.7),
                                   ),
                                   const SizedBox(width: 8),
                                   // Show loading indicator if timetableSlots is null
@@ -831,7 +840,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                               height: 14,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: statusColor,
+                                                color: displayStatusColor,
                                               ),
                                             ),
                                             const SizedBox(width: 8),
@@ -840,7 +849,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w500,
-                                                color: Colors.black87,
+                                                color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.black87,
                                               ),
                                             ),
                                           ],
@@ -850,7 +859,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
+                                            color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.black87,
                                           ),
                                         ),
                                 ],
@@ -860,7 +869,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: statusColor,
+                                  color: displayStatusColor,
                                 ),
                               ),
                             ],
@@ -956,6 +965,8 @@ class _ExamsScreenState extends State<ExamsScreen>
       }
     }
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark ? const Color(0xFFE53935) : primaryColor;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -964,13 +975,13 @@ class _ExamsScreenState extends State<ExamsScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               emptyIcon,
               size: 64,
-              color: primaryColor.withValues(alpha: 0.7),
+              color: iconColor.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 20),
@@ -978,7 +989,7 @@ class _ExamsScreenState extends State<ExamsScreen>
             emptyMessage,
             style: GoogleFonts.poppins(
               fontSize: 18,
-              color: primaryColor,
+              color: isDark ? Colors.white : primaryColor,
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
@@ -1080,6 +1091,7 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   Widget _buildHeader() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return SlideInDown(
       duration: const Duration(milliseconds: 800),
       child: Padding(
@@ -1097,7 +1109,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                        color: isDark ? Colors.white : primaryColor,
                       ),
                     ),
                   ),
@@ -1437,6 +1449,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       final monthYear = groupedExams.keys.elementAt(index);
                       final exams = groupedExams[monthYear]!;
 
+                      final bool isDark = Theme.of(context).brightness == Brightness.dark;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1447,7 +1460,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: primaryColor,
+                                color: isDark ? Colors.white.withValues(alpha: 0.9) : primaryColor,
                               ),
                             ),
                           ),

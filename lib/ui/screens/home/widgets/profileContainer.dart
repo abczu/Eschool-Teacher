@@ -204,6 +204,9 @@ class _ProfileContainerState extends State<ProfileContainer>
             AnimationLimiter(
               child: RefreshIndicator(
                 color: maroonPrimary,
+                backgroundColor: isDark
+                    ? Theme.of(context).cardColor
+                    : Colors.white,
                 onRefresh: () async {
                   context
                       .read<StaffAllowedPermissionsAndModulesCubit>()
@@ -604,9 +607,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 left: 15,
                 right: 15), // Membuat kotak lebih ramping sesuai Akademik
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -661,7 +662,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                             child: Icon(
                               icon,
                               color: isDark
-                                  ? const Color(0xFFFF3D60)
+                                  ? const Color(0xFFE53935)
                                   : iconColor,
                               size: 24,
                             ),
@@ -777,7 +778,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                       child: Icon(
                         icon,
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFF3D60)
+                            ? const Color(0xFFE53935)
                             : (isHovered
                                 ? AppColorPalette.primaryMaroon
                                 : AppColorPalette.secondaryMaroon),
@@ -805,7 +806,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                       child: Icon(
                         Icons.arrow_forward_ios,
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFF3D60).withValues(alpha: 0.6)
+                            ? const Color(0xFFE53935).withValues(alpha: 0.6)
                             : (isHovered
                                 ? AppColorPalette.primaryMaroon
                                 : AppColorPalette.secondaryMaroon
@@ -826,6 +827,7 @@ class _ProfileContainerState extends State<ProfileContainer>
   void _showNotificationSettingsBottomSheet(BuildContext context) {
     final settingsRepository = SettingsRepository();
     bool vibrationEnabled = settingsRepository.getVibrationEnabled();
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
@@ -838,7 +840,7 @@ class _ProfileContainerState extends State<ProfileContainer>
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                 ),
@@ -849,9 +851,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.notifications_active_outlined,
-                        color: AppColorPalette.primaryMaroon,
+                        color: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -860,7 +862,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: AppColorPalette.primaryMaroon,
+                          color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                         ),
                       ),
                     ],
@@ -869,18 +871,21 @@ class _ProfileContainerState extends State<ProfileContainer>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColorPalette.warmBeige.withValues(alpha: 0.3),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppColorPalette.warmBeige.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColorPalette.primaryMaroon
-                            .withValues(alpha: 0.1),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                       ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.vibration,
-                          color: AppColorPalette.primaryMaroon,
+                          color: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -893,7 +898,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColorPalette.primaryMaroon,
+                                  color: isDark ? Colors.white : AppColorPalette.primaryMaroon,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -901,7 +906,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                                 'Aktifkan getaran saat menerima notifikasi baru',
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
-                                  color: Colors.grey[600],
+                                  color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.grey[600],
                                 ),
                               ),
                             ],
@@ -915,9 +920,10 @@ class _ProfileContainerState extends State<ProfileContainer>
                             });
                             await settingsRepository.setVibrationEnabled(value);
                           },
-                          activeThumbColor: AppColorPalette.primaryMaroon,
-                          activeTrackColor: AppColorPalette.secondaryMaroon
-                              .withValues(alpha: 0.5),
+                          activeThumbColor: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
+                          activeTrackColor: isDark
+                              ? const Color(0xFFE53935).withValues(alpha: 0.3)
+                              : AppColorPalette.secondaryMaroon.withValues(alpha: 0.5),
                         ),
                       ],
                     ),
@@ -928,7 +934,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColorPalette.primaryMaroon,
+                        backgroundColor: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -1216,7 +1222,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 onTap: () => Get.toNamed(Routes.editProfileScreen),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Theme.of(context).colorScheme.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -1326,7 +1332,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFFFF3D60)
+                          ? const Color(0xFFE53935)
                           : maroonPrimary,
                       height: 1.1,
                     ),
@@ -1614,6 +1620,8 @@ class LogoutConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -1626,15 +1634,23 @@ class LogoutConfirmationDialog extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.surface,
-                AppColorPalette.warmBeige.withValues(alpha: 0.9),
-              ],
+              colors: isDark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Colors.grey.shade900.withValues(alpha: 0.95),
+                    ]
+                  : [
+                      Theme.of(context).colorScheme.surface,
+                      AppColorPalette.warmBeige.withValues(alpha: 0.9),
+                    ],
             ),
             borderRadius: BorderRadius.circular(24),
+            border: isDark ? Border.all(color: Colors.grey.shade800) : null,
             boxShadow: [
               BoxShadow(
-                color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                 blurRadius: 20,
                 spreadRadius: 5,
                 offset: const Offset(0, 10),
@@ -1649,10 +1665,10 @@ class LogoutConfirmationDialog extends StatelessWidget {
                 width: 100,
                 height: 100,
                 margin: const EdgeInsets.only(bottom: 20),
-                child: const Icon(
+                child: Icon(
                   Icons.logout_rounded,
                   size: 60,
-                  color: AppColorPalette.primaryMaroon,
+                  color: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                 ),
               ),
 
@@ -1662,7 +1678,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColorPalette.primaryMaroon,
+                  color: isDark ? const Color(0xFFE53935) : AppColorPalette.primaryMaroon,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1674,7 +1690,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                 "Apakah Anda yakin ingin keluar dari aplikasi?",
                 style: GoogleFonts.poppins(
                   fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: isDark ? Colors.white70 : Theme.of(context).colorScheme.onSurface,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -1690,13 +1706,13 @@ class LogoutConfirmationDialog extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => Get.back(result: false),
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        foregroundColor: isDark ? Colors.white70 : Colors.black87,
+                        backgroundColor: isDark ? Colors.grey.shade800 : Theme.of(context).colorScheme.surface,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                           side: BorderSide(
-                            color: Colors.grey.withValues(alpha: 0.3),
+                            color: isDark ? Colors.grey.shade700 : Colors.grey.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -1720,7 +1736,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                       onPressed: () => Get.back(result: true),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: AppColorPalette.primaryMaroon,
+                        backgroundColor: isDark ? const Color(0xFF8B1F41) : AppColorPalette.primaryMaroon,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),

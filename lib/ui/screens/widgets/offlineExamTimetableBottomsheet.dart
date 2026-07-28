@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/exam/offlineExamTimetableSlot.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
@@ -77,7 +77,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
             child: timetableSlots == null
                 ? _buildLoadingState() // Tampilkan loading state jika timetableSlots == null
                 : sortedSlots.isEmpty
-                    ? _buildEmptyState()
+                    ? _buildEmptyState(context)
                     : _buildTimetableContent(context, groupedByDate),
           ),
         ],
@@ -481,6 +481,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
   Widget _buildTimetableContent(BuildContext context,
       Map<String, List<OfflineExamTimeTableSlot>> groupedByDate) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
@@ -560,7 +561,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: primaryColor,
+                                color: isDark ? Colors.white : primaryColor,
                                 height: 1.1,
                               ),
                             ),
@@ -573,7 +574,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[600],
+                                color: isDark ? Colors.white60 : Colors.grey[600],
                               ),
                             ),
                           ],
@@ -632,6 +633,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
   Widget _buildSubjectTimelineCard(BuildContext context,
       OfflineExamTimeTableSlot slot, int animationIndex, bool isLast) {
     final subjectName = slot.subject?.getSybjectNameWithType() ?? "-";
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: EdgeInsets.only(left: 41, right: 26, bottom: isLast ? 0 : 18),
       child: Row(
@@ -641,11 +643,11 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
+                    color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
@@ -823,6 +825,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                         Row(
                           children: [
                             _buildInfoItem(
+                              context: context,
                               title: "Durasi",
                               value: _calculateDuration(
                                   slot.startTime!, slot.endTime!),
@@ -831,6 +834,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             _buildInfoItem(
+                              context: context,
                               title: "Waktu Selesai",
                               value: Utils.formatTime(
                                 timeOfDay: TimeOfDay(
@@ -852,6 +856,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                         Row(
                           children: [
                             _buildInfoItem(
+                              context: context,
                               title: "Nilai Total",
                               value: "${slot.totalMarks ?? 0}",
                               icon: Icons.assignment_rounded,
@@ -859,6 +864,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             _buildInfoItem(
+                              context: context,
                               title: "Nilai Kelulusan",
                               value: "${slot.passingMarks ?? 0}",
                               icon: Icons.check_circle_rounded,
@@ -887,25 +893,28 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
   }
 
   Widget _buildInfoItem({
+    required BuildContext context,
     required String title,
     required String value,
     required IconData icon,
     required Color color,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final displayColor = (isDark && color == primaryColor) ? const Color(0xFFE53935) : color;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: displayColor.withValues(alpha: isDark ? 0.15 : 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.15)),
+          border: Border.all(color: displayColor.withValues(alpha: isDark ? 0.3 : 0.15)),
         ),
         child: Row(
           children: [
             Icon(
               icon,
               size: 18,
-              color: color,
+              color: displayColor,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -916,7 +925,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                     title,
                     style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.white60 : Colors.grey[600],
                     ),
                   ),
                   Text(
@@ -924,7 +933,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
+                      color: isDark ? Colors.white : Colors.grey[800],
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -938,7 +947,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color activeColor = isDark ? const Color(0xFFE53935) : primaryColor;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -946,13 +957,13 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
+              color: activeColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.event_busy,
               size: 64,
-              color: primaryColor.withValues(alpha: 0.7),
+              color: activeColor.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 20),
@@ -961,7 +972,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: primaryColor,
+              color: isDark ? Colors.white : primaryColor,
             ),
           ),
           const SizedBox(height: 8),
@@ -970,7 +981,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.normal,
-              color: Colors.grey[600],
+              color: isDark ? Colors.white60 : Colors.grey[600],
             ),
           ),
         ],

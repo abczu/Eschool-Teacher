@@ -13,12 +13,14 @@ class PermissionDetailsContainer extends StatefulWidget {
   final PermissionDetails permissionDetails;
   final bool? overflow;
   final VoidCallback? onPermissionUpdated;
+  final bool isCompact;
 
   const PermissionDetailsContainer({
     super.key,
     required this.permissionDetails,
     this.overflow,
     this.onPermissionUpdated,
+    this.isCompact = false,
   });
 
   @override
@@ -735,10 +737,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutQuint,
-        margin: EdgeInsets.symmetric(
-          horizontal: appContentHorizontalPadding,
-          vertical: 12,
-        ),
+        margin: widget.isCompact
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 6)
+            : EdgeInsets.symmetric(
+                horizontal: appContentHorizontalPadding,
+                vertical: 12,
+              ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           color: isDark
@@ -771,49 +775,53 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             child: Stack(
             children: [
               // Background pattern and decorative elements
-              Positioned(
-                top: -20,
-                right: -20,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _maroonAccent.withValues(alpha: 0.2),
-                        Colors.transparent,
-                      ],
-                      radius: 0.7,
+              if (!widget.isCompact) ...[
+                Positioned(
+                  top: -20,
+                  right: -20,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          _maroonAccent.withValues(alpha: 0.2),
+                          Colors.transparent,
+                        ],
+                        radius: 0.7,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: -15,
-                left: -15,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _goldAccent.withValues(alpha: 0.15),
-                        Colors.transparent,
-                      ],
-                      radius: 0.7,
+                Positioned(
+                  bottom: -15,
+                  left: -15,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          _goldAccent.withValues(alpha: 0.15),
+                          Colors.transparent,
+                        ],
+                        radius: 0.7,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
 
               // Main content
               Container(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                padding: EdgeInsets.all(widget.isCompact ? 16 : 24),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     // Header with leave type and attachment button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -832,22 +840,31 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           child: InkWell(
                             onTap: () => _showAttachments(context),
                             borderRadius: BorderRadius.circular(50),
-                            splashColor: _maroonPrimary.withValues(alpha: 0.1),
-                            highlightColor:
-                                _maroonPrimary.withValues(alpha: 0.05),
+                            splashColor: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : _maroonPrimary.withValues(alpha: 0.1),
+                            highlightColor: isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : _maroonPrimary.withValues(alpha: 0.05),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: _isHovering
-                                    ? _maroonPrimary.withValues(alpha: 0.15)
-                                    : _maroonPrimary.withValues(alpha: 0.1),
+                                color: isDark
+                                    ? (_isHovering
+                                        ? Colors.white.withValues(alpha: 0.15)
+                                        : Colors.white.withValues(alpha: 0.08))
+                                    : (_isHovering
+                                        ? _maroonPrimary.withValues(alpha: 0.15)
+                                        : _maroonPrimary.withValues(alpha: 0.1)),
                                 shape: BoxShape.circle,
                                 boxShadow: _isHovering
                                     ? [
                                         BoxShadow(
-                                          color: _maroonPrimary.withValues(
-                                              alpha: 0.2),
+                                          color: isDark
+                                              ? Colors.black.withValues(alpha: 0.3)
+                                              : _maroonPrimary.withValues(
+                                                  alpha: 0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         )
@@ -857,7 +874,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               child: Icon(
                                 Icons.attach_file_rounded,
                                 size: 22,
-                                color: _maroonPrimary,
+                                color: isDark ? Colors.white : _maroonPrimary,
                               ),
                             ),
                           ),
@@ -865,7 +882,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ],
                     ),
 
-                    const SizedBox(height: 28),
+                    SizedBox(height: widget.isCompact ? 12 : 28),
 
                     // Student info header section with enhanced styling
                     Row(
@@ -873,8 +890,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       children: [
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          width: 60,
-                          height: 60,
+                          width: widget.isCompact ? 44 : 60,
+                          height: widget.isCompact ? 44 : 60,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -893,13 +910,13 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               ),
                             ],
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.person,
                             color: Colors.white,
-                            size: 30,
+                            size: widget.isCompact ? 22 : 30,
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: widget.isCompact ? 12 : 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -907,7 +924,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               Text(
                                 widget.permissionDetails.user?.fullName ?? "",
                                 style: TextStyle(
-                                  fontSize: isSmallScreen ? 20 : 22,
+                                  fontSize: widget.isCompact
+                                      ? 16
+                                      : (isSmallScreen ? 20 : 22),
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.onSurface,
                                   letterSpacing: 0.3,
@@ -917,72 +936,84 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 maxLines: 2,
                               ),
                               const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                              if (widget.isCompact)
+                                Row(
                                   children: [
-                                    Icon(
-                                      Icons.class_outlined,
-                                      size: 16,
-                                      color:
-                                          _maroonPrimary.withValues(alpha: 0.7),
+                                    Flexible(
+                                      child: _buildBadgeChip("Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}"),
                                     ),
                                     const SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                                    _buildBadgeChip("Absen: ${widget.permissionDetails.rollNumber}"),
+                                  ],
+                                )
+                              else ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.class_outlined,
+                                        size: 16,
+                                        color:
+                                            _maroonPrimary.withValues(alpha: 0.7),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.format_list_numbered,
+                                        size: 16,
+                                        color:
+                                            _maroonPrimary.withValues(alpha: 0.7),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Absen: ${widget.permissionDetails.rollNumber}',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.format_list_numbered,
-                                      size: 16,
-                                      color:
-                                          _maroonPrimary.withValues(alpha: 0.7),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Absen: ${widget.permissionDetails.rollNumber}',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              ],
                             ],
                           ),
                         ),
@@ -990,7 +1021,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      padding: EdgeInsets.symmetric(
+                          vertical: widget.isCompact ? 12 : 24),
                       child: Container(
                         height: 1,
                         decoration: BoxDecoration(
@@ -1008,82 +1040,105 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ),
 
                     // Reason section with enhanced styling
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: _maroonLight.withValues(alpha: 0.05),
-                        border: Border.all(
-                          color: _maroonPrimary.withValues(alpha: 0.15),
-                          width: 1.5,
+                    if (widget.isCompact)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: _maroonLight.withValues(alpha: 0.05),
+                          border: Border.all(
+                            color: _maroonPrimary.withValues(alpha: 0.1),
+                          ),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _maroonPrimary.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
+                        child: Text(
+                          "Keterangan: ${translateRole(safeLastLeave?.reason ?? '')}",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1.4,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _maroonPrimary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )
+                    else
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: _maroonLight.withValues(alpha: 0.05),
+                          border: Border.all(
+                            color: _maroonPrimary.withValues(alpha: 0.15),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _maroonPrimary.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.description_outlined,
-                                  color: _maroonPrimary,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  "Keterangan",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    letterSpacing: 0.5,
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: _maroonPrimary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.description_outlined,
+                                    color: _maroonPrimary,
+                                    size: 20,
                                   ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Keterangan",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.grey.shade200,
+                              ),
+                              child: Text(
+                                translateRole(safeLastLeave?.reason ?? ''),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  height: 1.6,
+                                  color: Colors.black87,
+                                  letterSpacing: 0.2,
+                                ),
                               ),
                             ),
-                            child: Text(
-                              translateRole(safeLastLeave?.reason ?? ''),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                height: 1.6,
-                                color: Colors.black87,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ), // Footer with date in a more elegant style
+                          ],
+                        ),
+                      ), // Footer with date in a more elegant style
                     if (safeLastLeave?.fromDate != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 24),
+                        padding: EdgeInsets.only(top: widget.isCompact ? 10 : 24),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -1097,7 +1152,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: isSmallScreen ? 12 : 16,
-                                    vertical: 10),
+                                    vertical: widget.isCompact ? 6 : 10),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
@@ -1152,7 +1207,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     _buildActionButtons(),
                   ],       // children: [ (Column)
                 ),         // Column
-              ),           // Container
+              ),           // SingleChildScrollView
+            ),             // Container
             ],             // children: [ (Stack)
           ),               // Stack
         ),                 // BackdropFilter
@@ -1766,7 +1822,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     required bool isApprove,
   }) {
     return Container(
-      height: 56,
+      height: widget.isCompact ? 44 : 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -1834,8 +1890,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       const SizedBox(width: 12),
                       Text(
                         "Memproses...",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.surface,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                           letterSpacing: 0.3,
@@ -1844,8 +1900,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ] else ...[
                       Text(
                         label,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.surface,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                           letterSpacing: 0.3,
@@ -2055,5 +2111,34 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
       debugPrint('Error in getSafeLeaveType: $e');
       return '';
     }
+  }
+
+  Widget _buildBadgeChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.grey.shade200,
+        ),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.7)
+              : Colors.grey.shade700,
+        ),
+      ),
+    );
   }
 }

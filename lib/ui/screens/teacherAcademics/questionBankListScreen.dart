@@ -287,9 +287,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
+        backgroundColor: bgColor,
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: widget.subject.subject.name,
@@ -312,7 +316,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 // Content with parallax scroll effect
                 SafeArea(
                   top:
-                      false, // Don't add padding at the top to allow white background to extend to status bar
+                      false, // Don't add padding at the top to allow background to extend to status bar
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (notification) {
                       if (notification is ScrollUpdateNotification) {}
@@ -331,8 +335,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.white.withValues(alpha: 0.95),
-                                  const Color(0xFFFFF0F0),
+                                  bgColor.withValues(alpha: 0.95),
+                                  isDark ? bgColor : const Color(0xFFFFF0F0),
                                 ],
                               ),
                               // Add top border radius for a nice curve
@@ -342,13 +346,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _glowColor.withValues(alpha: 0.2),
+                                  color: _glowColor.withValues(alpha: isDark ? 0.05 : 0.2),
                                   blurRadius: 20,
                                   spreadRadius: 5,
                                   offset: const Offset(0, -5),
                                 ),
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                                   blurRadius: 30,
                                   offset: const Offset(0, -10),
                                 ),
@@ -362,7 +366,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                               child: Column(
                                 children: [
                                   // No need for additional padding since we have an AppBar now
-
+ 
                                   // Content area takes remaining space
                                   Expanded(
                                     child: _buildContentArea(state),
@@ -511,6 +515,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     final displayBanks =
         _searchController.text.isNotEmpty ? _filteredBanks : banks;
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Column(children: [
       // Search bar if needed
       if (shouldShowSearch)
@@ -520,24 +528,26 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
             margin: const EdgeInsets.fromLTRB(20, 50, 20, 20),
             height: 55,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(15),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black12,
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
               decoration: InputDecoration(
                 hintText: 'Cari bank soal...',
-                prefixIcon: const Icon(Icons.search, color: _primaryColor),
+                hintStyle: TextStyle(color: isDark ? Colors.white60 : Colors.black45),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : _primaryColor),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: _primaryColor),
+                        icon: Icon(Icons.clear, color: isDark ? Colors.white70 : _primaryColor),
                         onPressed: () {
                           _clearSearch(banks);
                         },
@@ -589,14 +599,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 ),
                                 colors: [
                                   Colors.transparent,
-                                  _highlightColor.withValues(alpha: 0.01),
-                                  _accentColor.withValues(alpha: 0.02),
+                                  _highlightColor.withValues(alpha: isDark ? 0.005 : 0.01),
+                                  _accentColor.withValues(alpha: isDark ? 0.01 : 0.02),
                                   Colors.transparent,
                                 ],
                                 radius: 1.0,
                               ).createShader(bounds),
                               child: Container(
-                                color: Colors.white,
+                                color: bgColor,
                               ),
                             ),
                           );
@@ -707,36 +717,52 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
-                                          colors: [
-                                            cardBaseColor.withValues(
-                                                alpha: isHovered ? 1.0 : 0.85),
-                                            HSLColor.fromColor(cardBaseColor)
-                                                .withLightness(
-                                                  HSLColor.fromColor(
-                                                              cardBaseColor)
-                                                          .lightness *
-                                                      0.7,
-                                                )
-                                                .toColor()
-                                                .withValues(
-                                                    alpha:
-                                                        isHovered ? 0.95 : 0.8),
-                                          ],
+                                          colors: isDark
+                                              ? [
+                                                  Theme.of(context).cardColor,
+                                                  Theme.of(context).cardColor.withValues(alpha: 0.9),
+                                                ]
+                                              : [
+                                                  cardBaseColor.withValues(
+                                                      alpha: isHovered ? 1.0 : 0.85),
+                                                  HSLColor.fromColor(cardBaseColor)
+                                                      .withLightness(
+                                                        HSLColor.fromColor(
+                                                                    cardBaseColor)
+                                                                .lightness *
+                                                            0.7,
+                                                      )
+                                                      .toColor()
+                                                      .withValues(
+                                                          alpha:
+                                                              isHovered ? 0.95 : 0.8),
+                                                ],
                                           stops: const [0.3, 1.0],
                                         ),
                                         borderRadius: BorderRadius.circular(28),
+                                        border: Border.all(
+                                          color: isDark
+                                              ? Colors.white.withValues(alpha: 0.08)
+                                              : Colors.transparent,
+                                          width: 1,
+                                        ),
                                         boxShadow: [
                                           // Outer glow shadow
                                           BoxShadow(
-                                            color: neonGlowColor.withValues(
-                                                alpha: isHovered ? 0.35 : 0.15),
+                                            color: isDark
+                                                ? Colors.black.withValues(
+                                                    alpha: isHovered ? 0.25 : 0.15)
+                                                : neonGlowColor.withValues(
+                                                    alpha: isHovered ? 0.35 : 0.15),
                                             blurRadius: isHovered ? 25 : 15,
                                             spreadRadius: isHovered ? 2 : 0,
                                           ),
                                           // Inner depth shadow
                                           BoxShadow(
-                                            color: cardBaseColor.withValues(
-                                                alpha: 0.5),
+                                            color: isDark
+                                                ? Colors.transparent
+                                                : cardBaseColor.withValues(
+                                                    alpha: 0.5),
                                             blurRadius: 15,
                                             spreadRadius: -3,
                                             offset: const Offset(0, 8),
@@ -842,11 +868,11 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                                 Colors.white
                                                                     .withValues(
                                                                         alpha:
-                                                                            0.8),
+                                                                            isDark ? 0.25 : 0.8),
                                                                 Colors.white
                                                                     .withValues(
                                                                         alpha:
-                                                                            0.2),
+                                                                            isDark ? 0.05 : 0.2),
                                                               ],
                                                             ),
                                                             borderRadius:
@@ -872,7 +898,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                             color: Colors.white
                                                                 .withValues(
                                                                     alpha:
-                                                                        0.15),
+                                                                        isDark ? 0.05 : 0.15),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
@@ -882,7 +908,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                                   .white
                                                                   .withValues(
                                                                       alpha:
-                                                                          0.2),
+                                                                          isDark ? 0.08 : 0.2),
                                                               width: 1,
                                                             ),
                                                             boxShadow: const [
@@ -1000,21 +1026,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                       ),
                                     ),
                                   ),
-
-                                  // Decorative elements
-                                  Positioned(
-                                    right: 20,
-                                    top: -10,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: neonGlowColor.withValues(
-                                            alpha: 0.1),
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -1038,13 +1049,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     required bool isHovered,
     required Color neonGlowColor,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return PopupMenuButton<String>(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       elevation: 12,
       offset: const Offset(0, 50),
-      color: Colors.white,
+      color: isDark ? Theme.of(context).cardColor : Colors.white,
       onSelected: (value) {
         if (value == 'edit') {
           _showEditBankDialog(banks, index);
@@ -1190,27 +1202,29 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               height: 44,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.white, Colors.grey.shade100],
+                  colors: isDark
+                      ? [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.1)]
+                      : [Colors.white, Colors.grey.shade100],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                  color: Colors.grey.shade300,
+                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300,
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _primaryColor.withValues(alpha: 0.1),
+                    color: isDark ? Colors.black26 : _primaryColor.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                     spreadRadius: -2,
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.more_vert_rounded,
-                color: _primaryColor,
+                color: isDark ? const Color(0xFFE53935) : _primaryColor,
                 size: 22,
               ),
             ),
@@ -1223,6 +1237,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   void _showAddBankDialog() {
     final questionBankCubit = context.read<QuestionBankCubit>();
     bool isSubmitting = false;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     showGeneralDialog(
       context: context,
@@ -1260,11 +1275,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text(
-                      'Tambah Bank',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'Tambah Bank Soal',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -1279,15 +1296,17 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         enabled: !isSubmitting,
                         maxLines: 4,
                         minLines: 2,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
-                          prefixIcon: const Icon(Icons.folder_outlined),
+                          labelStyle: TextStyle(color: isDark ? Colors.white70 : Colors.grey[600]),
+                          prefixIcon: Icon(Icons.folder_outlined, color: isDark ? Colors.white70 : Colors.grey[600]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
+                            borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1297,7 +1316,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             ),
                           ),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
                         ),
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
@@ -1319,7 +1338,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                           },
                     child: Text(
                       'Batal',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
                     ),
                   ),
                   Container(
@@ -1449,6 +1468,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     final editController = TextEditingController(text: bank.name);
     final editFormKey = GlobalKey<FormState>();
     bool isSubmitting = false;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Simpan cubit di luar showDialog untuk menghindari masalah provider
     final questionBankCubit = context.read<QuestionBankCubit>();
@@ -1490,11 +1510,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text(
-                      'Edit Bank Soal',
-                      style: TextStyle(
-                        color: Theme.of(dialogContext).colorScheme.secondary,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'Edit Bank Soal',
+                        style: TextStyle(
+                          color: Theme.of(dialogContext).colorScheme.secondary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -1509,15 +1531,17 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         enabled: !isSubmitting,
                         maxLines: 4,
                         minLines: 2,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
-                          prefixIcon: const Icon(Icons.folder_outlined),
+                          labelStyle: TextStyle(color: isDark ? Colors.white70 : Colors.grey[600]),
+                          prefixIcon: Icon(Icons.folder_outlined, color: isDark ? Colors.white70 : Colors.grey[600]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
+                            borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1528,7 +1552,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             ),
                           ),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade50,
                         ),
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
@@ -1547,7 +1571,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         : () => Navigator.pop(dialogContext),
                     child: Text(
                       'Batal',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
                     ),
                   ),
                   Container(

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
+import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/userLeavesCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
@@ -63,11 +63,26 @@ class _LeavesScreenState extends State<LeavesScreen>
   // Define theme colors - modern palette
   static const Color maroonPrimary = Color(0xFF8B1F41);
   static const Color maroonLight = Color(0xFFAC3B5C);
-  static const Color bgColor = Color(0xFFFCF6F7);
-  final Color cardColor = Colors.white;
-  static const Color textDarkColor = Color(0xFF2D2D2D);
-  static const Color textMediumColor = Color(0xFF717171);
-  static const Color borderColor = Color(0xFFEFE2E5);
+  
+  Color get bgColor => Theme.of(context).brightness == Brightness.dark
+      ? Theme.of(context).scaffoldBackgroundColor
+      : const Color(0xFFFCF6F7);
+
+  Color get cardColor => Theme.of(context).brightness == Brightness.dark
+      ? Theme.of(context).cardColor
+      : Colors.white;
+
+  Color get textDarkColor => Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : const Color(0xFF2D2D2D);
+
+  Color get textMediumColor => Theme.of(context).brightness == Brightness.dark
+      ? Colors.white70
+      : const Color(0xFF717171);
+
+  Color get borderColor => Theme.of(context).brightness == Brightness.dark
+      ? Colors.white24
+      : const Color(0xFFEFE2E5);
 
   // Additional modern UI colors
   static const Color shadowColor = Color(0x29000000);
@@ -261,8 +276,8 @@ class _LeavesScreenState extends State<LeavesScreen>
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
                       "hari",
                       style: TextStyle(
@@ -338,7 +353,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                       color: maroonPrimary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       "Tidak ada pengajuan cuti",
                       style: TextStyle(
                         fontFamily: 'Poppins',
@@ -400,7 +415,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                             ),
                           ),
                           const SizedBox(width: 16),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -492,7 +507,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     "Riwayat Pengajuan",
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
@@ -504,7 +519,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                   ),
                                   Text(
                                     "${filteredLeaves.length} pengajuan",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: 'Poppins',
                                       fontSize: 13,
                                       color: textMediumColor,
@@ -533,12 +548,12 @@ class _LeavesScreenState extends State<LeavesScreen>
                           ],
                         ),
                       ),
-                      const Divider(height: 1, color: borderColor),
+                      Divider(height: 1, color: borderColor),
                       ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: filteredLeaves.length,
-                        separatorBuilder: (context, index) => const Divider(
+                        separatorBuilder: (context, index) => Divider(
                           height: 1,
                           color: borderColor,
                         ),
@@ -578,7 +593,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                             ? Utils.formatDate(
                                                 _parseDate(leave.fromDate!))
                                             : '',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
@@ -588,7 +603,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                                       if (leave.fromDate != leave.toDate)
                                         Text(
                                           "s/d ${leave.toDate != null ? Utils.formatDate(_parseDate(leave.toDate!)) : ''}",
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontSize: 12,
                                             color: textMediumColor,
@@ -677,9 +692,9 @@ class _LeavesScreenState extends State<LeavesScreen>
         maxChildSize: 0.9, // Maximum 90% of screen height
         expand: false,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
@@ -691,7 +706,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                   width: 40,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
@@ -746,9 +761,9 @@ class _LeavesScreenState extends State<LeavesScreen>
         maxChildSize: 0.9, // Maximum 90% of screen height
         expand: false,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
@@ -760,7 +775,7 @@ class _LeavesScreenState extends State<LeavesScreen>
                   width: 40,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
@@ -806,13 +821,16 @@ class _LeavesScreenState extends State<LeavesScreen>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
+      brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
       scaffoldBackgroundColor: bgColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Theme.of(context).brightness,
         seedColor: maroonPrimary,
         primary: maroonPrimary,
         secondary: maroonLight,
+        surface: cardColor,
       ),
     );
 

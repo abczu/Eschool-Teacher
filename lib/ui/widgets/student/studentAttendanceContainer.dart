@@ -173,18 +173,16 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
             100
         : 0;
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color borderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+    final Color progressTrackColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200;
+    final Color labelTextColor = isDark ? Colors.grey[300]! : Colors.grey[700]!;
+
     return Container(
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
       ),
       child: Column(
         children: [
@@ -196,16 +194,15 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    Color(0xFFF8F9FA),
-                  ],
+                  colors: isDark
+                      ? [cardBgColor, cardBgColor]
+                      : [Colors.white, const Color(0xFFF8F9FA)],
                 ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: borderColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +212,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                     children: [
                       Icon(
                         Icons.insert_chart_rounded,
-                        color: _maroonPrimary,
+                        color: isDark ? Colors.white : _maroonPrimary,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -224,7 +221,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: _maroonPrimary,
+                          color: isDark ? Colors.white : _maroonPrimary,
                         ),
                       ),
                     ],
@@ -242,7 +239,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                             'Kehadiran',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.grey[700],
+                              color: labelTextColor,
                             ),
                           ),
                           Text(
@@ -268,7 +265,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                             height: 8,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
+                              color: progressTrackColor,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -524,6 +521,10 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
   // Helper method to build status badges for the summary
   Widget _buildStatusBadge(
       BuildContext context, String label, int count, Color color) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color labelTextColor = isDark ? Colors.white70 : Colors.grey[800]!;
+    final Color countBgColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -550,14 +551,14 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
             label,
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: Colors.grey[800],
+              color: labelTextColor,
             ),
           ),
           const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: countBgColor,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

@@ -296,18 +296,33 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Modern elegant maroon color palette
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Modern elegant maroon color palette - dynamic for dark mode
     const Color primaryMaroon =
         Color(0xFF800020); // Primary maroon (main brand color)
-    const Color softMaroon =
-        Color(0xFFE8D5DA); // Very soft maroon pink for backgrounds
+    final Color softMaroon = isDark
+        ? const Color(0xFF3D2030)
+        : const Color(0xFFE8D5DA); // Soft maroon
     const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    const Color accentColor = Color(0xFF4A0012); // Dark maroon accent for text
-    const Color goldAccent =
-        Color.fromARGB(255, 161, 88, 120); // Elegant gold for highlights
-    const Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
-    const Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
+    final Color accentColor = isDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : const Color(0xFF4A0012); // Text color
+    final Color goldAccent = isDark
+        ? const Color(0xFFAC3B5C)
+        : const Color.fromARGB(255, 161, 88, 120); // Gold highlights
+    final Color shimmerColor = isDark
+        ? Colors.grey.shade900
+        : const Color(0xFFFBF8F9); // Shimmer
+    final Color creamWhite = isDark
+        ? Theme.of(context).scaffoldBackgroundColor
+        : const Color(0xFFFFFCFD); // Background
+    final Color cardBgColor = isDark
+        ? const Color(0xFF1C1316) // Elegant deep plum/maroon-tinted black for dark mode
+        : Colors.white;
+    final Color titleColor = isDark ? Colors.white : primaryMaroon;
+    final Color subtitleColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
     return Scaffold(
       backgroundColor: creamWhite,
@@ -359,12 +374,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                   ),
                                   const SizedBox(height: 20),
                                   // Clean Title
-                                  const Text(
+                                  Text(
                                     'Pilih Sekolah Anda',
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.w700,
-                                      color: primaryMaroon,
+                                      color: titleColor,
                                       letterSpacing: -0.5,
                                     ),
                                     textAlign: TextAlign.center,
@@ -376,7 +391,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: Colors.grey[600],
+                                      color: subtitleColor,
                                       height: 1.4,
                                     ),
                                     textAlign: TextAlign.center,
@@ -386,11 +401,11 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                             ),
                             // Search Bar Section
                             _buildSearchBar(
-                                primaryMaroon, softMaroon, goldAccent),
+                                primaryMaroon, softMaroon, goldAccent, isDark: isDark, cardBgColor: cardBgColor),
                             // Search Results Counter
                             if (isSearching)
                               _buildSearchResultsCounter(
-                                  primaryMaroon, goldAccent),
+                                  primaryMaroon, goldAccent, isDark: isDark),
                           ],
                         ),
                       ),
@@ -399,12 +414,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     filteredSchools.isEmpty && isSearching
                         ? SliverToBoxAdapter(
                             child: _buildNoSearchResults(
-                                primaryMaroon, softMaroon, goldAccent),
+                                primaryMaroon, softMaroon, goldAccent, isDark: isDark, cardBgColor: cardBgColor),
                           )
                         : filteredSchools.isEmpty
                             ? SliverToBoxAdapter(
                                 child: _buildEmptyState(
-                                    primaryMaroon, softMaroon, goldAccent),
+                                    primaryMaroon, softMaroon, goldAccent, isDark: isDark, cardBgColor: cardBgColor),
                               )
                             : _buildSchoolsListSliver(
                                 context,
@@ -414,6 +429,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                 goldAccent,
                                 shimmerColor,
                                 deepMaroon,
+                                isDark: isDark,
+                                cardBgColor: cardBgColor,
                               ),
                   ],
                 ),
@@ -426,11 +443,11 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   }
 
   Widget _buildEmptyState(
-      Color primaryMaroon, Color softMaroon, Color goldAccent) {
+      Color primaryMaroon, Color softMaroon, Color goldAccent, {bool isDark = false, Color? cardBgColor}) {
     const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    const Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
-    const Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
+    final Color shimmerColor = isDark ? Colors.grey.shade900 : const Color(0xFFFBF8F9); // Softest pink shimmer
+    final Color creamWhite = isDark ? (cardBgColor ?? Colors.grey.shade900) : const Color(0xFFFFFCFD);
 
     return Center(
       child: Container(
@@ -714,8 +731,10 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     Color accentColor,
     Color goldAccent,
     Color shimmerColor,
-    Color deepMaroon,
-  ) {
+    Color deepMaroon, {
+    bool isDark = false,
+    Color? cardBgColor,
+  }) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
       sliver: SliverList(
@@ -738,7 +757,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: isDark ? null : LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
@@ -747,28 +766,20 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                           Colors.grey.shade50.withValues(alpha: 0.5),
                         ],
                       ),
+                      color: isDark ? (cardBgColor ?? const Color(0xFF1C1316)) : null,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: primaryMaroon.withValues(alpha: 0.08),
+                        color: isDark
+                            ? const Color(0xFFAC3B5C).withValues(alpha: 0.25)
+                            : primaryMaroon.withValues(alpha: 0.08),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroon.withValues(alpha: 0.06),
+                          color: isDark ? Colors.black.withValues(alpha: 0.3) : primaryMaroon.withValues(alpha: 0.06),
                           blurRadius: 16,
                           spreadRadius: 0,
                           offset: const Offset(0, 6),
-                        ),
-                        BoxShadow(
-                          color: goldAccent.withValues(alpha: 0.04),
-                          blurRadius: 12,
-                          spreadRadius: 1,
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          blurRadius: 8,
-                          spreadRadius: -2,
-                          offset: const Offset(0, -3),
                         ),
                       ],
                     ),
@@ -915,14 +926,19 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
-                                      colors: [
-                                        softMaroon.withValues(alpha: 0.04),
-                                        primaryMaroon.withValues(alpha: 0.02),
-                                      ],
+                                      colors: isDark
+                                          ? [
+                                              Colors.grey.shade800.withValues(alpha: 0.3),
+                                              Colors.grey.shade900.withValues(alpha: 0.2),
+                                            ]
+                                          : [
+                                              softMaroon.withValues(alpha: 0.04),
+                                              primaryMaroon.withValues(alpha: 0.02),
+                                            ],
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: softMaroon.withValues(alpha: 0.12),
+                                      color: isDark ? Colors.grey.shade700 : softMaroon.withValues(alpha: 0.12),
                                       width: 1,
                                     ),
                                   ),
@@ -960,7 +976,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
-                                                color: primaryMaroon.withValues(
+                                                color: isDark ? Colors.white70 : primaryMaroon.withValues(
                                                     alpha: 0.7),
                                                 letterSpacing: 0.3,
                                               ),
@@ -972,7 +988,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                                       ?['address'] ??
                                                   'Alamat tidak tersedia',
                                               style: TextStyle(
-                                                color: accentColor.withValues(
+                                                color: isDark ? Colors.white.withValues(alpha: 0.7) : accentColor.withValues(
                                                     alpha: 0.8),
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w500,
@@ -990,29 +1006,36 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
                               const SizedBox(height: 16),
 
-                              // Action Button yang menarik tapi tidak besar
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight,
-                                    colors: [
-                                      primaryMaroon.withValues(alpha: 0.06),
-                                      goldAccent.withValues(alpha: 0.04),
-                                    ],
+                                    colors: isDark
+                                        ? [
+                                            const Color(0xFF8B1F41),
+                                            const Color(0xFFAC3B5C),
+                                          ]
+                                        : [
+                                            primaryMaroon.withValues(alpha: 0.06),
+                                            goldAccent.withValues(alpha: 0.04),
+                                          ],
                                   ),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color:
-                                        primaryMaroon.withValues(alpha: 0.15),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.15)
+                                        : primaryMaroon.withValues(alpha: 0.15),
                                     width: 1,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          primaryMaroon.withValues(alpha: 0.08),
-                                      blurRadius: 8,
+                                      color: isDark
+                                          ? const Color(0xFF8B1F41).withValues(alpha: 0.3)
+                                          : primaryMaroon.withValues(alpha: 0.08),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
                                       spreadRadius: 0,
                                     ),
                                   ],
@@ -1028,21 +1051,28 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                       Container(
                                         padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              primaryMaroon,
-                                              deepMaroon,
-                                            ],
-                                          ),
+                                          color: isDark
+                                              ? Colors.white.withValues(alpha: 0.2)
+                                              : null,
+                                          gradient: isDark
+                                              ? null
+                                              : LinearGradient(
+                                                  colors: [
+                                                    primaryMaroon,
+                                                    deepMaroon,
+                                                  ],
+                                                ),
                                           shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: primaryMaroon.withValues(
-                                                  alpha: 0.25),
-                                              blurRadius: 6,
-                                              spreadRadius: 1,
-                                            ),
-                                          ],
+                                          boxShadow: isDark
+                                              ? null
+                                              : [
+                                                  BoxShadow(
+                                                    color: primaryMaroon.withValues(
+                                                        alpha: 0.25),
+                                                    blurRadius: 6,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
                                         ),
                                         child: const Icon(
                                           Icons.arrow_forward_rounded,
@@ -1053,8 +1083,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                       const SizedBox(width: 12),
                                       Text(
                                         'Pilih Sekolah Ini',
-                                        style: TextStyle(
-                                          color: primaryMaroon,
+                                        style: const TextStyle(
+                                          color: Colors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
                                           letterSpacing: 0.2,
@@ -1172,31 +1202,40 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   }
 
   Widget _buildElegantBackground() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     const Color primaryMaroon =
         Color(0xFF800020); // Primary maroon (main brand color)
-    const Color softMaroon =
-        Color(0xFFE8D5DA); // Very soft maroon pink for backgrounds
+    final Color softMaroon = isDark
+        ? const Color(0xFF3D2030)
+        : const Color(0xFFE8D5DA);
     const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    const Color goldAccent = Color(0xFFD4AF37); // Elegant gold for highlights
+    final Color goldAccent = isDark
+        ? const Color(0xFFAC3B5C)
+        : const Color(0xFFD4AF37);
 
     return Stack(
       children: [
         // Enhanced background gradient with more sophistication
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFFCFD), // Pure cream white background
-                Color(0xFFFBF8F9), // Softest pink shimmer
-                Colors.white, // Pure white
-                Color(0xFFE8D5DA), // Very soft maroon pink for backgrounds
-              ],
-              stops: [0.0, 0.3, 0.7, 1.0],
+              colors: isDark
+                  ? [
+                      Theme.of(context).scaffoldBackgroundColor,
+                      Theme.of(context).scaffoldBackgroundColor,
+                    ]
+                  : const [
+                      Color(0xFFFFFCFD),
+                      Color(0xFFFBF8F9),
+                      Colors.white,
+                      Color(0xFFE8D5DA),
+                    ],
+              stops: isDark ? [0.0, 1.0] : const [0.0, 0.3, 0.7, 1.0],
             ),
           ),
         ),
@@ -1425,13 +1464,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   }
 
   Widget _buildSearchBar(
-      Color primaryMaroon, Color softMaroon, Color goldAccent) {
+      Color primaryMaroon, Color softMaroon, Color goldAccent, {bool isDark = false, Color? cardBgColor}) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: isDark ? null : LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
@@ -1440,28 +1479,18 @@ class _SchoolListScreenState extends State<SchoolListScreen>
               Colors.grey.shade50.withValues(alpha: 0.8),
             ],
           ),
+          color: isDark ? (cardBgColor ?? Theme.of(context).cardColor) : null,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: primaryMaroon.withValues(alpha: 0.12),
+            color: isDark ? Colors.grey.shade700 : primaryMaroon.withValues(alpha: 0.12),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: primaryMaroon.withValues(alpha: 0.08),
+              color: isDark ? Colors.black.withValues(alpha: 0.3) : primaryMaroon.withValues(alpha: 0.08),
               blurRadius: 20,
               spreadRadius: 0,
               offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: goldAccent.withValues(alpha: 0.05),
-              blurRadius: 16,
-              spreadRadius: 2,
-            ),
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.9),
-              blurRadius: 8,
-              spreadRadius: -2,
-              offset: const Offset(0, -4),
             ),
           ],
         ),
@@ -1471,13 +1500,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: primaryMaroon,
+            color: isDark ? Colors.white : primaryMaroon,
             letterSpacing: 0.2,
           ),
           decoration: InputDecoration(
             hintText: 'Cari nama sekolah...',
             hintStyle: TextStyle(
-              color: primaryMaroon.withValues(alpha: 0.5),
+              color: isDark ? Colors.grey[500] : primaryMaroon.withValues(alpha: 0.5),
               fontSize: 15,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.2,
@@ -1544,9 +1573,9 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   }
 
   Widget _buildNoSearchResults(
-      Color primaryMaroon, Color softMaroon, Color goldAccent) {
-    const Color shimmerColor = Color(0xFFFBF8F9);
-    const Color creamWhite = Color(0xFFFFFCFD);
+      Color primaryMaroon, Color softMaroon, Color goldAccent, {bool isDark = false, Color? cardBgColor}) {
+    final Color shimmerColor = isDark ? Colors.grey.shade900 : const Color(0xFFFBF8F9);
+    final Color creamWhite = isDark ? (cardBgColor ?? Colors.grey.shade900) : const Color(0xFFFFFCFD);
 
     return Center(
       child: Container(
@@ -1700,7 +1729,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     );
   }
 
-  Widget _buildSearchResultsCounter(Color primaryMaroon, Color goldAccent) {
+  Widget _buildSearchResultsCounter(Color primaryMaroon, Color goldAccent, {bool isDark = false}) {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.symmetric(horizontal: 8),

@@ -58,6 +58,18 @@ class TeacherAcademicsRepository {
             .toList();
       }
 
+      // Deduplicate slots to prevent duplicate schedule cards
+      final seenSlotKeys = <String>{};
+      final uniqueSlots = <TimeTableSlot>[];
+      for (var slot in timeTableSlots) {
+        final key = "${slot.day?.toLowerCase()}_${slot.startTime}_${slot.endTime}_${slot.subjectId}_${slot.classSectionId}";
+        if (!seenSlotKeys.contains(key)) {
+          seenSlotKeys.add(key);
+          uniqueSlots.add(slot);
+        }
+      }
+      timeTableSlots = uniqueSlots;
+
       debugPrint("Total slots parsed: ${timeTableSlots.length}");
       debugPrint("--- END TIMETABLE REQUEST ---");
 
@@ -82,9 +94,20 @@ class TeacherAcademicsRepository {
 
       if (response['data'] is List) {
         final List<dynamic> data = response['data'];
-        return data
+        final List<TimeTableSlot> timeTableSlots = data
             .map((slot) => TimeTableSlot.fromJson(slot as Map<String, dynamic>))
             .toList();
+
+        final seenSlotKeys = <String>{};
+        final uniqueSlots = <TimeTableSlot>[];
+        for (var slot in timeTableSlots) {
+          final key = "${slot.day?.toLowerCase()}_${slot.startTime}_${slot.endTime}_${slot.subjectId}_${slot.classSectionId}";
+          if (!seenSlotKeys.contains(key)) {
+            seenSlotKeys.add(key);
+            uniqueSlots.add(slot);
+          }
+        }
+        return uniqueSlots;
       }
 
       throw Exception("Invalid response format");

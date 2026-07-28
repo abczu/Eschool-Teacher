@@ -267,10 +267,13 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: 'Bank Soal',
@@ -283,7 +286,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
         body: BlocBuilder<QuestionBankCubit, QuestionBankState>(
           builder: (context, state) {
             return Container(
-              color: Colors.white,
+              color: bgColor,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
                   return false;
@@ -292,7 +295,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                   children: [
                     // Leave space for the app bar
                     const SizedBox(height: 90),
-
+ 
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.only(top: 10),
@@ -301,20 +304,20 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.white.withValues(alpha: 0.95),
-                              const Color(0xFFFFF0F0),
+                              bgColor.withValues(alpha: 0.95),
+                              isDark ? bgColor : const Color(0xFFFFF0F0),
                             ],
                           ),
                           borderRadius: BorderRadius.zero,
                           boxShadow: [
                             BoxShadow(
-                              color: _glowColor.withValues(alpha: 0.2),
+                              color: _glowColor.withValues(alpha: isDark ? 0.05 : 0.2),
                               blurRadius: 20,
                               spreadRadius: 5,
                               offset: const Offset(0, -5),
                             ),
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                               blurRadius: 30,
                               offset: const Offset(0, -10),
                             ),
@@ -447,6 +450,10 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     final displaySubjects =
         _searchController.text.isNotEmpty ? _filteredSubjects : subjects;
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white;
+    final Color cardBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Column(children: [
       // Search bar if needed
       if (shouldShowSearch)
@@ -456,24 +463,26 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
             margin: const EdgeInsets.fromLTRB(20, 25, 20, 20),
             height: 55,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(15),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black12,
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
               decoration: InputDecoration(
                 hintText: 'Cari mata pelajaran...',
-                prefixIcon: const Icon(Icons.search, color: _primaryColor),
+                hintStyle: TextStyle(color: isDark ? Colors.white60 : Colors.black45),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : _primaryColor),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: _primaryColor),
+                        icon: Icon(Icons.clear, color: isDark ? Colors.white70 : _primaryColor),
                         onPressed: () {
                           _clearSearch(subjects);
                         },
@@ -525,14 +534,14 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                 ),
                                 colors: [
                                   Colors.transparent,
-                                  _highlightColor.withValues(alpha: 0.01),
-                                  _accentColor.withValues(alpha: 0.02),
+                                  _highlightColor.withValues(alpha: isDark ? 0.005 : 0.01),
+                                  _accentColor.withValues(alpha: isDark ? 0.01 : 0.02),
                                   Colors.transparent,
                                 ],
                                 radius: 1.0,
                               ).createShader(bounds),
                               child: Container(
-                                color: Colors.white,
+                                color: bgColor,
                               ),
                             ),
                           );
@@ -637,36 +646,52 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
-                                          colors: [
-                                            cardBaseColor.withValues(
-                                                alpha: isHovered ? 1.0 : 0.85),
-                                            HSLColor.fromColor(cardBaseColor)
-                                                .withLightness(
-                                                  HSLColor.fromColor(
-                                                              cardBaseColor)
-                                                          .lightness *
-                                                      0.7,
-                                                )
-                                                .toColor()
-                                                .withValues(
-                                                    alpha:
-                                                        isHovered ? 0.95 : 0.8),
-                                          ],
+                                          colors: isDark
+                                              ? [
+                                                  Theme.of(context).cardColor,
+                                                  Theme.of(context).cardColor.withValues(alpha: 0.9),
+                                                ]
+                                              : [
+                                                  cardBaseColor.withValues(
+                                                      alpha: isHovered ? 1.0 : 0.85),
+                                                  HSLColor.fromColor(cardBaseColor)
+                                                      .withLightness(
+                                                        HSLColor.fromColor(
+                                                                    cardBaseColor)
+                                                                .lightness *
+                                                            0.7,
+                                                      )
+                                                      .toColor()
+                                                      .withValues(
+                                                          alpha:
+                                                              isHovered ? 0.95 : 0.8),
+                                                ],
                                           stops: const [0.3, 1.0],
                                         ),
                                         borderRadius: BorderRadius.circular(28),
+                                        border: Border.all(
+                                          color: isDark
+                                              ? Colors.white.withValues(alpha: 0.08)
+                                              : Colors.transparent,
+                                          width: 1,
+                                        ),
                                         boxShadow: [
                                           // Outer glow shadow
                                           BoxShadow(
-                                            color: neonGlowColor.withValues(
-                                                alpha: isHovered ? 0.35 : 0.15),
+                                            color: isDark
+                                                ? Colors.black.withValues(
+                                                    alpha: isHovered ? 0.25 : 0.15)
+                                                : neonGlowColor.withValues(
+                                                    alpha: isHovered ? 0.35 : 0.15),
                                             blurRadius: isHovered ? 25 : 15,
                                             spreadRadius: isHovered ? 2 : 0,
                                           ),
                                           // Inner depth shadow
                                           BoxShadow(
-                                            color: cardBaseColor.withValues(
-                                                alpha: 0.5),
+                                            color: isDark
+                                                ? Colors.transparent
+                                                : cardBaseColor.withValues(
+                                                    alpha: 0.5),
                                             blurRadius: 15,
                                             spreadRadius: -3,
                                             offset: const Offset(0, 8),
@@ -775,11 +800,11 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                 Colors.white
                                                                     .withValues(
                                                                         alpha:
-                                                                            0.8),
+                                                                            isDark ? 0.25 : 0.8),
                                                                 Colors.white
                                                                     .withValues(
                                                                         alpha:
-                                                                            0.2),
+                                                                            isDark ? 0.05 : 0.2),
                                                               ],
                                                             ),
                                                             borderRadius:
@@ -809,7 +834,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                     .white
                                                                     .withValues(
                                                                         alpha:
-                                                                            0.15),
+                                                                            isDark ? 0.08 : 0.15),
                                                                 borderRadius:
                                                                     BorderRadius
                                                                         .circular(
@@ -820,7 +845,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                       .white
                                                                       .withValues(
                                                                           alpha:
-                                                                              0.2),
+                                                                              isDark ? 0.12 : 0.2),
                                                                   width: 1,
                                                                 ),
                                                                 boxShadow: const [
@@ -955,20 +980,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                     ),
                                   ),
 
-                                  // Decorative elements
-                                  Positioned(
-                                    right: 20,
-                                    top: -10,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: neonGlowColor.withValues(
-                                            alpha: 0.1),
-                                      ),
-                                    ),
-                                  ),
+                                  // Decorative elements removed to avoid overlap clutter
                                 ],
                               ),
                             ),

@@ -36,10 +36,11 @@ class TimetableSlotContainer extends StatelessWidget {
         fontWeight: FontWeight.w600);
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-      height: Utils().getResponsiveHeight(context, 130),
       child: LayoutBuilder(builder: (context, boxConstraints) {
-        return Row(
-          children: [
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             SizedBox(
                 width: boxConstraints.maxWidth * (0.2),
                 child: Column(
@@ -99,11 +100,26 @@ class TimetableSlotContainer extends StatelessWidget {
                   padding: EdgeInsets.symmetric(
                       horizontal: appContentHorizontalPadding, vertical: 10),
                   decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Theme.of(context).colorScheme.onSurface),
                       borderRadius: BorderRadius.circular(8),
                       color: backgroundColor ??
-                          Theme.of(context).scaffoldBackgroundColor),
+                          (Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.surface),
+                      border: Border.all(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.transparent
+                            : Colors.white.withValues(alpha: 0.1),
+                        width: 0.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).brightness == Brightness.light
+                              ? Colors.black.withValues(alpha: 0.06)
+                              : Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]),
                   child: note.isNotEmpty
                       ? Center(
                           child: CustomTextContainer(
@@ -117,6 +133,7 @@ class TimetableSlotContainer extends StatelessWidget {
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ///[Subject name]
                             CustomTextContainer(
@@ -126,11 +143,9 @@ class TimetableSlotContainer extends StatelessWidget {
                             CustomTextContainer(
                               textKey: subjectName,
                               style: valueTextStyle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                            const Spacer(),
-
+                            const SizedBox(height: 10),
+ 
                             ///[Class and teacher name]
                             CustomTextContainer(
                               textKey: isForClass ? teacherKey : classKey,
@@ -141,14 +156,12 @@ class TimetableSlotContainer extends StatelessWidget {
                                   ? (teacherName ?? "-")
                                   : (classSectionName ?? "-"),
                               style: valueTextStyle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
                 )),
           ],
-        );
+        ));
       }),
     );
   }

@@ -6,22 +6,28 @@ class SkeletonLessonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final headerBg = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 25,
             offset: const Offset(0, 12),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: shimmerBase,
+        highlightColor: shimmerHighlight,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -29,7 +35,7 @@ class SkeletonLessonCard extends StatelessWidget {
             Container(
               height: 130,
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: headerBg,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               ),
               padding: const EdgeInsets.fromLTRB(26, 24, 20, 0),

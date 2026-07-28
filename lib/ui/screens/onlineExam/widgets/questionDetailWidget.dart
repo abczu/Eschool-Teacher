@@ -1,7 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/data/models/exam/question.dart' as q;
 import 'package:eschool_saas_staff/utils/system/questionUtils.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/painters/bankQuestionPainters.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
 
 /// A self-contained widget that renders the detail view of a [q.Question] /
 /// [q.QuestionVersion].  State-specific behaviours (image preview, edit
@@ -33,19 +35,20 @@ class QuestionDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final typeColor = QuestionUtils.getTypeColor(version.type);
     return Stack(
       children: [
-        // White base background below the gradient header
+        // Base background below the gradient header
         Positioned(
           top: 160,
           left: 0,
           right: 0,
           bottom: 0,
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            decoration: BoxDecoration(
+              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             ),
           ),
         ),
@@ -124,21 +127,21 @@ class QuestionDetailWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header: type badge, title, points
-              _buildHeader(typeColor),
+              _buildHeader(context, typeColor),
 
-              // White body
+              // Themed body
               Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                decoration: BoxDecoration(
+                  color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
                 ),
                 child: Column(
                   children: [
-                    _buildQuestionSection(typeColor),
-                    _buildOptionsSection(typeColor),
-                    _buildNoteSection(),
+                    _buildQuestionSection(context, typeColor),
+                    _buildOptionsSection(context, typeColor),
+                    _buildNoteSection(context),
                     if (version.image != null && version.image!.isNotEmpty)
-                      _buildImageSection(typeColor),
+                      _buildImageSection(context, typeColor),
                     _buildActionButtons(context, typeColor),
                   ],
                 ),
@@ -152,7 +155,8 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ──────────────────────────── Header ────────────────────────────
 
-  Widget _buildHeader(Color typeColor) {
+  Widget _buildHeader(BuildContext context, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
       child: Column(
@@ -211,7 +215,7 @@ class QuestionDetailWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
@@ -229,7 +233,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 Text(
                   '${version.defaultPoint} poin',
                   style: TextStyle(
-                    color: Colors.grey[800],
+                    color: isDark ? Colors.white70 : Colors.grey[800],
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -244,7 +248,8 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ──────────────────────── Question text ─────────────────────────
 
-  Widget _buildQuestionSection(Color typeColor) {
+  Widget _buildQuestionSection(BuildContext context, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         // Section title bar
@@ -254,13 +259,19 @@ class QuestionDetailWidget extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.white, Colors.grey.shade50],
+              colors: isDark
+                  ? [Theme.of(context).cardColor, Theme.of(context).cardColor]
+                  : [Colors.white, Colors.grey.shade50],
             ),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
-            border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+            border: Border(
+                bottom: BorderSide(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.grey.shade100)),
           ),
           child: Row(
             children: [
@@ -280,7 +291,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade800,
+                  color: isDark ? Colors.white : Colors.grey.shade800,
                 ),
               ),
             ],
@@ -291,16 +302,18 @@ class QuestionDetailWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          decoration: BoxDecoration(color: Colors.grey.shade50),
+          decoration: BoxDecoration(
+              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50),
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200, width: 1),
+              border: Border.all(
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200, width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
+                  color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -308,6 +321,7 @@ class QuestionDetailWidget extends StatelessWidget {
             ),
             child: version.question.trim().isEmpty
                 ? _emptyState(
+                    context,
                     Icons.help_outline,
                     "Pertanyaan belum diisi",
                     "Isi pertanyaan untuk memberikan soal yang jelas kepada siswa",
@@ -317,7 +331,7 @@ class QuestionDetailWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       height: 1.5,
-                      color: Colors.grey.shade800,
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade800,
                     ),
                   ),
           ),
@@ -328,10 +342,11 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ──────────────────────────── Options ───────────────────────────
 
-  Widget _buildOptionsSection(Color typeColor) {
+  Widget _buildOptionsSection(BuildContext context, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
-      color: Colors.white,
+      color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -353,7 +368,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade800,
+                  color: isDark ? Colors.white : Colors.grey.shade800,
                 ),
               ),
             ],
@@ -361,6 +376,7 @@ class QuestionDetailWidget extends StatelessWidget {
           const SizedBox(height: 24),
           version.options.isEmpty
               ? _emptyState(
+                  context,
                   Icons.check_circle_outline,
                   "Belum ada opsi jawaban",
                   "Tambahkan minimal 2 opsi jawaban untuk soal pilihan ganda",
@@ -378,6 +394,7 @@ class QuestionDetailWidget extends StatelessWidget {
   }
 
   Widget _buildOptionItem(BuildContext context, int index, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final option = version.options[index];
     final isCorrect = option.percentage == 100;
     return Container(
@@ -385,15 +402,19 @@ class QuestionDetailWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCorrect ? Colors.green.shade200 : Colors.grey.shade200,
+          color: isCorrect
+              ? Colors.green.shade300
+              : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200),
           width: 1.5,
         ),
-        color: isCorrect ? Colors.green.shade50 : Colors.white,
+        color: isCorrect
+            ? (isDark ? Colors.green.withValues(alpha: 0.15) : Colors.green.shade50)
+            : (isDark ? Theme.of(context).cardColor : Colors.white),
         boxShadow: [
           BoxShadow(
             color: isCorrect
                 ? Colors.green.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.03),
+                : (isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.03)),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -415,9 +436,11 @@ class QuestionDetailWidget extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: isCorrect
                         ? Colors.green.withValues(alpha: 0.2)
-                        : typeColor.withValues(alpha: 0.1),
+                        : (isDark ? Colors.white.withValues(alpha: 0.05) : typeColor.withValues(alpha: 0.1)),
                     border: Border.all(
-                      color: isCorrect ? Colors.green : typeColor,
+                      color: isCorrect
+                          ? Colors.green
+                          : (isDark ? Colors.white30 : typeColor),
                       width: 1.5,
                     ),
                   ),
@@ -426,7 +449,9 @@ class QuestionDetailWidget extends StatelessWidget {
                       String.fromCharCode(65 + index),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: isCorrect ? Colors.green : typeColor,
+                        color: isCorrect
+                            ? Colors.green
+                            : (isDark ? const Color(0xFFE53935) : typeColor),
                         fontSize: 16,
                       ),
                     ),
@@ -444,7 +469,7 @@ class QuestionDetailWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade600,
+                                color: isDark ? Colors.white38 : Colors.grey.shade600,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -452,7 +477,7 @@ class QuestionDetailWidget extends StatelessWidget {
                             Text(
                               "Isi teks untuk opsi jawaban ini",
                               style: TextStyle(
-                                  fontSize: 13, color: Colors.grey.shade500),
+                                  fontSize: 13, color: isDark ? Colors.white24 : Colors.grey.shade500),
                             ),
                           ],
                         )
@@ -460,7 +485,7 @@ class QuestionDetailWidget extends StatelessWidget {
                           QuestionUtils.parseHtmlString(option.text),
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.grey.shade800,
+                            color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade800,
                             height: 1.4,
                           ),
                         ),
@@ -514,12 +539,14 @@ class QuestionDetailWidget extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey.shade50,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15),
               ),
-              border: Border(top: BorderSide(color: Colors.grey.shade200)),
+              border: Border(
+                  top: BorderSide(
+                      color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,7 +556,7 @@ class QuestionDetailWidget extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: Colors.grey.shade600,
+                    color: isDark ? Colors.white60 : Colors.grey.shade600,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -538,7 +565,7 @@ class QuestionDetailWidget extends StatelessWidget {
                         "Belum ada feedback untuk opsi ini. Tambahkan penjelasan mengapa jawaban ini benar/salah.",
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade500,
+                          color: isDark ? Colors.white38 : Colors.grey.shade500,
                           fontStyle: FontStyle.italic,
                           height: 1.4,
                         ),
@@ -547,7 +574,7 @@ class QuestionDetailWidget extends StatelessWidget {
                         option.feedback,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: isDark ? Colors.white70 : Colors.grey.shade700,
                           height: 1.4,
                         ),
                       ),
@@ -561,10 +588,11 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ───────────────────────────── Note ─────────────────────────────
 
-  Widget _buildNoteSection() {
+  Widget _buildNoteSection(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      color: Colors.white,
+      color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -585,7 +613,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade800,
+                  color: isDark ? Colors.white : Colors.grey.shade800,
                 ),
               ),
             ],
@@ -596,18 +624,19 @@ class QuestionDetailWidget extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: version.note.trim().isEmpty
-                  ? Colors.grey.shade50
-                  : Colors.blue.shade50,
+                  ? (isDark ? Colors.white.withValues(alpha: 0.02) : Colors.grey.shade50)
+                  : (isDark ? Colors.blue.withValues(alpha: 0.15) : Colors.blue.shade50),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: version.note.trim().isEmpty
-                    ? Colors.grey.shade200
-                    : Colors.blue.shade100,
+                    ? (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200)
+                    : (isDark ? Colors.blue.withValues(alpha: 0.3) : Colors.blue.shade100),
                 width: 1,
               ),
             ),
             child: version.note.trim().isEmpty
                 ? _emptyState(
+                    context,
                     Icons.note_add_outlined,
                     "Belum ada catatan",
                     "Tambahkan catatan untuk memberikan informasi tambahan tentang soal ini",
@@ -617,7 +646,7 @@ class QuestionDetailWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       height: 1.5,
-                      color: Colors.grey.shade800,
+                      color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade800,
                     ),
                   ),
           ),
@@ -628,10 +657,84 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ───────────────────────────── Image ────────────────────────────
 
-  Widget _buildImageSection(Color typeColor) {
+  Widget _buildImage(String urlOrBase64) {
+    if (urlOrBase64.trim().isEmpty) {
+      return const SizedBox(
+        height: 100,
+        child: Center(
+          child: Text(
+            "Gambar kosong",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    // 1. Check if it is a remote/relative URL
+    final bool isUrl = urlOrBase64.startsWith('http') || urlOrBase64.startsWith('/') || urlOrBase64.contains('.');
+    if (isUrl) {
+      final String finalUrl = urlOrBase64.startsWith('http')
+          ? urlOrBase64
+          : "$storageUrl$urlOrBase64";
+      return Image.network(
+        finalUrl,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                "Gagal memuat gambar",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // 2. Otherwise assume it's base64
+    try {
+      final decodedImage = base64Decode(urlOrBase64);
+      return Image.memory(
+        decodedImage,
+        fit: BoxFit.contain,
+      );
+    } catch (e) {
+      // Fallback: maybe it's just a file path that is relative
+      final String finalUrl = "$storageUrl$urlOrBase64";
+      return Image.network(
+        finalUrl,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                "Format gambar tidak valid",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildImageSection(BuildContext context, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      color: Colors.white,
+      color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -652,7 +755,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade800,
+                  color: isDark ? Colors.white : Colors.grey.shade800,
                 ),
               ),
             ],
@@ -661,12 +764,13 @@ class QuestionDetailWidget extends StatelessWidget {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200, width: 1),
+              border: Border.all(
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200, width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -674,17 +778,19 @@ class QuestionDetailWidget extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: imageWidgetBuilder != null
-                  ? imageWidgetBuilder!(question.id)
-                  : const SizedBox(
-                      height: 100,
-                      child: Center(
-                        child: Text(
-                          "Tidak ada gambar",
-                          style: TextStyle(color: Colors.grey),
+              child: version.image != null && version.image!.isNotEmpty
+                  ? _buildImage(version.image!)
+                  : imageWidgetBuilder != null
+                      ? imageWidgetBuilder!(question.id)
+                      : const SizedBox(
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              "Tidak ada gambar",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
             ),
           ),
         ],
@@ -695,21 +801,25 @@ class QuestionDetailWidget extends StatelessWidget {
   // ─────────────────────────── Buttons ────────────────────────────
 
   Widget _buildActionButtons(BuildContext context, Color typeColor) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
         ],
+        border: isDark
+            ? Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.08)))
+            : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -720,7 +830,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.grey.shade300),
+                  side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
                 ),
               ),
               onPressed: () => Navigator.pop(context),
@@ -729,7 +839,7 @@ class QuestionDetailWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+                  color: isDark ? Colors.white70 : Colors.grey.shade700,
                 ),
               ),
             ),
@@ -764,17 +874,18 @@ class QuestionDetailWidget extends StatelessWidget {
 
   // ─────────────────────── Empty state helper ──────────────────────
 
-  Widget _emptyState(IconData icon, String title, String subtitle) {
+  Widget _emptyState(BuildContext context, IconData icon, String title, String subtitle) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        Icon(icon, size: 40, color: Colors.grey.shade400),
+        Icon(icon, size: 40, color: isDark ? Colors.white38 : Colors.grey.shade400),
         const SizedBox(height: 12),
         Text(
           title,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.grey.shade600,
+            color: isDark ? Colors.white70 : Colors.grey.shade600,
           ),
         ),
         const SizedBox(height: 8),
@@ -783,7 +894,7 @@ class QuestionDetailWidget extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey.shade500,
+            color: isDark ? Colors.white54 : Colors.grey.shade500,
             height: 1.4,
           ),
         ),

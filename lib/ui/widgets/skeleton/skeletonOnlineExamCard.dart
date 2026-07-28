@@ -8,6 +8,10 @@ class SkeletonOnlineExamCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     const double headerHeight = 280.0; // Average header height
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16),
@@ -17,7 +21,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
           // Main card container
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: isDark ? Theme.of(context).cardColor : Colors.grey[50],
               borderRadius: BorderRadius.circular(32),
             ),
             child: Column(
@@ -33,8 +37,8 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                     ),
                   ),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: shimmerBase,
+                    highlightColor: shimmerHighlight,
                     child: Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
@@ -117,8 +121,8 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 140, 24, 24),
                   child: Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
+                    baseColor: shimmerBase,
+                    highlightColor: shimmerHighlight,
                     child: Row(
                       children: [
                         // Edit button
@@ -156,11 +160,13 @@ class SkeletonOnlineExamCard extends StatelessWidget {
             right: 20,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                     spreadRadius: -5,
@@ -168,8 +174,8 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                 ],
               ),
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: shimmerBase,
+                highlightColor: shimmerHighlight,
                 child: Column(
                   children: [
                     // Top section: Manage Questions
@@ -228,7 +234,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                     Container(
                       height: 1,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
-                      color: Colors.grey.shade200,
+                      color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                     ),
                     // Bottom section: Dates
                     Padding(
@@ -263,7 +269,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                           Container(
                             height: 35,
                             width: 1,
-                            color: Colors.grey.shade200,
+                            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                           ),
                           // End Date
                           Column(

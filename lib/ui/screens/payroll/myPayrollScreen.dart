@@ -595,6 +595,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
     Color? valueColor,
     required bool isDark,
   }) {
+    final Color effectiveIconColor = isDark ? const Color(0xFFE53935) : widget.maroonPrimary;
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -610,13 +611,13 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                     padding: const EdgeInsets.all(6),
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
-                      color: widget.maroonPrimary.withValues(alpha: 0.08),
+                      color: effectiveIconColor.withValues(alpha: isDark ? 0.15 : 0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(
                       icon,
                       size: 16,
-                      color: widget.maroonPrimary,
+                      color: effectiveIconColor,
                     ),
                   ),
                 Flexible(

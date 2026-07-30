@@ -214,6 +214,8 @@ class _AllowancesAndDeductionsScreenState
     required Color color,
     required bool isPositive,
     required bool isDark,
+    Color? borderColor,
+    Color? iconColor,
   }) {
     const baseSalary = 5000000.0;
     final percentage = (amount / baseSalary * 100);
@@ -223,7 +225,7 @@ class _AllowancesAndDeductionsScreenState
       decoration: BoxDecoration(
         color: isDark ? Theme.of(context).cardColor : _cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: isDark ? 0.35 : 0.2), width: 1.5),
+        border: Border.all(color: (borderColor ?? color).withValues(alpha: isDark ? 0.35 : 0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: isDark ? 0.15 : 0.08),
@@ -240,12 +242,12 @@ class _AllowancesAndDeductionsScreenState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: (iconColor ?? color).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
-                  color: color,
+                  color: iconColor ?? color,
                   size: 24,
                 ),
               ),
@@ -856,7 +858,7 @@ class _AllowancesAndDeductionsScreenState
                           (sum, item) => sum + calculateActualAmount(item),
                         ),
                         icon: Icons.remove_circle_outline,
-                        color: isDark ? const Color(0xFFE57373) : _maroonDeep,
+                        color: isDark ? const Color(0xFFE53935) : _maroonLight,
                         isPositive: false,
                         isDark: isDark,
                       ),

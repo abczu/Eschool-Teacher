@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -52,9 +52,14 @@ class _ExtracurricularAttendanceScreenState
   late AnimationController _fabAnimationController;
   late final ScrollController _scrollController = ScrollController();
 
-  // Theme colors
-  final Color _maroonPrimary = const Color(0xFF8B1F41);
-  final Color _maroonLight = const Color(0xFFAC3B5C);
+  // Theme colors - Dynamic brightened maroon/coral palette
+  Color get _maroonPrimary => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFE53935) // Bright maroon/red for dark mode
+      : const Color(0xFF8B1F41); // Standard app deep maroon for light mode
+
+  Color get _maroonLight => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFEF5350) // Bright pastel maroon for dark mode
+      : const Color(0xFFAC3B5C); // Standard highlight maroon for light mode
 
   @override
   void initState() {
@@ -221,15 +226,16 @@ class _ExtracurricularAttendanceScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
       extendBodyBehindAppBar: true,
       appBar: CustomModernAppBar(
         title: 'Absensi Kurikuler',
-        icon: Icons.edit_calendar_rounded,
+        icon: Icons.calendar_today_rounded,
         fabAnimationController: _fabAnimationController,
-        primaryColor: _maroonPrimary,
-        lightColor: _maroonLight,
+        primaryColor: const Color(0xFF8B1F41),
+        lightColor: const Color(0xFFAC3B5C),
         onBackPressed: () {
           _fabAnimationController.stop();
           Get.back();
@@ -522,6 +528,7 @@ class _ExtracurricularAttendanceScreenState
   }
 
   Widget _buildAttendanceContent() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     if (_selectedExtracurricularId == null) {
       return Center(
         child: Column(
@@ -530,7 +537,7 @@ class _ExtracurricularAttendanceScreenState
             Icon(
               Icons.sports_soccer,
               size: 80,
-              color: _maroonPrimary.withValues(alpha: 0.3),
+              color: isDark ? _maroonPrimary.withValues(alpha: 0.8) : _maroonPrimary.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 20),
             Text(
@@ -538,7 +545,7 @@ class _ExtracurricularAttendanceScreenState
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 10),
@@ -546,7 +553,7 @@ class _ExtracurricularAttendanceScreenState
               'Silakan pilih ekstrakurikuler terlebih dahulu',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: isDark ? Colors.grey[400] : Colors.grey[500],
               ),
             ),
           ],
@@ -558,6 +565,7 @@ class _ExtracurricularAttendanceScreenState
   }
 
   Widget _buildStudentsContainer() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -578,7 +586,7 @@ class _ExtracurricularAttendanceScreenState
                     style: GoogleFonts.poppins(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: _maroonPrimary,
+                      color: isDark ? Colors.white : _maroonPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -591,7 +599,7 @@ class _ExtracurricularAttendanceScreenState
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -681,6 +689,7 @@ class _ExtracurricularAttendanceScreenState
   }
 
   Widget _buildStudents() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     if (_attendanceList.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 40),
@@ -689,14 +698,14 @@ class _ExtracurricularAttendanceScreenState
             Icon(
               Icons.people_alt_outlined,
               size: 48,
-              color: Colors.grey[400],
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
             ),
             const SizedBox(height: 16),
             Text(
               'Tidak ada anggota untuk ditampilkan',
               style: GoogleFonts.poppins(
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 8),
@@ -704,7 +713,7 @@ class _ExtracurricularAttendanceScreenState
               'Silakan pilih ekstrakurikuler dan tanggal',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: isDark ? Colors.grey[400] : Colors.grey[500],
               ),
             ),
           ],
@@ -837,15 +846,16 @@ class _ExtracurricularAttendanceScreenState
   }
 
   void _showExtracurricularPicker() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.6,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           children: [
@@ -856,7 +866,7 @@ class _ExtracurricularAttendanceScreenState
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: _maroonPrimary,
+                  color: isDark ? Colors.white : _maroonPrimary,
                 ),
               ),
             ),
@@ -869,14 +879,14 @@ class _ExtracurricularAttendanceScreenState
                           Icon(
                             Icons.sports_soccer,
                             size: 60,
-                            color: Colors.grey[400],
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'Tidak ada ekstrakurikuler',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: isDark ? Colors.white70 : Colors.grey[600],
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -884,7 +894,7 @@ class _ExtracurricularAttendanceScreenState
                             'Belum ada data ekstrakurikuler yang tersedia',
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.grey[500],
+                              color: isDark ? Colors.grey[400] : Colors.grey[500],
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -911,11 +921,14 @@ class _ExtracurricularAttendanceScreenState
                           title: Text(
                             extracurricular['name'],
                             style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500),
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? Colors.white : Colors.black87),
                           ),
                           subtitle: Text(
                             extracurricular['description'] ?? '',
-                            style: GoogleFonts.poppins(fontSize: 12),
+                            style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: isDark ? Colors.white70 : Colors.grey[600]),
                           ),
                           onTap: () {
                             setState(() {
@@ -938,10 +951,11 @@ class _ExtracurricularAttendanceScreenState
   }
 
   Widget _buildSubmitButton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),

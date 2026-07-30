@@ -35,8 +35,12 @@ class _CreateExtracurricularTimetableScreenState
   String? selectedDay;
   bool get isEditMode => widget.existingEntry != null;
 
-  final Color _primaryColor = const Color(0xFF8B4B6B); // Soft maroon
-  final Color _highlightColor = const Color(0xFFB85C7A); // Light maroon
+  Color get _primaryColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFE53935)
+      : const Color(0xffd22f3c);
+  Color get _highlightColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFEF5350)
+      : const Color(0xffd22f3c);
   final Color _accentColor = const Color(0xFFD4A574); // Warm gold
   final Color _softColor = const Color(0xFFF5E6D3); // Cream
 

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -24,9 +24,14 @@ class _ExtracurricularMemberScreenState
   late AnimationController _fabAnimationController;
   late TextEditingController _searchController;
 
-  // Colors
-  final Color _maroonPrimary = const Color(0xFF8B4B6B);
-  final Color _maroonLight = const Color(0xFFB85C7A);
+  // Theme colors - Dynamic brightened maroon/coral palette
+  Color get _maroonPrimary => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFE53935) // Bright maroon/red for dark mode
+      : const Color(0xFF8B1F41); // Standard app deep maroon for light mode
+
+  Color get _maroonLight => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFEF5350) // Bright pastel maroon for dark mode
+      : const Color(0xFFAC3B5C); // Standard highlight maroon for light mode
 
   // Filter state
   String? _selectedStatusFilter;
@@ -135,7 +140,7 @@ class _ExtracurricularMemberScreenState
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Batal',
-              style: GoogleFonts.poppins(color: Colors.grey[600]),
+              style: GoogleFonts.poppins(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600]),
             ),
           ),
         ],
@@ -207,7 +212,7 @@ class _ExtracurricularMemberScreenState
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Tutup',
-                style: GoogleFonts.poppins(color: Colors.grey[600]),
+                style: GoogleFonts.poppins(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600]),
               ),
             ),
           ],
@@ -230,15 +235,16 @@ class _ExtracurricularMemberScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
       extendBodyBehindAppBar: true,
       appBar: CustomModernAppBar(
         title: 'Daftar Anggota',
         icon: Icons.people_rounded,
         fabAnimationController: _fabAnimationController,
-        primaryColor: _maroonPrimary,
-        lightColor: _maroonLight,
+        primaryColor: const Color(0xFF8B1F41),
+        lightColor: const Color(0xFFAC3B5C),
         onBackPressed: () {
           _fabAnimationController.stop();
           Get.back();
@@ -258,7 +264,7 @@ class _ExtracurricularMemberScreenState
               bottom: 16,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
@@ -271,10 +277,13 @@ class _ExtracurricularMemberScreenState
             child: TextField(
               controller: _searchController,
               onChanged: (value) => _applyFilters(),
+              style: GoogleFonts.poppins(
+                color: isDark ? Colors.white : Colors.black87,
+              ),
               decoration: InputDecoration(
                 hintText: 'Cari nama, NISN, atau kelas...',
                 hintStyle: GoogleFonts.poppins(
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.grey[400] : Colors.grey[400],
                   fontSize: 14,
                 ),
                 prefixIcon: Icon(
@@ -286,7 +295,7 @@ class _ExtracurricularMemberScreenState
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? Theme.of(context).cardColor : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
@@ -427,7 +436,7 @@ class _ExtracurricularMemberScreenState
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey[800],
+                                color: isDark ? Colors.white : Colors.grey[800],
                               ),
                             ),
                             const Spacer(),
@@ -509,6 +518,12 @@ class _ExtracurricularMemberScreenState
   }
 
   Widget _buildLoadingSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color skeletonContentColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: 6,
@@ -517,12 +532,12 @@ class _ExtracurricularMemberScreenState
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardBg,
             borderRadius: BorderRadius.circular(15),
           ),
           child: Shimmer.fromColors(
-            baseColor: Colors.grey.shade300,
-            highlightColor: Colors.grey.shade100,
+            baseColor: shimmerBase,
+            highlightColor: shimmerHighlight,
             child: Row(
               children: [
                 Container(
@@ -530,7 +545,7 @@ class _ExtracurricularMemberScreenState
                   height: 50,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey.shade300,
+                    color: skeletonContentColor,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -541,19 +556,19 @@ class _ExtracurricularMemberScreenState
                       Container(
                         height: 16,
                         width: double.infinity,
-                        color: Colors.grey.shade300,
+                        color: skeletonContentColor,
                       ),
                       const SizedBox(height: 8),
                       Container(
                         height: 12,
                         width: 150,
-                        color: Colors.grey.shade300,
+                        color: skeletonContentColor,
                       ),
                       const SizedBox(height: 4),
                       Container(
                         height: 12,
                         width: 120,
-                        color: Colors.grey.shade300,
+                        color: skeletonContentColor,
                       ),
                     ],
                   ),
@@ -563,7 +578,7 @@ class _ExtracurricularMemberScreenState
                   width: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade300,
+                    color: skeletonContentColor,
                   ),
                 ),
               ],

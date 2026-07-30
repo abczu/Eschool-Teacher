@@ -143,6 +143,11 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
   }
 
   Widget _buildStudentResults() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color currentCardColor = isDark ? Theme.of(context).cardColor : cardColor;
+    final Color currentTextDarkColor = isDark ? Colors.white70 : textDarkColor;
+    final Color currentTextMediumColor = isDark ? Colors.white54 : textMediumColor;
+
     return BlocBuilder<OfflineExamStudentResultsCubit,
         OfflineExamStudentResultsState>(
       builder: (context, state) {
@@ -158,7 +163,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                   margin: EdgeInsets.all(appContentHorizontalPadding),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: cardColor,
+                    color: currentCardColor,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -183,7 +188,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: textDarkColor,
+                          color: currentTextDarkColor,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -192,7 +197,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          color: textMediumColor,
+                          color: currentTextMediumColor,
                           height: 1.4,
                         ),
                       ),
@@ -422,6 +427,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
   }
 
   Widget _buildTableHeaderSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color containerBg = isDark ? Colors.grey.shade800 : Colors.white;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
       height: 40,
@@ -431,8 +438,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
         color: Theme.of(context).colorScheme.tertiary,
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
         child: LayoutBuilder(builder: (context, boxConstraints) {
           return Row(
             children: [
@@ -442,7 +449,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                   height: 16,
                   width: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: containerBg,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -453,7 +460,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                   height: 16,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: containerBg,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -466,6 +473,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
   }
 
   Widget _buildStudentResultRowSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color containerBg = isDark ? Colors.grey.shade800 : Colors.white;
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: appContentHorizontalPadding,
@@ -479,8 +488,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
         ),
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
         child: LayoutBuilder(builder: (context, boxConstraints) {
           return Row(
             children: [
@@ -490,7 +499,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                   height: 16,
                   width: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: containerBg,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -507,7 +516,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                             height: 16,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: containerBg,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -516,7 +525,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                             height: 14,
                             width: 120,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: containerBg,
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -526,8 +535,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                     Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: containerBg,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -547,6 +556,9 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
   }
 
   Widget _buildOfflineResultSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color containerBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final Color skeletonContentColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -563,8 +575,8 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 child: Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
+                  baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                  highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
                   child: Column(
                     children: [
                       // Session year filter skeleton
@@ -572,10 +584,10 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         margin: const EdgeInsets.only(bottom: 12),
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: containerBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.grey.shade200,
+                            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             width: 1,
                           ),
                         ),
@@ -586,7 +598,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: skeletonContentColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -595,7 +607,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               height: 16,
                               width: 120,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: containerBg,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -608,10 +620,10 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         margin: const EdgeInsets.only(bottom: 12),
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: containerBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.grey.shade200,
+                            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             width: 1,
                           ),
                         ),
@@ -622,7 +634,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: skeletonContentColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -631,7 +643,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               height: 16,
                               width: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: containerBg,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -644,10 +656,10 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         margin: const EdgeInsets.only(bottom: 20),
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: containerBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.grey.shade200,
+                            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade200,
                             width: 1,
                           ),
                         ),
@@ -658,7 +670,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: skeletonContentColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -667,7 +679,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                               height: 16,
                               width: 80,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: containerBg,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -714,10 +726,16 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color currentBgColor = isDark ? Theme.of(context).scaffoldBackgroundColor : bgColor;
+    final Color currentCardColor = isDark ? Theme.of(context).cardColor : cardColor;
+    final Color currentTextDarkColor = isDark ? Colors.white70 : textDarkColor;
+    final Color currentTextMediumColor = isDark ? Colors.white54 : textMediumColor;
+
     final ThemeData theme = ThemeData(
       brightness: Theme.of(context).brightness,
       primaryColor: maroonPrimary,
-      scaffoldBackgroundColor: bgColor,
+      scaffoldBackgroundColor: currentBgColor,
       textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       colorScheme: ColorScheme.fromSeed(
         brightness: Theme.of(context).brightness,
@@ -730,7 +748,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
     return Theme(
       data: theme,
       child: Scaffold(
-        backgroundColor: bgColor,
+        backgroundColor: currentBgColor,
         appBar: _buildHeaderSection(),
         body: BlocConsumer<OfflineExamsWithClassesAndSessionYearsCubit,
             OfflineExamsWithClassesAndSessionYearsState>(
@@ -779,7 +797,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                     margin: EdgeInsets.all(appContentHorizontalPadding),
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: cardColor,
+                      color: currentCardColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -804,7 +822,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: textDarkColor,
+                            color: currentTextDarkColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -815,7 +833,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: textMediumColor,
+                            color: currentTextMediumColor,
                             height: 1.4,
                           ),
                         ),

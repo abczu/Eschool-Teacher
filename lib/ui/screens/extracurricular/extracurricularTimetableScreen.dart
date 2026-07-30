@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
+import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularRepository.dart';
@@ -17,6 +17,7 @@ import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricu
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart'
     as timetable_cubit;
 import 'package:eschool_saas_staff/ui/widgets/extracurricular/extracurricularTimetableItem.dart';
+import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/roundedBackgroundContainer.dart';
 
 class ExtracurricularTimetableScreen extends StatefulWidget {
   const ExtracurricularTimetableScreen({super.key});
@@ -86,6 +87,9 @@ class _TimetableSlotSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color containerBg = isDark ? Colors.grey.shade800 : Colors.white;
+    final Color lineBg = isDark ? Colors.grey.shade700 : Colors.white;
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
       height: Utils().getResponsiveHeight(context, 150),
@@ -102,7 +106,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                     height: 20,
                     width: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: containerBg,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -111,7 +115,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                     height: 12,
                     width: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: containerBg,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -120,7 +124,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                   Container(
                     height: Utils().getResponsiveHeight(context, 65),
                     width: Utils.getScaledValue(context, 1.5),
-                    color: Colors.white,
+                    color: lineBg,
                   ),
                   const Spacer(),
                   // End time skeleton
@@ -128,7 +132,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                     height: 20,
                     width: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: containerBg,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -136,7 +140,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                     height: 12,
                     width: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: containerBg,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -153,9 +157,9 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                     horizontal: constants.appContentHorizontalPadding,
                     vertical: 10),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
+                  border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white),
                   borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +169,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                       height: 12,
                       width: 60,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: containerBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -175,7 +179,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                       height: 18,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: containerBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -185,7 +189,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                       height: 12,
                       width: 50,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: containerBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -195,7 +199,7 @@ class _TimetableSlotSkeleton extends StatelessWidget {
                       height: 18,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: containerBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -385,6 +389,9 @@ class _ExtracurricularTimetableScreenState
   }
 
   Widget _buildTimetableSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -392,13 +399,12 @@ class _ExtracurricularTimetableScreenState
         padding: EdgeInsets.only(
             bottom: 25,
             top: Utils.appContentTopScrollPadding(context: context) + 100),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(constants.appContentHorizontalPadding),
-          color: Theme.of(context).colorScheme.surface,
+        child: RoundedBackgroundContainer(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.all(16),
           child: Shimmer.fromColors(
-            baseColor: Colors.grey.shade300,
-            highlightColor: Colors.grey.shade100,
+            baseColor: shimmerBase,
+            highlightColor: shimmerHighlight,
             child: Column(
               children:
                   List.generate(5, (index) => const _TimetableSlotSkeleton()),
@@ -755,7 +761,9 @@ class _ExtracurricularTimetableScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: isDark ? Colors.black : Colors.grey[50],
       body: Stack(
         children: [
           BlocBuilder<ExtracurricularTimetableCubit,
@@ -800,11 +808,9 @@ class _ExtracurricularTimetableScreenState
                         top:
                             Utils.appContentTopScrollPadding(context: context) +
                                 100),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding:
-                          EdgeInsets.all(constants.appContentHorizontalPadding),
-                      color: Theme.of(context).colorScheme.surface,
+                    child: RoundedBackgroundContainer(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         children: filteredItems.map((item) {
                           return ExtracurricularTimetableItem(

@@ -28,7 +28,7 @@ class TimetableSlotContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = TextStyle(
-      color: Theme.of(context).colorScheme.secondary,
+      color: Theme.of(context).colorScheme.primary,
       fontSize: Utils.getScaledValue(context, 12),
     );
     final valueTextStyle = TextStyle(

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
+import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/exam/studentExamStatus.dart';
@@ -203,13 +203,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   // Modern exam dropdown with enhanced styling
   Widget _buildExamDropdown(List<OnlineExam> exams) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       delay: const Duration(milliseconds: 300),
       duration: const Duration(milliseconds: 600),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
@@ -222,6 +223,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
         child: DropdownButtonHideUnderline(
           child: DropdownButton<OnlineExam>(
             isExpanded: true,
+            dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
             icon: const Icon(Icons.keyboard_arrow_down_rounded,
                 color: _accentColor, size: 28),
             hint: Padding(
@@ -231,7 +233,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
               ),
             ),
@@ -246,7 +248,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey[800],
+                      color: isDark ? Colors.white : Colors.grey[800],
                     ),
                   ),
                 ),
@@ -269,12 +271,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   // Enhanced search bar
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: const [
             BoxShadow(
@@ -292,13 +295,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           },
           style: GoogleFonts.poppins(
             fontSize: 15,
-            color: Colors.grey[800],
+            color: isDark ? Colors.white : Colors.grey[800],
           ),
           decoration: InputDecoration(
             hintText: 'Cari siswa...',
             hintStyle: GoogleFonts.poppins(
               fontSize: 15,
-              color: Colors.grey[500],
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
             ),
             prefixIcon: const Icon(
               Icons.search,
@@ -316,6 +319,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   // Filter and sorting options
   Widget _buildSearchAndFilters(List<StudentExamStatus> statuses) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -332,7 +336,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
               ),
               InkWell(
@@ -343,7 +347,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Row(
-                    children: [
+                     children: [
                       Text(
                         "Urutkan: ${_getSortText()}",
                         style: GoogleFonts.poppins(
@@ -383,12 +387,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   }
 
   void _showSortOptions() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Theme.of(context).cardColor : Colors.white,
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -417,7 +422,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: _primaryColor,
+                        color: isDark ? Colors.white : _primaryColor,
                       ),
                     ),
                   ],
@@ -436,6 +441,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   Widget _buildSortOption(String label, String value, IconData icon) {
     final bool isSelected = sortBy == value;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
       color: isSelected
@@ -447,12 +453,12 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           decoration: BoxDecoration(
             color: isSelected
                 ? _primaryColor.withValues(alpha: 0.15)
-                : Colors.grey.withValues(alpha: 0.1),
+                : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1)),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: isSelected ? _primaryColor : Colors.grey[600],
+            color: isSelected ? _primaryColor : (isDark ? Colors.grey[400] : Colors.grey[600]),
             size: 20,
           ),
         ),
@@ -461,7 +467,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           style: GoogleFonts.poppins(
             fontSize: 15,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? _primaryColor : Colors.grey[700],
+            color: isSelected ? _primaryColor : (isDark ? Colors.white70 : Colors.grey[700]),
           ),
         ),
         trailing: isSelected
@@ -700,6 +706,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   Widget _buildStudentCard(StudentExamStatus status) {
     final bool isActive = status.status == 1;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Corrected color scheme - using golden yellow for completed
     const Color activeColor = Color(0xFF06D6A0);
@@ -710,7 +717,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -743,7 +750,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
-                          begin: Alignment.topLeft,
+                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: isActive
                               ? [
@@ -792,7 +799,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
+                                    color: isDark ? Colors.white : Colors.black87,
                                   ),
                                 ),
                               ),
@@ -817,7 +824,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black54,
+                                    color: isDark ? Colors.white70 : Colors.black54,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -891,9 +898,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
 
   // Shimmer loading animation
   Widget _buildShimmerLoading() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey[300]!;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey[100]!;
+    final Color cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -903,7 +915,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
             Container(
               height: 55,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(15),
               ),
             ),
@@ -914,7 +926,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
             Container(
               height: 55,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(15),
               ),
             ),
@@ -928,7 +940,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   child: Container(
                     height: 70,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
@@ -938,7 +950,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   child: Container(
                     height: 70,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
@@ -948,7 +960,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   child: Container(
                     height: 70,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
@@ -964,7 +976,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 height: 160,
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
@@ -1088,6 +1100,7 @@ class _NoDataContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeIn(
       duration: const Duration(milliseconds: 800),
       child: Center(
@@ -1097,7 +1110,7 @@ class _NoDataContainer extends StatelessWidget {
             Icon(
               Icons.assignment_outlined,
               size: 80,
-              color: Colors.grey[400],
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
             ),
             const SizedBox(height: 20),
             Text(
@@ -1105,7 +1118,7 @@ class _NoDataContainer extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 10),
@@ -1116,7 +1129,7 @@ class _NoDataContainer extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 16,
-                  color: Colors.grey[500],
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
                 ),
               ),
             ),

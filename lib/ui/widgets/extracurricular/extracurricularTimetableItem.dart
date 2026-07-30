@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularTimetable.dart';
@@ -27,8 +27,8 @@ class ExtracurricularTimetableItem extends StatelessWidget {
     debugPrint('🔍 Raw schedule data: "$schedule"');
     final timeData = _parseScheduleTime(schedule);
     debugPrint('🔍 Parsed timeData: $timeData');
-    const Color primaryColor = Color(0xFF8B4B6B); // Soft maroon
-    const Color accentColor = Color(0xFFD4A574); // Warm gold
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color primaryColor = isDark ? const Color(0xFFE53935) : const Color(0xFF8B1F41);
 
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -47,7 +47,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                   width: 2,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.3),
+                    color: primaryColor,
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -63,14 +63,14 @@ class ExtracurricularTimetableItem extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
+                border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withValues(alpha: 0.1),
+                    color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -87,7 +87,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                             Text(
                               'Ekstrakurikuler',
                               style: TextStyle(
-                                color: Colors.grey.shade600,
+                                color: isDark ? Colors.white70 : Colors.grey.shade600,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -95,7 +95,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               item.extracurricularName ?? 'Unnamed',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: primaryColor,
@@ -110,7 +110,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       PopupMenuButton<String>(
                         icon: Icon(
                           Icons.more_vert,
-                          color: Colors.grey.shade600,
+                          color: isDark ? Colors.white70 : Colors.grey.shade600,
                           size: 20,
                         ),
                         offset: const Offset(-10, 40),
@@ -118,7 +118,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 8,
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).cardColor : Colors.white,
                         onSelected: (value) {
                           if (value == 'edit') {
                             _editTimetable(context);
@@ -140,7 +140,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                                 Text(
                                   'Edit Jadwal',
                                   style: TextStyle(
-                                    color: Colors.grey.shade800,
+                                    color: isDark ? Colors.white70 : Colors.grey.shade800,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -161,7 +161,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                                 Text(
                                   'Hapus Jadwal',
                                   style: TextStyle(
-                                    color: Colors.grey.shade800,
+                                    color: isDark ? Colors.white70 : Colors.grey.shade800,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -180,13 +180,17 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.2),
+                      color: isDark ? Theme.of(context).cardColor : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: accentColor.withValues(alpha: 0.5)),
+                      border: Border.all(
+                        color: isDark 
+                            ? Colors.white.withValues(alpha: 0.08) 
+                            : Colors.grey.shade300,
+                      ),
                     ),
                     child: Text(
                       '${timeData['startTime']} - ${timeData['endTime']}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: primaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -203,10 +207,11 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   Widget _buildTimeText(String time, BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -214,7 +219,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Colors.grey.shade700,
+          color: isDark ? Colors.white70 : Colors.grey.shade700,
         ),
         textAlign: TextAlign.center,
       ),
@@ -300,8 +305,9 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    const Color primaryMaroon = Color(0xFF8B4B6B);
-    const Color lightMaroon = Color(0xFFB85C7A);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color primaryMaroon = isDark ? const Color(0xFFE53935) : const Color(0xffd22f3c);
+    final Color lightMaroon = isDark ? const Color(0xFFEF5350) : const Color(0xffd22f3c);
     const Color softCream = Color(0xFFF5E6D3);
 
     showDialog(
@@ -315,10 +321,15 @@ class ExtracurricularTimetableItem extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                softCream.withValues(alpha: 0.3),
-              ],
+              colors: isDark
+                  ? [
+                      Theme.of(context).cardColor,
+                      Theme.of(context).cardColor,
+                    ]
+                  : [
+                      Colors.white,
+                      softCream.withValues(alpha: 0.3),
+                    ],
             ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
@@ -341,7 +352,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [primaryMaroon, lightMaroon],
                         ),
                         shape: BoxShape.circle,
@@ -360,7 +371,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'Hapus Jadwal',
                       style: TextStyle(
                         fontSize: 24,
@@ -373,7 +384,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       'Tindakan ini tidak dapat dibatalkan',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: isDark ? Colors.white70 : Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -390,7 +401,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: softCream.withValues(alpha: 0.4),
+                        color: isDark ? Colors.white.withValues(alpha: 0.03) : softCream.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: primaryMaroon.withValues(alpha: 0.2),
@@ -402,7 +413,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.school_rounded,
                                 color: primaryMaroon,
                                 size: 20,
@@ -412,7 +423,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                                 'Ekstrakurikuler',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey.shade600,
+                                  color: isDark ? Colors.white70 : Colors.grey.shade600,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -421,7 +432,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             item.extracurricularName ?? 'Unnamed',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: primaryMaroon,
@@ -430,7 +441,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today_rounded,
                                 color: primaryMaroon,
                                 size: 16,
@@ -440,7 +451,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                                 _getDayInIndonesian(selectedDay),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade700,
+                                  color: isDark ? Colors.white70 : Colors.grey.shade700,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -455,7 +466,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey.shade700,
+                        color: isDark ? Colors.white70 : Colors.grey.shade700,
                         height: 1.4,
                       ),
                     ),
@@ -475,8 +486,8 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => Navigator.pop(dialogContext),
                           style: TextButton.styleFrom(
-                            backgroundColor: Colors.grey.shade100,
-                            foregroundColor: Colors.grey.shade700,
+                            backgroundColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
+                            foregroundColor: isDark ? Colors.white : Colors.grey.shade700,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -499,7 +510,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [primaryMaroon, lightMaroon],
                           ),
                           borderRadius: BorderRadius.circular(12),

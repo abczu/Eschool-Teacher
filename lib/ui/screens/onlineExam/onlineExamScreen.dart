@@ -72,10 +72,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   final ScrollController _scrollController = ScrollController();
   StreamSubscription? _examSub;
 
-  // Theme colors - Softer Maroon palette
-  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  static const Color _highlightColor =
-      Color(0xFFB84D4D); // Softer bright maroon  @override
+  // Theme colors - Dynamic and brightened maroon/crimson palette
+  Color get _primaryColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFE53935) // Bright maroon/red for dark mode
+      : const Color(0xFF8B1F41); // Standard app deep maroon for light mode
+
+  Color get _highlightColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFEF5350) // Bright pastel maroon for dark mode
+      : const Color(0xFFB84D4D); // Standard highlight maroon for light mode
+
+  @override
   @override
   void initState() {
     super.initState();
@@ -191,14 +197,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
         _appBarAnimationController.stop();
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).scaffoldBackgroundColor
+            : Colors.grey[50],
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: 'Ujian Online',
           icon: Icons.assignment_outlined,
           fabAnimationController: _appBarAnimationController,
-          primaryColor: _primaryColor,
-          lightColor: _highlightColor,
+          primaryColor: const Color(0xFF8B1F41),
+          lightColor: const Color(0xFFAC3B5C),
           showAddButton: true,
           onAddPressed: () async {
             // Navigate ke create exam screen dan tunggu hasil
@@ -351,12 +359,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: const [
             BoxShadow(
@@ -367,14 +376,18 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           ],
         ),
         child: TextField(
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+          ),
           decoration: InputDecoration(
             hintText: 'Cari ujian...',
-            prefixIcon:
-                Icon(Icons.search, color: Theme.of(context).primaryColor),
+            hintStyle: TextStyle(
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+            prefixIcon: Icon(Icons.search, color: _primaryColor),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: Icon(Icons.clear,
-                        color: Theme.of(context).primaryColor),
+                    icon: Icon(Icons.clear, color: _primaryColor),
                     onPressed: () {
                       setState(() {
                         searchQuery = "";
@@ -445,16 +458,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 .toList()
           ..sort();
 
+        final bool isDark = Theme.of(context).brightness == Brightness.dark;
         return FadeInDown(
           duration: const Duration(milliseconds: 700),
           child: Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF8B0000).withValues(alpha: 0.1),
+                  color: _primaryColor.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -466,17 +480,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.filter_alt_rounded,
-                            color: Color(0xFF8B0000)),
-                        SizedBox(width: 10),
+                            color: _primaryColor),
+                        const SizedBox(width: 10),
                         Text(
                           'Filter Ujian',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF8B0000),
+                            color: isDark ? Colors.white : _primaryColor,
                           ),
                         ),
                       ],
@@ -490,10 +504,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         });
                         context.read<OnlineExamCubit>().getOnlineExams();
                       },
-                      child: const Text(
+                      child: Text(
                         'Reset',
                         style: TextStyle(
-                          color: Color(0xFF800020),
+                          color: _primaryColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -503,22 +517,28 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 const SizedBox(height: 15),
                 // Tingkatan Dropdown
                 DropdownButtonFormField<String>(
-                  initialValue: selectedTingkatan,
+                  value: selectedTingkatan,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   decoration: InputDecoration(
                     prefixIcon:
-                        const Icon(Icons.layers, color: Color(0xFF8B0000)),
+                        Icon(Icons.layers, color: _primaryColor),
                     labelText: 'Pilih Tingkatan',
+                    labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                      borderSide: BorderSide(color: _primaryColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                      borderSide: BorderSide(color: _primaryColor),
                     ),
                   ),
                   items: tingkatanList
@@ -536,28 +556,34 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   },
                   isExpanded: true,
                   hint: Text('Pilih Tingkatan',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600])),
                 ),
                 if (selectedTingkatan != null) ...[
                   const SizedBox(height: 15),
                   // Kelas Dropdown
                   DropdownButtonFormField<String>(
-                    initialValue: selectedKelas,
+                    value: selectedKelas,
+                    dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     decoration: InputDecoration(
                       prefixIcon:
-                          const Icon(Icons.class_, color: Color(0xFF8B0000)),
+                          Icon(Icons.class_, color: _primaryColor),
                       labelText: 'Pilih Kelas',
+                      labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: BorderSide(color: _primaryColor),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                        borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: BorderSide(color: _primaryColor),
                       ),
                     ),
                     items: kelasList
@@ -575,29 +601,35 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     isExpanded: true,
                     hint: Text('Pilih Kelas',
                         style:
-                            TextStyle(fontSize: 14, color: Colors.grey[600])),
+                            TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600])),
                   ),
                 ],
                 if (selectedKelas != null) ...[
                   const SizedBox(height: 15),
                   // Mata Pelajaran Dropdown
                   DropdownButtonFormField<String>(
-                    initialValue: selectedMapel,
+                    value: selectedMapel,
+                    dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     decoration: InputDecoration(
                       prefixIcon:
-                          const Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                          Icon(Icons.menu_book, color: _primaryColor),
                       labelText: 'Pilih Mata Pelajaran',
+                      labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: BorderSide(color: _primaryColor),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                        borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: BorderSide(color: _primaryColor),
                       ),
                     ),
                     items: mapelList
@@ -627,7 +659,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     isExpanded: true,
                     hint: Text('Pilih Mata Pelajaran',
                         style:
-                            TextStyle(fontSize: 14, color: Colors.grey[600])),
+                            TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600])),
                   ),
                 ],
               ],
@@ -749,15 +781,16 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     // Check if this is the restored exam for highlighting
     final bool isRecentlyRestored = _restoredExamId == exam.id.toString();
 
-    // Define modern color scheme with soft maroon colors
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    // Define modern color scheme - dynamic for dark/light mode
     final colorScheme = {
-      'primary': const Color.fromARGB(255, 172, 33, 33),
-      'gradient1': const Color(0xFF7D1F1F), // Lighter maroon
-      'gradient2': const Color(0xFF9B2F2F), // Medium maroon
-      'gradient3': const Color(0xFFBF4040), // Soft bright maroon
-      'neutral1': const Color(0xFF333333), // Dark gray for primary text
-      'neutral2': const Color(0xFF666666), // Medium gray for secondary text
-      'accent': const Color(0xFF8B4513), // Brown accent color
+      'primary': isDark ? const Color(0xFFE53935) : const Color.fromARGB(255, 172, 33, 33),
+      'gradient1': isDark ? const Color(0xFF5D2F2F) : const Color(0xFF7D1F1F),
+      'gradient2': isDark ? const Color(0xFF7B3F3F) : const Color(0xFF9B2F2F),
+      'gradient3': isDark ? const Color(0xFF9F5050) : const Color(0xFFBF4040),
+      'neutral1': isDark ? Colors.white : const Color(0xFF333333), // Dark gray for primary text
+      'neutral2': isDark ? Colors.white70 : const Color(0xFF666666), // Medium gray for secondary text
+      'accent': isDark ? const Color(0xFFEF5350) : const Color(0xFF8B4513), // Brown accent color
     }; // Calculate the positioning for perfect centering
 
     // Improved calculation for text wrapping
@@ -817,10 +850,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             child: Ink(
               decoration: BoxDecoration(
                 color: isRecentlyRestored
-                    ? const Color.fromARGB(255, 240, 253,
-                        244) // Light green tint for restored exam
-                    : const Color.fromARGB(
-                        255, 237, 237, 237), // Very slightly off-white
+                    ? (isDark ? Colors.green.withValues(alpha: 0.15) : const Color.fromARGB(255, 240, 253, 244))
+                    : (isDark ? Colors.black : const Color.fromARGB(255, 237, 237, 237)),
                 borderRadius: BorderRadius.circular(32),
                 border: isRecentlyRestored
                     ? Border.all(
@@ -1067,7 +1098,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     right: 20,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Colors.black : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -1223,7 +1254,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     Container(
                                       height: 35,
                                       width: 1,
-                                      color: Colors.grey.shade200,
+                                      color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                     ),
 
                                     // End Date
@@ -1402,6 +1433,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   Widget _buildEmptyState() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeIn(
       duration: const Duration(milliseconds: 800),
       child: SingleChildScrollView(
@@ -1415,7 +1447,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 Icon(
                   Icons.assignment_outlined,
                   size: 80,
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -1423,7 +1455,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey[600],
+                    color: isDark ? Colors.white : Colors.grey[600],
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1432,7 +1464,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   'Tambahkan ujian baru dengan menekan tombol +',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[500],
+                    color: isDark ? Colors.grey[400] : Colors.grey[500],
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1446,6 +1478,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   }
 
   void _showDeleteConfirmation(exam.OnlineExam exam) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -1468,11 +1501,11 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Arsipkan Ujian',
                   style: TextStyle(
-                    color: Color(0xFF333333),
+                    color: isDark ? Colors.white : const Color(0xFF333333),
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1486,9 +1519,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             children: [
               Text(
                 'Apakah Anda yakin ingin mengarsipkan ujian "${exam.title}"?',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF555555),
+                  color: isDark ? Colors.white70 : const Color(0xFF555555),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1634,10 +1667,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(
+              child: Text(
                 'Batal',
                 style: TextStyle(
-                  color: Color(0xFF666666),
+                  color: isDark ? Colors.grey[400] : const Color(0xFF666666),
                   fontWeight: FontWeight.w600,
                 ),
               ),

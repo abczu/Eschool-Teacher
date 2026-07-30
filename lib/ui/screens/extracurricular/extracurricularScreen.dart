@@ -47,10 +47,14 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   String? selectedCoachName;
   List<String> coachNameList = [];
 
-  // Theme colors - Softer Maroon palette (same as onlineExamScreen)
-  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  static const Color _highlightColor =
-      Color(0xFFB84D4D); // Softer bright maroon
+  // Theme colors - Dynamic brightened maroon/coral palette
+  Color get _primaryColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFE53935) // Bright maroon/red for dark mode
+      : const Color(0xFF8B1F41); // Standard app deep maroon for light mode
+
+  Color get _highlightColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFEF5350) // Bright pastel maroon for dark mode
+      : const Color(0xFFB84D4D); // Standard highlight maroon for light mode
 
   @override
   void initState() {
@@ -136,14 +140,16 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
         _appBarAnimationController.stop();
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).scaffoldBackgroundColor
+            : Colors.grey[50],
         extendBodyBehindAppBar: true,
         appBar: CustomModernAppBar(
           title: 'Kurikuler',
           icon: Icons.sports_soccer,
           fabAnimationController: _appBarAnimationController,
-          primaryColor: _primaryColor,
-          lightColor: _highlightColor,
+          primaryColor: const Color(0xFF8B1F41),
+          lightColor: const Color(0xFFAC3B5C),
           onBackPressed: () {
             _animationController.stop();
             _pulseController.stop();
@@ -300,12 +306,13 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   }
 
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: const [
             BoxShadow(
@@ -316,12 +323,14 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
           ],
         ),
         child: TextField(
+          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: 'Cari ekstrakurikuler...',
-            prefixIcon: const Icon(Icons.search, color: _primaryColor),
+            hintStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
+            prefixIcon: Icon(Icons.search, color: _primaryColor),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, color: _primaryColor),
+                    icon: Icon(Icons.clear, color: _primaryColor),
                     onPressed: () {
                       setState(() {
                         searchQuery = "";
@@ -344,6 +353,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   }
 
   Widget _buildFilterSection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BlocBuilder<ExtracurricularCubit, ExtracurricularState>(
       builder: (context, state) {
         List<String> coaches = [];
@@ -363,7 +373,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
           child: Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
@@ -379,16 +389,16 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.filter_list, color: _primaryColor, size: 20),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           'Filter',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: _primaryColor,
+                            color: isDark ? Colors.white : _primaryColor,
                           ),
                         ),
                       ],
@@ -400,7 +410,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                             selectedCoachName = null;
                           });
                         },
-                        child: const Text(
+                        child: Text(
                           'Reset',
                           style: TextStyle(
                             color: _primaryColor,
@@ -413,23 +423,25 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                 const SizedBox(height: 15),
                 // Coach Name Dropdown
                 DropdownButtonFormField<String>(
-                  initialValue: selectedCoachName,
+                  value: selectedCoachName,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Pelatih/Coach',
-                    labelStyle: const TextStyle(color: _primaryColor),
-                    prefixIcon: const Icon(Icons.person, color: _primaryColor),
+                    labelStyle: TextStyle(color: isDark ? Colors.grey[400] : _primaryColor),
+                    prefixIcon: Icon(Icons.person, color: _primaryColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: _primaryColor),
+                      borderSide: BorderSide(color: _primaryColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[300]!),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: _primaryColor, width: 2),
+                          BorderSide(color: _primaryColor, width: 2),
                     ),
                   ),
                   items: coachNameList
@@ -445,7 +457,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                   },
                   isExpanded: true,
                   hint: Text('Pilih Pelatih',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600])),
                 ),
               ],
             ),
@@ -536,15 +548,16 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     final bool isRecentlyRestored =
         _restoredExtracurricularId == extracurricular.id.toString();
 
-    // Define modern color scheme with soft maroon colors (same as onlineExamScreen)
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    // Define modern color scheme - dynamic for dark/light mode
     final colorScheme = {
-      'primary': const Color.fromARGB(255, 172, 33, 33),
-      'gradient1': const Color(0xFF7D1F1F), // Lighter maroon
-      'gradient2': const Color(0xFF9B2F2F), // Medium maroon
-      'gradient3': const Color(0xFFBF4040), // Soft bright maroon
-      'neutral1': const Color(0xFF333333), // Dark gray for primary text
-      'neutral2': const Color(0xFF666666), // Medium gray for secondary text
-      'accent': const Color(0xFF8B4513), // Brown accent color
+      'primary': isDark ? const Color(0xFFE53935) : const Color.fromARGB(255, 172, 33, 33),
+      'gradient1': isDark ? const Color(0xFF5D2F2F) : const Color(0xFF7D1F1F),
+      'gradient2': isDark ? const Color(0xFF7B3F3F) : const Color(0xFF9B2F2F),
+      'gradient3': isDark ? const Color(0xFF9F5050) : const Color(0xFFBF4040),
+      'neutral1': isDark ? Colors.white : const Color(0xFF333333),
+      'neutral2': isDark ? Colors.grey[400]! : const Color(0xFF666666),
+      'accent': isDark ? const Color(0xFFEF5350) : const Color(0xFF8B4513),
     };
 
     // Improved calculation for text wrapping (same as onlineExamScreen)
@@ -603,10 +616,8 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
             child: Ink(
               decoration: BoxDecoration(
                 color: isRecentlyRestored
-                    ? const Color.fromARGB(
-                        255, 240, 253, 244) // Light green tint for restored
-                    : const Color.fromARGB(
-                        255, 237, 237, 237), // Very slightly off-white
+                    ? (isDark ? const Color(0xFF1B3A2A) : const Color.fromARGB(255, 240, 253, 244))
+                    : (isDark ? Colors.black : const Color.fromARGB(255, 237, 237, 237)),
                 borderRadius: BorderRadius.circular(32),
                 border: isRecentlyRestored
                     ? Border.all(
@@ -866,9 +877,12 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
       top: headerHeight - 85, // Dynamic positioning based on header height
       left: 20,
       right: 20,
-      child: Container(
+      child: Builder(
+        builder: (context) {
+        final bool isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Colors.black : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -1003,6 +1017,8 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
             ],
           ),
         ),
+      );
+      },
       ),
     );
   }
@@ -1130,6 +1146,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   }
 
   Widget _buildEmptyState() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeIn(
       duration: const Duration(milliseconds: 800),
       child: SingleChildScrollView(
@@ -1143,7 +1160,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                 Icon(
                   Icons.sports_soccer,
                   size: 80,
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -1151,7 +1168,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
+                    color: isDark ? Colors.white : Colors.grey[600],
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1160,7 +1177,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                   'Tambahkan ekstrakurikuler baru dengan menekan tombol +',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[500],
+                    color: isDark ? Colors.grey[400] : Colors.grey[500],
                   ),
                   textAlign: TextAlign.center,
                 ),

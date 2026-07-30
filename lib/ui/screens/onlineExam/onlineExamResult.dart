@@ -80,13 +80,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   }
 
   void _showFilterBottomSheet(BuildContext parentContext) {
+    final bool isDark = Theme.of(parentContext).brightness == Brightness.dark;
     showModalBottomSheet(
       context: parentContext,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Theme.of(parentContext).cardColor : Colors.white,
       builder: (BuildContext modalContext) {
+        final bool isDarkModal = Theme.of(modalContext).brightness == Brightness.dark;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
@@ -102,18 +104,19 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                       height: 4,
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color: Colors.grey[400],
+                        color: isDarkModal ? Colors.grey[700] : Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
                   // Judul
-                  const Text(
+                  Text(
                     'Filter Status Ujian',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF8B0000),
+                      color: isDarkModal ? Colors.white : const Color(0xFF8B0000),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -147,7 +150,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(color: isDarkModal ? Colors.grey[700]! : Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -155,17 +158,17 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                   ? DateFormat('dd/MM/yyyy').format(_startDate!)
                                   : 'Dari',
                               style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                                  fontSize: 16, color: isDarkModal ? Colors.grey[400] : Colors.grey[800]),
                             ),
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '-',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20, fontWeight: FontWeight.bold, color: isDarkModal ? Colors.white : Colors.black),
                         ),
                       ),
                       Expanded(
@@ -194,7 +197,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(color: isDarkModal ? Colors.grey[700]! : Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -202,7 +205,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                   ? DateFormat('dd/MM/yyyy').format(_endDate!)
                                   : 'Sampai',
                               style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                                  fontSize: 16, color: isDarkModal ? Colors.grey[400] : Colors.grey[800]),
                             ),
                           ),
                         ),
@@ -249,6 +252,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
 
   Widget _buildFilterOption(
       String label, StateSetter setModalState, BuildContext parentContext) {
+    final bool isDark = Theme.of(parentContext).brightness == Brightness.dark;
     return Column(
       children: [
         InkWell(
@@ -273,7 +277,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                  style: TextStyle(fontSize: 16, color: isDark ? Colors.white70 : Colors.grey[800]),
                 ),
                 Radio<String>(
                   value: label,
@@ -283,7 +287,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             ),
           ),
         ),
-        Divider(height: 1, color: Colors.grey[300]),
+        Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[300]),
       ],
     );
   }
@@ -313,6 +317,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   }
 
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       delay: const Duration(milliseconds: 200),
       child: Padding(
@@ -320,7 +325,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
@@ -332,6 +337,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
           ),
           child: TextField(
             controller: _searchController, // Gunakan controller
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.grey[800],
+            ),
             onChanged: (value) {
               setState(() {
                 _isSearching = value.isNotEmpty;
@@ -344,8 +352,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             },
             decoration: InputDecoration(
               hintText: 'Cari hasil ujian...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+              hintStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[400]),
+              prefixIcon: Icon(Icons.search, color: isDark ? Colors.grey[400] : Colors.grey[400]),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -405,6 +413,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
           }).toList()
             ..sort((a, b) => b.startDate.compareTo(a.startDate));
           if (filteredExams.isEmpty) {
+            final bool isDark = Theme.of(context).brightness == Brightness.dark;
             // Jika sedang searching, gunakan NoSearchResultsWidget
             if (_isSearching) {
               return NoSearchResultsWidget(
@@ -431,7 +440,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             // Jika tidak sedang searching, tampilkan pesan filter
             return Container(
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -442,13 +451,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.filter_list_off,
-                        size: 80, color: Colors.grey[400]),
+                        size: 80, color: isDark ? Colors.grey[600] : Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
                       'Tidak ada ujian tersedia untuk filter ini',
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.white70 : Colors.grey[600],
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -484,14 +493,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   }
 
   Widget _buildModernExamCard(BuildContext context, dynamic exam) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // Define modern color scheme with soft maroon colors - consistent with onlineExamScreen
     final colorScheme = {
       'primary': const Color.fromARGB(255, 172, 33, 33),
       'gradient1': const Color(0xFF7D1F1F), // Lighter maroon
       'gradient2': const Color(0xFF9B2F2F), // Medium maroon
       'gradient3': const Color(0xFFBF4040), // Soft bright maroon
-      'neutral1': const Color(0xFF2D3748), // Dark text
-      'neutral2': const Color(0xFF718096), // Secondary text
+      'neutral1': isDark ? Colors.white : const Color(0xFF2D3748), // Dynamic text color
+      'neutral2': isDark ? Colors.white70 : const Color(0xFF718096), // Dynamic secondary text
       'accent': const Color(0xFFE53E3E), // Accent color
     };
 
@@ -537,7 +547,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             splashColor: colorScheme['primary']!.withValues(alpha: 0.05),
             child: Ink(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 237, 237, 237),
+                color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color.fromARGB(255, 237, 237, 237),
                 borderRadius: BorderRadius.circular(32),
               ),
               child: Stack(
@@ -619,7 +629,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white,
                                     borderRadius: BorderRadius.circular(30),
                                     boxShadow: [
                                       BoxShadow(
@@ -738,7 +748,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                     right: 20,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).cardColor : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -894,7 +904,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                     Container(
                                       height: 35,
                                       width: 1,
-                                      color: Colors.grey.shade200,
+                                      color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade200,
                                     ),
 
                                     // Duration

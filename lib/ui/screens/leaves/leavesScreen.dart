@@ -350,7 +350,9 @@ class _LeavesScreenState extends State<LeavesScreen>
                     Icon(
                       Icons.event_busy,
                       size: 64,
-                      color: maroonPrimary.withValues(alpha: 0.5),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? maroonLight
+                          : maroonPrimary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 20),
                     Text(

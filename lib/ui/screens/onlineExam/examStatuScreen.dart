@@ -224,8 +224,8 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           child: DropdownButton<OnlineExam>(
             isExpanded: true,
             dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
-            icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                color: _accentColor, size: 28),
+            icon: Icon(Icons.keyboard_arrow_down_rounded,
+                color: isDark ? const Color(0xFFE53935) : _accentColor, size: 28),
             hint: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -303,9 +303,9 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               fontSize: 15,
               color: isDark ? Colors.grey[400] : Colors.grey[500],
             ),
-            prefixIcon: const Icon(
+            prefixIcon: Icon(
               Icons.search,
-              color: _accentColor,
+              color: isDark ? const Color(0xFFE53935) : _accentColor,
               size: 20,
             ),
             border: InputBorder.none,
@@ -353,14 +353,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: _accentColor,
+                          color: isDark ? const Color(0xFFE53935) : _accentColor,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         isAscending ? Icons.arrow_upward : Icons.arrow_downward,
                         size: 16,
-                        color: _accentColor,
+                        color: isDark ? const Color(0xFFE53935) : _accentColor,
                       ),
                     ],
                   ),
@@ -408,12 +408,12 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _primaryColor.withValues(alpha: 0.1),
+                        color: (isDark ? const Color(0xFFE53935) : _primaryColor).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.sort_rounded,
-                        color: _primaryColor,
+                        color: isDark ? const Color(0xFFE53935) : _primaryColor,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -443,22 +443,24 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     final bool isSelected = sortBy == value;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final Color selectedBrandColor = isDark ? const Color(0xFFE53935) : _primaryColor;
+
     return Material(
       color: isSelected
-          ? _primaryColor.withValues(alpha: 0.08)
+          ? selectedBrandColor.withValues(alpha: 0.08)
           : Colors.transparent,
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isSelected
-                ? _primaryColor.withValues(alpha: 0.15)
+                ? selectedBrandColor.withValues(alpha: 0.15)
                 : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1)),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: isSelected ? _primaryColor : (isDark ? Colors.grey[400] : Colors.grey[600]),
+            color: isSelected ? selectedBrandColor : (isDark ? Colors.grey[400] : Colors.grey[600]),
             size: 20,
           ),
         ),
@@ -467,13 +469,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           style: GoogleFonts.poppins(
             fontSize: 15,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? _primaryColor : (isDark ? Colors.white70 : Colors.grey[700]),
+            color: isSelected ? selectedBrandColor : (isDark ? Colors.white70 : Colors.grey[700]),
           ),
         ),
         trailing: isSelected
             ? Icon(
                 isAscending ? Icons.arrow_upward : Icons.arrow_downward,
-                color: _primaryColor,
+                color: selectedBrandColor,
                 size: 18,
               )
             : null,
@@ -1019,6 +1021,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     child: BlocBuilder<ExamStatusCubit, ExamStatusState>(
                       builder: (context, statusState) {
                         if (selectedExam == null) {
+                          final bool isDark = Theme.of(context).brightness == Brightness.dark;
                           return Center(
                             child: FadeIn(
                               duration: const Duration(milliseconds: 800),
@@ -1030,7 +1033,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: _accentColor,
+                                      color: isDark ? const Color(0xFFE53935) : _accentColor,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -1038,7 +1041,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                     "Data siswa akan tampil setelah ujian dipilih",
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
-                                      color: Colors.grey[600],
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                     textAlign: TextAlign.center,
                                   ),

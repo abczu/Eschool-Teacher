@@ -1427,6 +1427,7 @@ class _TeacherManageAssignmentScreenState
   }
 
   Widget _buildAssignmentList() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -1518,13 +1519,19 @@ class _TeacherManageAssignmentScreenState
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: isDark ? Theme.of(context).cardColor : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(40),
+                          border: isDark
+                              ? Border.all(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  width: 1,
+                                )
+                              : null,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.assignment_outlined,
                           size: 40,
-                          color: maroonPrimary,
+                          color: isDark ? const Color(0xFFE53935) : maroonPrimary,
                         ),
                       ),
                       const SizedBox(height: 20),

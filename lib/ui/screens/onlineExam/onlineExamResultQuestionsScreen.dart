@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
@@ -231,6 +231,7 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildContent(List<QuestionOnlineExam> questions) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     _showSearch = questions.length > 5;
 
     if (_filteredQuestions.isEmpty || _searchController.text.isEmpty) {
@@ -243,11 +244,11 @@ class _OnlineExamResultQuestionsScreenState
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                   blurRadius: 10,
                   spreadRadius: 0,
                   offset: const Offset(0, 5),
@@ -257,13 +258,14 @@ class _OnlineExamResultQuestionsScreenState
             child: TextField(
               controller: _searchController,
               onChanged: (query) => _filterQuestions(query, questions),
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
               decoration: InputDecoration(
                 hintText: 'Cari soal...',
                 hintStyle: TextStyle(
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.white38 : Colors.grey[400],
                   fontSize: 15,
                 ),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white38 : Colors.grey[400]),
                 border: InputBorder.none,
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -306,6 +308,7 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildQuestionCard(QuestionOnlineExam question) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
@@ -315,17 +318,17 @@ class _OnlineExamResultQuestionsScreenState
                 "/OnlineExamResultAnswerScreen/${widget.examId}/${question.questionId}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: _getTypeColor(question.type).withValues(alpha: 0.12),
+                    color: _getTypeColor(question.type).withValues(alpha: isDark ? 0.05 : 0.12),
                     blurRadius: 40,
                     offset: const Offset(0, 15),
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, 8),
                   ),
@@ -496,7 +499,7 @@ class _OnlineExamResultQuestionsScreenState
                                   Text(
                                     '${question.marks} poin',
                                     style: TextStyle(
-                                      color: Colors.grey[800],
+                                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -596,7 +599,7 @@ class _OnlineExamResultQuestionsScreenState
                               Text(
                                 "Konten Pertanyaan",
                                 style: TextStyle(
-                                  color: Colors.grey[800],
+                                  color: isDark ? Colors.white70 : Colors.grey[800],
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
@@ -608,12 +611,12 @@ class _OnlineExamResultQuestionsScreenState
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: Colors.grey.shade100),
+                              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
+                                  color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.02),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -623,7 +626,7 @@ class _OnlineExamResultQuestionsScreenState
                               parseHtmlString(question.question),
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.grey[800],
+                                color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey[800],
                                 height: 1.5,
                                 letterSpacing: 0.2,
                                 fontWeight: FontWeight.w500,
@@ -639,15 +642,20 @@ class _OnlineExamResultQuestionsScreenState
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white,
-                                  Colors.grey.shade50,
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Theme.of(context).scaffoldBackgroundColor,
+                                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                                      ]
+                                    : [
+                                        Colors.white,
+                                        Colors.grey.shade50,
+                                      ],
                               ),
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 12,
                                   spreadRadius: 0,
                                   offset: const Offset(0, 4),
@@ -655,7 +663,7 @@ class _OnlineExamResultQuestionsScreenState
                               ],
                               border: Border.all(
                                 color: _getTypeColor(question.type)
-                                    .withValues(alpha: 0.2),
+                                    .withValues(alpha: isDark ? 0.3 : 0.2),
                                 width: 1.5,
                               ),
                             ),
@@ -709,7 +717,7 @@ class _OnlineExamResultQuestionsScreenState
                                     Text(
                                       'Pilihan Jawaban',
                                       style: TextStyle(
-                                        color: Colors.grey[500],
+                                        color: isDark ? Colors.white60 : Colors.grey[500],
                                         fontSize: 13.5,
                                         fontWeight: FontWeight.w500,
                                         letterSpacing: 0.3,
@@ -719,7 +727,7 @@ class _OnlineExamResultQuestionsScreenState
                                     Text(
                                       '${question.options.length} opsi tersedia',
                                       style: TextStyle(
-                                        color: Colors.grey[800],
+                                        color: isDark ? Colors.white : Colors.grey[800],
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: 0.2,
@@ -759,6 +767,7 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildEmptyState() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -766,11 +775,11 @@ class _OnlineExamResultQuestionsScreenState
           Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: isDark ? Theme.of(context).cardColor : Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.question_mark_rounded,
-                size: 70, color: Colors.grey.shade400),
+                size: 70, color: isDark ? Colors.grey.shade600 : Colors.grey.shade400),
           ),
           const SizedBox(height: 24),
           Text(
@@ -778,7 +787,7 @@ class _OnlineExamResultQuestionsScreenState
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDark ? Colors.white : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 12),
@@ -786,7 +795,7 @@ class _OnlineExamResultQuestionsScreenState
             'Tidak ada soal yang terdapat pada ujian ini',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[500],
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
             ),
           ),
         ],
@@ -795,9 +804,12 @@ class _OnlineExamResultQuestionsScreenState
   }
 
   Widget _buildShimmerLoading() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color shimmerBase = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final Color shimmerHighlight = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: shimmerBase,
+      highlightColor: shimmerHighlight,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 3,
@@ -808,9 +820,9 @@ class _OnlineExamResultQuestionsScreenState
             children: [
               Container(
                 height: 140,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(28),
                     topRight: Radius.circular(28),
                   ),
@@ -818,9 +830,9 @@ class _OnlineExamResultQuestionsScreenState
               ),
               Container(
                 height: 120,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(28),
                     bottomRight: Radius.circular(28),
                   ),

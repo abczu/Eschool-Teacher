@@ -56,16 +56,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Soft maroon color scheme
-  Color get primaryMaroon => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFF8B1F41)
-      : const Color(0xFF800020);
-  Color get lightMaroon => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFA84B5C)
-      : const Color(0xFFAA6976);
-  Color get accentMaroon => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFF4A0E17)
-      : const Color(0xFF5D1429);
+  // Standard brand cherry red color scheme
+  Color get primaryMaroon => const Color(0xffd22f3c);
+  Color get lightMaroon => const Color(0xffd22f3c);
+  Color get accentMaroon => const Color(0xFF6D0205); // Secondary brand dark maroon
   Color get backgroundMaroon => Theme.of(context).brightness == Brightness.dark
       ? const Color(0xFF1D1B1E)
       : const Color(0xFFFDF6F8);

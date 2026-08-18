@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
+import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
@@ -72,7 +72,9 @@ class UploadImageOrFileLimitButton extends StatelessWidget {
           CustomTextContainer(
             textKey: onlyImageAndDocumentsAreAllowedNoteLimitKey,
             style: TextStyle(
-                color: Theme.of(context).extension<CustomColors>()!.redColor!,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFFE53935)
+                    : Theme.of(context).extension<CustomColors>()!.redColor!,
                 fontWeight: FontWeight.bold,
                 fontSize: Utils.getScaledValue(context, 12)),
           ),

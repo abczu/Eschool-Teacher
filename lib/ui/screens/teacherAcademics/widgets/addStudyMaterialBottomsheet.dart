@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
@@ -93,7 +93,7 @@ class _AddStudyMaterialBottomsheetState
   }
 
   bool isSupportedFileFormat(String fileName) {
-    final supportedImageFormats = ['jpg', 'jpeg', 'png'];
+    final supportedImageFormats = ['jpg', 'jpeg', 'png', 'heic', 'heif'];
     final supportedDocumentFormats = ['txt', 'pdf', 'docx'];
     final fileExtension = fileName.split('.').last.toLowerCase();
 
@@ -102,9 +102,47 @@ class _AddStudyMaterialBottomsheetState
   }
 
   void showErrorMessage(String messageKey) {
-    Utils.showSnackBar(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
       context: context,
-      message: Utils.getTranslatedLabel(messageKey),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: isDark ? const Color(0xFF2A2A2C) : Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: Colors.red, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              'Info',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          Utils.getTranslatedLabel(messageKey),
+          style: TextStyle(
+            fontSize: 15,
+            color: isDark ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -182,17 +220,15 @@ class _AddStudyMaterialBottomsheetState
                         titleKey: studyMaterialTypeKey,
                         values: allStudyMaterialTypeItems,
                         onSelection: (value) {
-                          setState(() {
-                            if (value != null) {
-                              setState(() {
-                                _selectedStudyMaterial = value;
-                                addedFile = null;
-                                addedVideoFile = null;
-                                addedVideoThumbnailFile = null;
-                                _youtubeLinkEditingController.clear();
-                              });
-                            }
-                          });
+                          if (value != null) {
+                            setState(() {
+                              _selectedStudyMaterial = value;
+                              addedFile = null;
+                              addedVideoFile = null;
+                              addedVideoThumbnailFile = null;
+                              _youtubeLinkEditingController.clear();
+                            });
+                          }
                           Get.back();
                         },
                       ),
@@ -336,6 +372,7 @@ class _AddStudyMaterialBottomsheetState
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 buttonTitle: Utils.getTranslatedLabel(submitKey),
                 showBorder: false,
+                titleColor: Colors.white,
               ),
             ],
           ),

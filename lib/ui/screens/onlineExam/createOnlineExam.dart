@@ -210,6 +210,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
     String? Function(String?)? validator,
     void Function(String)? onChanged,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
@@ -220,10 +221,11 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
       inputFormatters: inputFormatters,
       validator: validator ?? (v) => v!.isEmpty ? 'Required' : null,
       onChanged: onChanged,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: labelColor ?? Colors.grey.shade600,
+          color: labelColor ?? (isDark ? Colors.grey[400] : Colors.grey.shade600),
         ),
         prefixIcon: Icon(
           icon,
@@ -235,7 +237,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
@@ -246,14 +248,15 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   }
 
   Widget _buildBasicInfoSection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark ? Colors.black12 : Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
             offset: const Offset(0, 3),
@@ -268,7 +271,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
+              color: isDark ? Colors.white : Theme.of(context).colorScheme.secondary,
             ),
           ),
           const SizedBox(height: 20),
@@ -307,14 +310,15 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   }
 
   Widget _buildExamDetailsSection() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: isDark ? Colors.black12 : Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
             offset: const Offset(0, 3),
@@ -329,7 +333,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
+              color: isDark ? Colors.white : Theme.of(context).colorScheme.secondary,
             ),
           ),
           const SizedBox(height: 15),
@@ -475,6 +479,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   }
 
   Widget _buildSubjectDropdown() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BlocBuilder<ClassSectionsAndSubjectsCubit, ClassSectionsAndSubjectsState>(
       builder: (context, state) {
         if (state is ClassSectionsAndSubjectsFetchSuccess) {
@@ -505,15 +510,38 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             children: [
               DropdownButtonFormField<String>(
                 value: selectedTingkatan,
+                dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 14,
+                ),
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.layers, color: Color(0xFF8B0000)),
+                  prefixIcon: Icon(Icons.layers, color: Theme.of(context).colorScheme.primary),
                   labelText: 'Pilih Tingkatan',
+                  labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  fillColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                  ),
                 ),
                 items: tingkatanList
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                    .map((t) => DropdownMenuItem(
+                          value: t,
+                          child: Text(
+                            t,
+                            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                          ),
+                        ))
                     .toList(),
                 onChanged: (v) {
                   setState(() {
@@ -524,21 +552,47 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   });
                 },
                 isExpanded: true,
-                hint: const Text('Pilih Tingkatan'),
+                hint: Text(
+                  'Pilih Tingkatan',
+                  style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                ),
               ),
               if (selectedTingkatan != null) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: selectedKelas,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 14,
+                  ),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.class_, color: Color(0xFF8B0000)),
+                    prefixIcon: Icon(Icons.class_, color: Theme.of(context).colorScheme.primary),
                     labelText: 'Pilih Kelas',
+                    labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                     filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    fillColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                    ),
                   ),
                   items: kelasList
-                      .map((k) => DropdownMenuItem(value: k, child: Text(k)))
+                      .map((k) => DropdownMenuItem(
+                            value: k,
+                            child: Text(
+                              k,
+                              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                            ),
+                          ))
                       .toList(),
                   onChanged: (v) {
                     setState(() {
@@ -556,22 +610,48 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                     }
                   },
                   isExpanded: true,
-                  hint: const Text('Pilih Kelas'),
+                  hint: Text(
+                    'Pilih Kelas',
+                    style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  ),
                 ),
               ],
               if (selectedKelas != null) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: selectedMapel,
+                  dropdownColor: isDark ? Theme.of(context).cardColor : Colors.white,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 14,
+                  ),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                    prefixIcon: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
                     labelText: 'Pilih Mata Pelajaran',
+                    labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
                     filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    fillColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                    ),
                   ),
                   items: mapelList
-                      .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                      .map((m) => DropdownMenuItem(
+                            value: m,
+                            child: Text(
+                              m,
+                              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                            ),
+                          ))
                       .toList(),
                   onChanged: (v) {
                     setState(() {
@@ -588,7 +668,10 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                     }
                   },
                   isExpanded: true,
-                  hint: const Text('Pilih Mata Pelajaran'),
+                  hint: Text(
+                    'Pilih Mata Pelajaran',
+                    style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  ),
                   validator: (value) => value == null ? 'Pilih mata pelajaran' : null,
                 ),
               ],
@@ -621,6 +704,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
+          final bool isDark = Theme.of(context).brightness == Brightness.dark;
           return Dialog(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -628,7 +712,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -638,7 +722,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                     ),
                   ],
                 ),
-                child: const Column(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -646,17 +730,18 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                       height: 50,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFF7A1E23),
+                          Theme.of(context).colorScheme.primary,
                         ),
                         strokeWidth: 4,
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Text(
                       'Membuat Ujian...',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                   ],
@@ -698,7 +783,9 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
+        final bool isDark = Theme.of(context).brightness == Brightness.dark;
         return Dialog(
+          backgroundColor: isDark ? Theme.of(context).cardColor : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -733,7 +820,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                           color: const Color(0xFF4CAF50),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).cardColor : Colors.white,
                             width: 2,
                           ),
                         ),
@@ -761,7 +848,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[600],
+                    color: isDark ? Colors.white70 : Colors.grey[600],
                   ),
                 ),
                 const SizedBox(height: 24),

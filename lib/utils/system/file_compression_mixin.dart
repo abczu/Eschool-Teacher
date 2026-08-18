@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'file_compression_utils.dart';
 
 /// Mixin untuk integrasi mudah kompresi file pada halaman yang sudah ada
@@ -276,8 +277,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
             }
           }
 
+          String outputName = platformFile.name;
+          final originalExt = path.extension(platformFile.name).toLowerCase();
+          if (originalExt == '.heic' || originalExt == '.heif') {
+            outputName = '${path.basenameWithoutExtension(platformFile.name)}.jpg';
+          }
+
           return PlatformFile(
-            name: platformFile.name,
+            name: outputName,
             path: compressedFile.path,
             size: compressedSize,
             bytes: platformFile.bytes,
@@ -312,8 +319,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
         }
       }
 
+      String outputName = platformFile.name;
+      final originalExt = path.extension(platformFile.name).toLowerCase();
+      if (originalExt == '.heic' || originalExt == '.heif') {
+        outputName = '${path.basenameWithoutExtension(platformFile.name)}.jpg';
+      }
+
       return PlatformFile(
-        name: platformFile.name,
+        name: outputName,
         path: compressedFile.path,
         size: compressedSize,
         bytes: platformFile.bytes,
@@ -370,8 +383,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
                 final compressedSize = await compressedFile.length();
                 totalCompressedSize += compressedSize;
 
+                String outputName = platformFile.name;
+                final originalExt = path.extension(platformFile.name).toLowerCase();
+                if (originalExt == '.heic' || originalExt == '.heif') {
+                  outputName = '${path.basenameWithoutExtension(platformFile.name)}.jpg';
+                }
+
                 compressedFiles.add(PlatformFile(
-                  name: platformFile.name,
+                  name: outputName,
                   path: compressedFile.path,
                   size: compressedSize,
                   bytes: platformFile.bytes,
@@ -427,8 +446,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
         final compressedSize = await compressedFile.length();
         totalCompressedSize += compressedSize;
 
+        String outputName = platformFile.name;
+        final originalExt = path.extension(platformFile.name).toLowerCase();
+        if (originalExt == '.heic' || originalExt == '.heif') {
+          outputName = '${path.basenameWithoutExtension(platformFile.name)}.jpg';
+        }
+
         compressedFiles.add(PlatformFile(
-          name: platformFile.name,
+          name: outputName,
           path: compressedFile.path,
           size: compressedSize,
           bytes: platformFile.bytes,

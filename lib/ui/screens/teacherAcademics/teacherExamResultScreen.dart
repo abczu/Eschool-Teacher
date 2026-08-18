@@ -125,18 +125,10 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
   // App bar animation controller
   late AnimationController _appBarAnimationController;
 
-  // Theme colors - Dynamic brightened coral/red palette
-  Color get _primaryColor => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFE53935)
-      : const Color(0xffd22f3c);
-
-  Color get _accentColor => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFEF5350)
-      : const Color(0xffd22f3c);
-
-  Color get _glowColor => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFFF5252) // Vibrant red for dark mode glow
-      : const Color(0xFFAF4F4F); // Softer rich maroon for light mode
+  // Theme colors - Use consistent solid maroon/crimson color (0xffd22f3c)
+  Color get _primaryColor => const Color(0xffd22f3c);
+  Color get _accentColor => const Color(0xffd22f3c);
+  Color get _glowColor => const Color(0xffd22f3c);
 
   @override
   void initState() {
@@ -643,6 +635,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
       ),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: _primaryColor),
+        prefixIconColor: _primaryColor,
         labelText: label,
         labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
         border: OutlineInputBorder(
@@ -757,11 +750,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     height: 50,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [_primaryColor, _accentColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: _primaryColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -871,14 +860,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              _primaryColor.withValues(alpha: 0.8),
-                              _accentColor,
-                            ],
-                          ),
+                          color: _primaryColor,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -1157,16 +1139,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     return Container(
                       height: 60,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            _primaryColor,
-                            _accentColor,
-                            isDark ? const Color(0xFFFF5252) : const Color(0xFF8A2A2A),
-                          ],
-                          stops: const [0.0, 0.6, 1.0],
-                        ),
+                        color: _primaryColor,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -1495,14 +1468,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          _accentColor.withValues(alpha: 0.9),
-                          _primaryColor,
-                        ],
-                      ),
+                      color: _primaryColor,
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(

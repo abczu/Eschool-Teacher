@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/createLessonCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/editLessonCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
@@ -648,11 +648,15 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF2A2A2C)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.1),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black.withValues(alpha: 0.3)
+                              : Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 5,
                           blurRadius: 10,
                           offset: const Offset(0, 3),
@@ -790,11 +794,15 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF2A2A2C)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.1),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black.withValues(alpha: 0.3)
+                              : Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 5,
                           blurRadius: 10,
                           offset: const Offset(0, 3),
@@ -833,11 +841,15 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                           20), // Study Materials Section - Clean & Minimalist Design
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF2A2A2C)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black.withValues(alpha: 0.3)
+                              : Colors.black.withValues(alpha: 0.04),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -873,21 +885,29 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade800,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white
+                                      : Colors.grey.shade800,
                                 ),
                               ),
                             ],
                           ),
                         ),
-
+ 
                         // Minimalist Info Card
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 20),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.02)
+                                : Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade200),
+                            border: Border.all(
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : Colors.grey.shade200,
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -897,7 +917,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   Icon(
                                     Icons.info_outline,
                                     size: 16,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.grey.shade400
+                                        : Colors.grey.shade600,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
@@ -905,7 +927,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.grey.shade700,
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.grey.shade300
+                                          : Colors.grey.shade700,
                                     ),
                                   ),
                                 ],
@@ -954,7 +978,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade700,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.grey.shade300
+                                        : Colors.grey.shade700,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -980,7 +1006,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade700,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.grey.shade300
+                                        : Colors.grey.shade700,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -989,8 +1017,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                         padding:
                                             const EdgeInsets.only(bottom: 8),
                                         child: AddedStudyMaterialContainer(
-                                          backgroundColor: Theme.of(context)
-                                              .scaffoldBackgroundColor,
                                           onDelete: (index) {
                                             _addedStudyMaterials
                                                 .removeAt(index);
@@ -1082,6 +1108,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     VoidCallback? onTap,
     TextInputType? keyboardType,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // For description and lesson name fields, we'll position the icon next to the label and allow multiline
     if (label == 'Deskripsi' || label == 'Nama Pelajaran') {
       return TextFormField(
@@ -1090,6 +1117,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
         readOnly: readOnly,
         onTap: onTap,
         keyboardType: TextInputType.multiline,
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black,
+        ),
         decoration: InputDecoration(
           // Custom label with icon
           label: Row(
@@ -1104,7 +1134,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                   fontSize: 16,
                 ),
               ),
@@ -1116,7 +1146,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Colors.grey.shade50,
+          fillColor: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.grey.shade50,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide:
@@ -1137,10 +1169,13 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
       readOnly: readOnly,
       onTap: onTap,
       keyboardType: keyboardType,
+      style: TextStyle(
+        color: isDark ? Colors.white : Colors.black,
+      ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: Colors.grey.shade600,
+          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
         ),
         prefixIcon: Icon(
           icon,
@@ -1151,7 +1186,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
@@ -1166,19 +1203,22 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
   }
 
   Widget _buildFormatChip(String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300,
+        ),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: Colors.grey.shade700,
+          color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
         ),
       ),
     );

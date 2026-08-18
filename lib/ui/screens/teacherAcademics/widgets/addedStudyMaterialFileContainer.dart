@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
@@ -43,10 +43,21 @@ class AddedStudyMaterialContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: backgroundColor ?? Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(backgroundColor != null ? 5 : 12),
+        color: backgroundColor ?? (isDark
+            ? Colors.white.withValues(alpha: 0.02)
+            : Colors.grey.shade50),
+        border: backgroundColor != null
+            ? null
+            : Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.grey.shade200,
+                width: 1,
+              ),
       ),
       padding: EdgeInsets.all(appContentHorizontalPadding),
       child: Row(
@@ -99,14 +110,14 @@ class AddedStudyMaterialContainer extends StatelessWidget {
               );
             },
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.primary,
+                color: Colors.blue,
               ),
               padding: const EdgeInsets.all(8),
-              child: Icon(
+              child: const Icon(
                 Icons.edit_outlined,
-                color: Theme.of(context).colorScheme.surface,
+                color: Colors.white,
               ),
             ),
           ),
@@ -123,9 +134,9 @@ class AddedStudyMaterialContainer extends StatelessWidget {
                 color: Theme.of(context).extension<CustomColors>()!.redColor!,
               ),
               padding: const EdgeInsets.all(8),
-              child: Icon(
+              child: const Icon(
                 Icons.delete_outline,
-                color: Theme.of(context).colorScheme.surface,
+                color: Colors.white,
               ),
             ),
           ),

@@ -23,16 +23,27 @@ class _StackedPermissionSwiperState extends State<StackedPermissionSwiper>
   late Animation<double> _slideAnimation;
   bool _isAnimating = false;
 
+  bool _isSettlingLeftCard = false;
+  bool _isSettlingRightCard = false;
+  double _leftCardSettleOffset = 0.0;
+  double _rightCardSettleOffset = 0.0;
+
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
     );
     _animController.addListener(() {
       setState(() {
-        _dragOffset = _slideAnimation.value;
+        if (_isSettlingLeftCard) {
+          _leftCardSettleOffset = _slideAnimation.value;
+        } else if (_isSettlingRightCard) {
+          _rightCardSettleOffset = _slideAnimation.value;
+        } else {
+          _dragOffset = _slideAnimation.value;
+        }
       });
     });
   }
@@ -107,6 +118,7 @@ class _StackedPermissionSwiperState extends State<StackedPermissionSwiper>
 
   void _swipeLeft(double peekOffset) {
     _isAnimating = true;
+    _animController.duration = const Duration(milliseconds: 200);
     _slideAnimation = Tween<double>(
       begin: _dragOffset,
       end: -peekOffset,
@@ -118,34 +130,63 @@ class _StackedPermissionSwiperState extends State<StackedPermissionSwiper>
       setState(() {
         _currentIndex++;
         _dragOffset = 0.0;
-        _isAnimating = false;
+        _isSettlingLeftCard = true;
+      });
+
+      _animController.duration = const Duration(milliseconds: 200);
+      _slideAnimation = Tween<double>(
+        begin: -peekOffset + 16.0,
+        end: 0.0,
+      ).animate(
+        CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+      );
+
+      _animController.forward(from: 0.0).then((_) {
+        setState(() {
+          _isSettlingLeftCard = false;
+          _isAnimating = false;
+        });
       });
     });
   }
 
   void _swipeRight(double peekOffset) {
     _isAnimating = true;
-    setState(() {
-      _currentIndex--;
-      _dragOffset = -peekOffset;
-    });
-
+    _animController.duration = const Duration(milliseconds: 200);
     _slideAnimation = Tween<double>(
       begin: _dragOffset,
-      end: 0.0,
+      end: peekOffset,
     ).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
 
     _animController.forward(from: 0.0).then((_) {
       setState(() {
-        _isAnimating = false;
+        _currentIndex--;
+        _dragOffset = 0.0;
+        _isSettlingRightCard = true;
+      });
+
+      _animController.duration = const Duration(milliseconds: 200);
+      _slideAnimation = Tween<double>(
+        begin: peekOffset - 16.0,
+        end: 0.0,
+      ).animate(
+        CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+      );
+
+      _animController.forward(from: 0.0).then((_) {
+        setState(() {
+          _isSettlingRightCard = false;
+          _isAnimating = false;
+        });
       });
     });
   }
 
   void _resetPosition() {
     _isAnimating = true;
+    _animController.duration = const Duration(milliseconds: 200);
     _slideAnimation = Tween<double>(
       begin: _dragOffset,
       end: 0.0,
@@ -255,49 +296,67 @@ class _StackedPermissionSwiperState extends State<StackedPermissionSwiper>
         opacity = 1.0 - (ratio * 0.45);
       }
     } else if (positionIndex == -1) {
-      // Left Card (Previous, stacked on left peek)
-      translateX = -peekOffset;
-      scale = 0.94;
-      opacity = 0.55;
-
-      if (_dragOffset > 0.0) {
-        // Pulling left card to center
-        double ratio = (_dragOffset / peekOffset).clamp(0.0, 1.0);
-        translateX = -peekOffset + _dragOffset;
-        scale = 0.94 + (ratio * 0.06);
-        opacity = 0.55 + (ratio * 0.45);
-      } else if (_dragOffset < 0.0) {
-        // Active card moves further left, push left card out of screen
-        translateX = -peekOffset + _dragOffset;
-        opacity = (0.55 + (_dragOffset / 150.0)).clamp(0.0, 0.55);
-      }
-    } else if (positionIndex == 1) {
-      // Right Card (Next, stacked behind center card)
-      translateX = 16.0;
+      // Left Card (Previous)
+      double settleOffset = _isSettlingLeftCard ? _leftCardSettleOffset : 0.0;
+      translateX = -16.0 + settleOffset;
       translateY = 8.0;
       scale = 0.96;
       opacity = 0.55;
 
-      if (_dragOffset < 0.0) {
-        // Pulling right card to center
-        double ratio = (_dragOffset.abs() / peekOffset).clamp(0.0, 1.0);
-        translateX = 16.0 - (ratio * 16.0);
-        translateY = 8.0 - (ratio * 8.0);
-        scale = 0.96 + (ratio * 0.04);
-        opacity = 0.55 + (ratio * 0.45);
-      } else if (_dragOffset > 0.0) {
-        // Active card moves to right, fade out right card
-        translateX = 16.0 + _dragOffset;
-        opacity = (0.55 - (_dragOffset / 150.0)).clamp(0.0, 0.55);
+      if (_isSettlingLeftCard) {
+        double ratio = (settleOffset.abs() / (peekOffset - 16.0)).clamp(0.0, 1.0);
+        scale = 0.96 - (ratio * 0.02);
+      } else {
+        if (_dragOffset > 0.0) {
+          // Pulling left card to center
+          double ratio = (_dragOffset / peekOffset).clamp(0.0, 1.0);
+          translateX = -16.0 + (ratio * 16.0);
+          translateY = 8.0 - (ratio * 8.0);
+          scale = 0.96 + (ratio * 0.04);
+          opacity = 0.55 + (ratio * 0.45);
+        } else if (_dragOffset < 0.0) {
+          // Active card moves further left, push left card out of screen
+          double ratio = (_dragOffset.abs() / peekOffset).clamp(0.0, 1.0);
+          translateX = -16.0 - (ratio * (peekOffset - 16.0));
+          scale = 0.96 - (ratio * 0.02);
+          opacity = (0.55 - (ratio * 0.55)).clamp(0.0, 0.55);
+        }
+      }
+    } else if (positionIndex == 1) {
+      // Right Card (Next)
+      double settleOffset = _isSettlingRightCard ? _rightCardSettleOffset : 0.0;
+      translateX = 16.0 + settleOffset;
+      translateY = 8.0;
+      scale = 0.96;
+      opacity = 0.55;
+
+      if (_isSettlingRightCard) {
+        double ratio = (settleOffset.abs() / (peekOffset - 16.0)).clamp(0.0, 1.0);
+        scale = 0.96 - (ratio * 0.02);
+      } else {
+        if (_dragOffset < 0.0) {
+          // Pulling right card to center
+          double ratio = (_dragOffset.abs() / peekOffset).clamp(0.0, 1.0);
+          translateX = 16.0 - (ratio * 16.0);
+          translateY = 8.0 - (ratio * 8.0);
+          scale = 0.96 + (ratio * 0.04);
+          opacity = 0.55 + (ratio * 0.45);
+        } else if (_dragOffset > 0.0) {
+          // Active card moves to right, fade out right card
+          double ratio = (_dragOffset / peekOffset).clamp(0.0, 1.0);
+          translateX = 16.0 + (ratio * (peekOffset - 16.0));
+          scale = 0.96 - (ratio * 0.02);
+          opacity = (0.55 - (ratio * 0.55)).clamp(0.0, 0.55);
+        }
       }
     }
 
     return GestureDetector(
+      key: key,
       behavior: isActive ? HitTestBehavior.deferToChild : HitTestBehavior.translucent,
       onHorizontalDragUpdate: isActive ? _onDragUpdate : null,
       onHorizontalDragEnd: isActive ? _onDragEnd : null,
       child: Transform.translate(
-        key: key,
         offset: Offset(translateX, translateY),
         child: Transform.scale(
           scale: scale,
@@ -307,12 +366,14 @@ class _StackedPermissionSwiperState extends State<StackedPermissionSwiper>
               opacity: opacity.clamp(0.0, 1.0),
               child: Center(
                 child: SizedBox(
-                   width: cardWidth,
-                   child: PermissionDetailsContainer(
-                     permissionDetails: permission,
-                     isCompact: true,
-                     onPermissionUpdated: widget.onPermissionUpdated,
-                   ),
+                  width: cardWidth,
+                  child: RepaintBoundary(
+                    child: PermissionDetailsContainer(
+                      permissionDetails: permission,
+                      isCompact: true,
+                      onPermissionUpdated: widget.onPermissionUpdated,
+                    ),
+                  ),
                 ),
               ),
             ),

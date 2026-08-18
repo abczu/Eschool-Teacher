@@ -24,7 +24,9 @@ class FileCompressionUtils {
     '.webp',
     '.bmp',
     '.gif',
-    '.tiff'
+    '.tiff',
+    '.heic',
+    '.heif'
   ];
 
   /// Supported document formats
@@ -126,10 +128,13 @@ class FileCompressionUtils {
 
       // Generate output path
       final fileName = path.basenameWithoutExtension(file.path);
-      final fileExtension = path.extension(file.path);
+      final fileExtension = path.extension(file.path).toLowerCase();
+      final outputExt = (fileExtension == '.heic' || fileExtension == '.heif')
+          ? '.jpg'
+          : fileExtension;
       final directory = path.dirname(file.path);
       final outputPath =
-          path.join(directory, '${fileName}_compressed$fileExtension');
+          path.join(directory, '${fileName}_compressed$outputExt');
 
       File? compressedFile;
       int attempts = 0;

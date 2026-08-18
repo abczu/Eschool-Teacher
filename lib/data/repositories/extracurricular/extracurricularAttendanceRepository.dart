@@ -149,6 +149,11 @@ class ExtracurricularAttendanceRepository {
       final response = await Api.get(
         url: Api.getExtracurriculars,
         useAuthToken: true,
+        queryParameters: {
+          'role': 'staff',
+          'view_type': 'staff',
+          'all': 'true',
+        },
       );
 
       debugPrint('🔍 [ATTENDANCE REPO] Extracurricular list response: $response');
@@ -157,14 +162,22 @@ class ExtracurricularAttendanceRepository {
       List<dynamic> data = [];
 
       if (response['error'] == false || response['success'] == true) {
-        // Try different possible data locations
-        final rawData = response['data'] ?? response['rows'] ?? [];
-        if (rawData is List) {
-          data = rawData;
+        if (response['data'] != null && response['data'] is List) {
+          data = response['data'] as List;
+        } else if (response['rows'] != null && response['rows'] is List) {
+          data = response['rows'] as List;
+        } else if (response['data'] != null && response['data'] is Map) {
+          final nested = response['data'] as Map;
+          data = (nested['data'] ?? nested['rows'] ?? []) as List;
         } else {
-          debugPrint(
-              '⚠️ [ATTENDANCE REPO] Expected List but got: ${rawData.runtimeType}');
-          data = [];
+          final rawData = response['data'] ?? response['rows'] ?? [];
+          if (rawData is List) {
+            data = rawData;
+          } else {
+            debugPrint(
+                '⚠️ [ATTENDANCE REPO] Expected List but got: ${rawData.runtimeType}');
+            data = [];
+          }
         }
       } else {
         throw Exception(
@@ -174,8 +187,12 @@ class ExtracurricularAttendanceRepository {
       final List<Map<String, dynamic>> extracurriculars = data
           .map((item) => {
                 'id': item['id'],
-                'name':
-                    item['name'] ?? item['title'] ?? item['nama'] ?? 'Unknown',
+                'name': item['name'] ??
+                    item['eskul_name'] ??
+                    item['ekstrakurikuler_name'] ??
+                    item['title'] ??
+                    item['nama'] ??
+                    'Unknown',
                 'description': item['description'] ?? item['deskripsi'] ?? '',
               })
           .toList();

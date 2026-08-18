@@ -92,6 +92,10 @@ class NotificationUtility {
           Get.toNamed(Routes.teacherManageAssignmentScreen);
           break;
 
+        case 'extracurricular_registration':
+          Get.toNamed(Routes.extracurricularMember);
+          break;
+
         case 'attendance':
         case 'attendance_update':
         case 'attendance_marked':

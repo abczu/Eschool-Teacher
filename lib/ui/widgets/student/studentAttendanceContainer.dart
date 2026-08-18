@@ -191,7 +191,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                   .isNotEmpty &&
               widget.showSummary)
             Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(

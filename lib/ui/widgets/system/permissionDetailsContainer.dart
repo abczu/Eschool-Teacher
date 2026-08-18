@@ -344,7 +344,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       ),
                     ],
                     border: Border.all(
-                        color: _maroonPrimary.withValues(alpha: 0.2)),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                            : _maroonPrimary.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -356,7 +358,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             children: [
                               Icon(
                                 Icons.photo_library_rounded,
-                                color: _maroonPrimary,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : _maroonPrimary,
                                 size: 24,
                               ),
                               const SizedBox(width: 12),
@@ -365,7 +369,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: _maroonPrimary,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Theme.of(context).colorScheme.primary
+                                      : _maroonPrimary,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -380,11 +386,15 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: _maroonLight.withValues(alpha: 0.1),
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white.withValues(alpha: 0.1)
+                                      : _maroonLight.withValues(alpha: 0.1),
                                 ),
                                 child: Icon(
                                   Icons.close_rounded,
-                                  color: _maroonPrimary,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Theme.of(context).colorScheme.primary
+                                      : _maroonPrimary,
                                   size: 22,
                                 ),
                               ),
@@ -472,10 +482,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                                         .expectedTotalBytes ??
                                                                     1)
                                                             : null,
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                    Color>(
-                                                                _maroonPrimary),
+                                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                                            Theme.of(context).colorScheme.primary),
                                                         strokeWidth: 3,
                                                       ),
                                                     ),
@@ -619,7 +627,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                             1)
                                     : null,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    _maroonPrimary),
+                                    Theme.of(context).colorScheme.primary),
                                 strokeWidth: 3,
                               ),
                             ),

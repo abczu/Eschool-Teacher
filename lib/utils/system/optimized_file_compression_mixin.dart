@@ -331,16 +331,17 @@ class _CompressionDialogState extends State<_CompressionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 320,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
               blurRadius: 20,
               spreadRadius: 5,
             ),
@@ -356,15 +357,17 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFAA6976), Color(0xFF800020)],
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [const Color(0xffd22f3c), const Color(0xFF6D0205)]
+                        : [const Color(0xFFAA6976), const Color(0xFF800020)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF800020).withValues(alpha: 0.3),
+                      color: (isDark ? const Color(0xffd22f3c) : const Color(0xFF800020)).withValues(alpha: 0.3),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
@@ -384,7 +387,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: isDark ? Colors.white : Colors.grey[800],
                 ),
               ),
               const SizedBox(height: 24),
@@ -394,7 +397,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 width: double.infinity,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: FractionallySizedBox(
@@ -402,8 +405,10 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   widthFactor: progress,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFAA6976), Color(0xFF800020)],
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xffd22f3c), const Color(0xFF6D0205)]
+                            : [const Color(0xFFAA6976), const Color(0xFF800020)],
                       ),
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -418,7 +423,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: isDark ? Colors.white70 : Colors.grey[700],
                 ),
               ),
               const SizedBox(height: 8),
@@ -431,7 +436,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: isDark ? Colors.white60 : Colors.grey[600],
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -442,10 +447,10 @@ class _CompressionDialogState extends State<_CompressionDialog> {
               // Percentage
               Text(
                 '${(progress * 100).toInt()}%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF800020),
+                  color: isDark ? const Color(0xffd22f3c) : const Color(0xFF800020),
                 ),
               ),
             ],

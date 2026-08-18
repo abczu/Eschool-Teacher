@@ -89,12 +89,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   void _showFilterBottomSheet(BuildContext parentContext) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: parentContext,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Theme.of(context).cardColor : Colors.white,
       builder: (BuildContext modalContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
@@ -111,18 +112,18 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       height: 4,
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color: Colors.grey[400],
+                        color: isDark ? Colors.white24 : Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   // Judul
-                  const Text(
+                  Text(
                     'Filter Ujian Arsip',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF8B0000),
+                      color: isDark ? const Color(0xFFE53935) : const Color(0xFF8B0000),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -150,7 +151,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(color: isDark ? Colors.white30 : Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -158,18 +159,15 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                   ? DateFormat('dd/MM/yyyy').format(_startDate!)
                                   : 'Dari',
                               style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                                  fontSize: 16, color: isDark ? Colors.white : Colors.grey[800]),
                             ),
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          '-',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
+                      Text(
+                        '-',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? Colors.white54 : Colors.black),
                       ),
                       Expanded(
                         child: GestureDetector(
@@ -191,7 +189,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(color: isDark ? Colors.white30 : Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -199,7 +197,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                   ? DateFormat('dd/MM/yyyy').format(_endDate!)
                                   : 'Sampai',
                               style: TextStyle(
-                                  fontSize: 16, color: Colors.grey[800]),
+                                  fontSize: 16, color: isDark ? Colors.white : Colors.grey[800]),
                             ),
                           ),
                         ),
@@ -224,7 +222,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B0000),
+                        backgroundColor: isDark ? Colors.red[800] : const Color(0xFF8B0000),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                       ),
@@ -263,6 +261,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   Widget _buildSearchBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return FadeInDown(
       delay: const Duration(milliseconds: 200),
       child: Padding(
@@ -270,11 +269,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -287,10 +286,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                 _isSearching = value.isNotEmpty;
               });
             },
+            style: TextStyle(color: isDark ? Colors.white : Colors.black87),
             decoration: InputDecoration(
               hintText: 'Cari ujian arsip...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+              hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey[400]),
+              prefixIcon: Icon(Icons.search, color: isDark ? Colors.white54 : Colors.grey[400]),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -391,19 +391,20 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Icon(
           icon,
           size: 16,
-          color: Colors.grey[600],
+          color: isDark ? Colors.grey[400] : Colors.grey[600],
         ),
         const SizedBox(width: 4),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.grey[600],
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
               fontSize: 13,
             ),
             overflow: TextOverflow.ellipsis,
@@ -415,14 +416,15 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   Widget _buildExamCard(OnlineExam exam) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -443,10 +445,10 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       Flexible(
                         child: Text(
                           exam.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF8B0000),
+                            color: isDark ? const Color(0xFFE53935) : const Color(0xFF8B0000),
                             overflow: TextOverflow.visible,
                           ),
                         ),
@@ -457,13 +459,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey.withValues(alpha: 0.1),
+                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               'Arsip',
                               style: TextStyle(
-                                color: Colors.grey[700],
+                                color: isDark ? Colors.white70 : Colors.grey[700],
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -473,7 +475,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           // Menu popup
                           PopupMenuButton<String>(
                             icon:
-                                Icon(Icons.more_vert, color: Colors.grey[700]),
+                                Icon(Icons.more_vert, color: isDark ? Colors.white70 : Colors.grey[700]),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -519,7 +521,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   Text(
                     exam.subjectName,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.white60 : Colors.grey[600],
                       fontSize: 14,
                     ),
                   ),
@@ -553,22 +555,23 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   Widget _buildExamCardSkeleton() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+        highlightColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -587,7 +590,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           height: 18,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -596,7 +599,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           height: 14,
                           width: 120,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -610,7 +613,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         width: 50,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
@@ -618,8 +621,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       Container(
                         width: 24,
                         height: 24,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -638,8 +641,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         Container(
                           width: 16,
                           height: 16,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
+                          decoration: BoxDecoration(
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -648,7 +651,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           child: Container(
                             height: 13,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -663,9 +666,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       children: [
                         Container(
                           width: 16,
-                          height: 16,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
+                           height: 16,
+                          decoration: BoxDecoration(
+                            color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -674,7 +677,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           child: Container(
                             height: 13,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -702,6 +705,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   void _showRestoreConfirmation(OnlineExam exam) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -711,7 +715,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -719,7 +723,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: isDark ? Colors.blue.withValues(alpha: 0.15) : Colors.blue[50],
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -734,7 +738,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: isDark ? Colors.white : Colors.grey[800],
                 ),
               ),
               const SizedBox(height: 16),
@@ -742,7 +746,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                 'Apakah Anda yakin ingin memulihkan ujian ini?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.white70 : Colors.grey[600],
                   height: 1.5,
                 ),
               ),
@@ -756,13 +760,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey[300]!),
+                          side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
                         ),
                       ),
                       child: Text(
                         'Batal',
                         style: TextStyle(
-                          color: Colors.grey[800],
+                          color: isDark ? Colors.white : Colors.grey[800],
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -787,17 +791,22 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                   margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [
-                                        Colors.white,
-                                        Colors.blue[50]!,
-                                      ],
+                                      colors: isDark
+                                          ? [
+                                              Theme.of(context).cardColor,
+                                              Theme.of(context).cardColor,
+                                            ]
+                                          : [
+                                              Colors.white,
+                                              Colors.blue[50]!,
+                                            ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.blue.withValues(alpha: 0.3),
+                                        color: Colors.blue.withValues(alpha: isDark ? 0.15 : 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 0,
                                         offset: const Offset(0, 15),
@@ -874,10 +883,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         ),
                                       ),
                                       const SizedBox(height: 16),
+                                      // Subtitle with better styling
                                       Text(
-                                        'Sedang memproses pemulihan data ujian',
+                                        'Sedang mengembalikan data ujian dari arsip',
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          color: isDark ? Colors.white70 : Colors.grey[600],
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -887,18 +897,22 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
-                                          color: Colors.grey[500],
+                                          color: isDark ? Colors.white38 : Colors.grey[500],
                                           fontSize: 14,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
                                       const SizedBox(height: 24),
+
+                                      // Progress dots animation
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: List.generate(
                                           3,
                                           (index) => Container(
-                                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                                            margin: const EdgeInsets.symmetric(
+                                                horizontal: 4),
                                             child: AnimatedBuilder(
                                               animation: _pulseAnimation,
                                               builder: (context, child) {
@@ -999,6 +1013,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   void _showPermanentDeleteConfirmation(OnlineExam exam) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -1008,7 +1023,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1016,7 +1031,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
+                  color: isDark ? Colors.red.withValues(alpha: 0.15) : Colors.red[50],
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -1031,7 +1046,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: isDark ? Colors.white : Colors.grey[800],
                 ),
               ),
               const SizedBox(height: 16),
@@ -1039,7 +1054,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                 'Apakah Anda yakin ingin menghapus ujian ini secara permanen?\nTindakan ini tidak dapat dibatalkan.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.white70 : Colors.grey[600],
                   height: 1.5,
                 ),
               ),
@@ -1049,10 +1064,17 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
+                        ),
+                      ),
                       child: Text(
                         'Batal',
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: isDark ? Colors.white : Colors.grey[800],
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1074,10 +1096,15 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                   margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [
-                                        Colors.white,
-                                        Colors.red[50]!,
-                                      ],
+                                      colors: isDark
+                                          ? [
+                                              Theme.of(context).cardColor,
+                                              Theme.of(context).cardColor,
+                                            ]
+                                          : [
+                                              Colors.white,
+                                              Colors.red[50]!,
+                                            ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
@@ -1178,7 +1205,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                       Text(
                                         'Sedang menghapus data ujian secara permanen',
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          color: isDark ? Colors.white70 : Colors.grey[600],
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -1188,7 +1215,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
-                                          color: Colors.grey[500],
+                                          color: isDark ? Colors.white38 : Colors.grey[500],
                                           fontSize: 14,
                                         ),
                                         textAlign: TextAlign.center,

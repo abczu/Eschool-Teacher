@@ -248,8 +248,8 @@ class _StudentAttendanceItemContainerState
     final Color? nameColor = isDark
         ? (isStudentActive ? Colors.white : Colors.grey[500])
         : (isStudentActive ? Colors.grey[800] : Colors.grey[500]);
-    final Color numberTextColor = isDark ? const Color(0xFFE53935) : _maroonPrimary;
-    final Color numberBgColor = isDark ? const Color(0xFFE53935).withValues(alpha: 0.15) : _maroonPrimary.withValues(alpha: 0.1);
+    final Color numberTextColor = _maroonPrimary;
+    final Color numberBgColor = _maroonPrimary.withValues(alpha: isDark ? 0.15 : 0.1);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),

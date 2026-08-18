@@ -66,8 +66,16 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   int _hoveredCardIndex = -1;
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
+      systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+    ));
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       bottomNavigationBar: const SizedBox.shrink(),
@@ -217,18 +225,19 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   }
 
   Widget _buildSearchBar(List<BankSoalQuestion> banks) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDark ? Theme.of(context).cardColor : Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
           border:
-              Border.all(color: _highlightColor.withValues(alpha: 0.3), width: 1.5),
+              Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : _highlightColor.withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
-                color: _accentColor.withValues(alpha: 0.2),
+                color: isDark ? Colors.black.withValues(alpha: 0.2) : _accentColor.withValues(alpha: 0.2),
                 blurRadius: 15,
                 spreadRadius: 0,
                 offset: const Offset(0, 5))
@@ -237,11 +246,11 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
         child: TextField(
           controller: _searchController,
           onChanged: (query) => _filterBanks(query, banks),
-          style: const TextStyle(color: _primaryColor),
+          style: TextStyle(color: isDark ? Colors.white : _primaryColor),
           decoration: InputDecoration(
             hintText: 'Cari bank soal...',
-            hintStyle: TextStyle(color: Colors.grey[600]),
-            prefixIcon: const Icon(Icons.search, color: _primaryColor),
+            hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey[600]),
+            prefixIcon: Icon(Icons.search, color: isDark ? Colors.white54 : _primaryColor),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           ),
@@ -293,6 +302,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   }
 
   Widget _buildEmptyView(String title, String subtitle) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -300,23 +310,23 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
           Icon(
             Icons.assignment_outlined,
             size: 80,
-            color: _accentColor.withValues(alpha: 0.6),
+            color: isDark ? Colors.grey[600] : _accentColor.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 20),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: _primaryColor,
+              color: isDark ? Colors.white : _primaryColor,
             ),
           ),
           const SizedBox(height: 10),
           Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: _accentColor,
+              color: isDark ? Colors.grey[400] : _accentColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -326,6 +336,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   }
 
   Widget _buildBankList(List<BankSoalQuestion> banks) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     if (banks.isEmpty && _searchController.text.isNotEmpty) {
       return _buildEmptyView(
         "Tidak ada bank soal yang cocok",
@@ -339,11 +350,15 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
         itemCount: banks.length,
         itemBuilder: (context, index) {
           final bank = banks[index];
-          final Color cardBaseColor =
-              _cardGradients[index % _cardGradients.length];
+          final Color cardBaseColor = isDark
+              ? HSLColor.fromColor(_cardGradients[index % _cardGradients.length])
+                  .withLightness(0.22)
+                  .withSaturation(0.35)
+                  .toColor()
+              : _cardGradients[index % _cardGradients.length];
           final neonGlowColor = HSLColor.fromColor(cardBaseColor)
-              .withLightness(0.7)
-              .withSaturation(0.9)
+              .withLightness(isDark ? 0.3 : 0.7)
+              .withSaturation(isDark ? 0.4 : 0.9)
               .toColor();
           final bool isHovered = _hoveredCardIndex == index;
 
@@ -390,7 +405,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                               blurRadius: isHovered ? 25 : 15,
                               spreadRadius: isHovered ? 2 : 0),
                           BoxShadow(
-                              color: cardBaseColor.withValues(alpha: 0.5),
+                              color: cardBaseColor.withValues(alpha: isDark ? 0.25 : 0.5),
                               blurRadius: 15,
                               spreadRadius: -3,
                               offset: const Offset(0, 8)),

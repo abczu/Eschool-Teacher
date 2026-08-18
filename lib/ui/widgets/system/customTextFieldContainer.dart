@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,6 +45,7 @@ class CustomTextFieldContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: height,
       margin: EdgeInsets.only(bottom: bottomPadding ?? 15.0),
@@ -52,7 +53,9 @@ class CustomTextFieldContainer extends StatelessWidget {
           color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
-              color: borderColor ?? Theme.of(context).colorScheme.tertiary)),
+              color: borderColor ?? (isDark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : Theme.of(context).colorScheme.tertiary))),
       alignment: Alignment.center,
       padding: padding ??
           EdgeInsetsDirectional.only(
@@ -65,9 +68,11 @@ class CustomTextFieldContainer extends StatelessWidget {
         obscureText: hideText,
         maxLines: maxLines ?? 1,
         style: TextStyle(
-            color: labelTextKey == null
-                ? Colors.black
-                : Theme.of(context).colorScheme.secondary,
+            color: isDark
+                ? (textColor == Colors.black ? Colors.white : textColor)
+                : (labelTextKey == null
+                    ? textColor
+                    : Theme.of(context).colorScheme.secondary),
             fontSize: Utils.getScaledValue(context, 14.5)),
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
@@ -78,7 +83,9 @@ class CustomTextFieldContainer extends StatelessWidget {
           suffixIcon: suffixWidget,
           hintText: Utils.getTranslatedLabel(hintTextKey),
           labelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.76),
+              color: isDark
+                  ? Colors.grey.shade400
+                  : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.76),
               fontSize: Utils.getScaledValue(context, 14)),
           hintStyle: TextStyle(
               color: Colors.grey.shade500,

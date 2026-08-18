@@ -455,14 +455,24 @@ class Routes {
 
     GetPage(
       name: questionBankScreen,
-      page: () => BlocProvider(
-        create: (context) => QuestionBankCubit(
-          repository: QuestionBankRepository(),
-        ),
-        child: QuestionBankListScreen(
-          subject: Get.arguments as SubjectQuestion,
-        ),
-      ),
+      page: () {
+        final args = Get.arguments;
+        if (args == null || args is! SubjectQuestion) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Arguments are missing. Please go back.'),
+            ),
+          );
+        }
+        return BlocProvider(
+          create: (context) => QuestionBankCubit(
+            repository: QuestionBankRepository(),
+          ),
+          child: QuestionBankListScreen(
+            subject: args,
+          ),
+        );
+      },
     ),
     //   GetPage(
     //     name: questionBankScreen,
@@ -556,15 +566,25 @@ class Routes {
 
     GetPage(
       name: bankQuestionScreen,
-      page: () => BlocProvider(
-        create: (context) =>
-            QuestionBankCubit(repository: QuestionBankRepository()),
-        child: BankQuestionScreen(
-          bankSoal: Get.arguments['bankSoal'] as BankSoal,
-          subjectId: Get.arguments['subjectId'] as int,
-          subject: Get.arguments['subject'] as SubjectQuestion,
-        ),
-      ),
+      page: () {
+        final args = Get.arguments;
+        if (args == null || args is! Map || args['bankSoal'] == null) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Arguments are missing. Please go back.'),
+            ),
+          );
+        }
+        return BlocProvider(
+          create: (context) =>
+              QuestionBankCubit(repository: QuestionBankRepository()),
+          child: BankQuestionScreen(
+            bankSoal: args['bankSoal'] as BankSoal,
+            subjectId: args['subjectId'] as int,
+            subject: args['subject'] as SubjectQuestion,
+          ),
+        );
+      },
     ),
     // GetPage(
     //   name: addQuestionBank,
@@ -578,7 +598,14 @@ class Routes {
     GetPage(
       name: addQuestionScreen,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
+        final args = Get.arguments;
+        if (args == null || args is! Map<String, dynamic>) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Arguments are missing. Please go back.'),
+            ),
+          );
+        }
         return BlocProvider(
           create: (context) => QuestionBankCubit(
             repository: QuestionBankRepository(),
@@ -592,15 +619,24 @@ class Routes {
     ),
     GetPage(
       name: editQuestionScreen,
-      page: () => BlocProvider(
-        create: (context) =>
-            QuestionBankCubit(repository: QuestionBankRepository()),
-        child: EditQuestionScreen(
-          idList: Get.arguments['idList'],
-          questionData:
-              Get.arguments['questionData'], // This expects 'questionData'
-        ),
-      ),
+      page: () {
+        final args = Get.arguments;
+        if (args == null || args is! Map) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Arguments are missing. Please go back.'),
+            ),
+          );
+        }
+        return BlocProvider(
+          create: (context) =>
+              QuestionBankCubit(repository: QuestionBankRepository()),
+          child: EditQuestionScreen(
+            idList: args['idList'],
+            questionData: args['questionData'],
+          ),
+        );
+      },
     ),
     GetPage(
       name: onlineExamScreen,
@@ -774,7 +810,14 @@ class Routes {
         ],
         child: Builder(
           builder: (context) {
-            final args = Get.arguments as Map<String, dynamic>;
+            final args = Get.arguments;
+            if (args == null || args is! Map<String, dynamic>) {
+              return const Scaffold(
+                body: Center(
+                  child: Text('Arguments are missing. Please go back.'),
+                ),
+              );
+            }
             return PreviewQuestionBankSoal(
               bank: args['bank'] as BankSoalQuestion,
               examId: args['examId'] as int,
@@ -788,7 +831,14 @@ class Routes {
     GetPage(
       name: questionOnlineExamScreen,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
+        final args = Get.arguments;
+        if (args == null || args is! Map<String, dynamic>) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Arguments are missing. Please go back.'),
+            ),
+          );
+        }
         return QuestionOnlineExamScreen(
           examId: args['examId'] as int,
         );

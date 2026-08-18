@@ -85,10 +85,13 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
     with TickerProviderStateMixin {
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
   Color get bgColor => isDark ? Theme.of(context).scaffoldBackgroundColor : defaultBgColor;
-  Color get cardColor => isDark ? Theme.of(context).cardColor : defaultCardColor;
+  Color get cardColor => isDark ? const Color(0xFF2A2A2C) : defaultCardColor;
   Color get textDarkColor => isDark ? Colors.white : defaultTextDarkColor;
   Color get textMediumColor => isDark ? Colors.white70 : defaultTextMediumColor;
   Color get borderColor => isDark ? Colors.white.withValues(alpha: 0.08) : defaultBorderColor;
+
+  Color get maroonIconColor => isDark ? maroonLight : maroonPrimary;
+  Color get maroonIconBgColor => isDark ? maroonLight.withValues(alpha: 0.15) : maroonPrimary.withValues(alpha: 0.08);
   ClassSection? _selectedClassSection;
   TeacherSubject? _selectedSubject;
   Lesson? _selectedLesson;
@@ -489,7 +492,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                 colors: isDark
                                     ? [
                                         Colors.grey.shade900,
-                                        Theme.of(context).cardColor,
+                                        const Color(0xFF2A2A2C),
                                       ]
                                     : const [
                                         Color(0xFFF9F0F5),
@@ -593,311 +596,118 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                   ),
                                 ),
 
-                                // Refined action menu with visual feedback
-                                Material(
-                                  color: Colors.transparent,
-                                  child: PopupMenuButton<String>(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 12,
-                                    offset: const Offset(0, 50),
-                                    color: isDark ? Theme.of(context).cardColor : Colors.white,
-                                    onSelected: (value) {
-                                      if (value == 'edit') {
-                                        HapticFeedback.lightImpact();
-                                        Get.toNamed(
-                                          Routes.teacherAddEditTopicScreen,
-                                          arguments: TeacherAddEditTopicScreen
-                                              .buildArguments(
-                                            topic: topic,
-                                            selectedClassSection:
-                                                _selectedClassSection,
-                                            selectedLesson: _selectedLesson,
-                                            selectedSubject: _selectedSubject,
-                                          ),
-                                        )?.then((value) {
-                                          if (value != null &&
-                                              value is bool &&
-                                              value) {
-                                            // Delay to let pop animation finish
-                                            Future.delayed(
-                                                const Duration(
-                                                    milliseconds: 300), () {
-                                              if (mounted) {
-                                                getTopics();
-                                              }
-                                            });
-                                          }
-                                        });
-                                      } else if (value == 'delete') {
-                                        if (state is DeleteTopicInProgress) {
-                                          return;
-                                        }
-                                        HapticFeedback.mediumImpact();
-                                        showDialog<bool>(
-                                          context: context,
-                                          builder: (_) =>
-                                              const ConfirmDeleteDialog(),
-                                        ).then((value) {
-                                          if (value != null && value) {
-                                            if (context.mounted) {
-                                              context
-                                                  .read<DeleteTopicCubit>()
-                                                  .deleteTopic(
-                                                      topicId: topic.id);
-                                            }
-                                          }
-                                        });
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      // Enhanced Edit button
-                                      PopupMenuItem<String>(
-                                        value: 'edit',
-                                        height: 64,
-                                        child: TweenAnimationBuilder<double>(
-                                          tween: Tween<double>(
-                                              begin: 0.9, end: 1.0),
-                                          duration:
-                                              const Duration(milliseconds: 200),
-                                          builder: (context, value, child) {
-                                            return Transform.scale(
-                                              scale: value,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8,
-                                                        horizontal: 8),
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Colors.blue.shade400,
-                                                      Colors.blue.shade600
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(16),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors
-                                                          .blue.shade500
-                                                          .withValues(
-                                                              alpha: 0.3),
-                                                      blurRadius: 12,
-                                                      offset:
-                                                          const Offset(0, 4),
-                                                      spreadRadius: -2,
-                                                    )
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              6),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white
-                                                            .withValues(
-                                                                alpha: 0.25),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.edit_rounded,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: Text(
-                                                        'Edit',
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 15,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-
-                                      // Enhanced Delete button
-                                      PopupMenuItem<String>(
-                                        value: 'delete',
-                                        height: 64,
-                                        child: TweenAnimationBuilder<double>(
-                                          tween: Tween<double>(
-                                              begin: 0.9, end: 1.0),
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          builder: (context, value, child) {
-                                            return Transform.scale(
-                                              scale: value,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8,
-                                                        horizontal: 8),
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Colors.red.shade400,
-                                                      Colors.red.shade700
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(16),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.red.shade500
-                                                          .withValues(
-                                                              alpha: 0.3),
-                                                      blurRadius: 12,
-                                                      offset:
-                                                          const Offset(0, 4),
-                                                      spreadRadius: -2,
-                                                    )
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              6),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white
-                                                            .withValues(
-                                                                alpha: 0.25),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons
-                                                            .delete_outline_rounded,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: Text(
-                                                        'Hapus',
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 15,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                    child: TweenAnimationBuilder<double>(
-                                      tween:
-                                          Tween<double>(begin: 0.8, end: 1.0),
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      builder: (context, value, child) {
-                                        return Transform.scale(
-                                          scale: value,
-                                          child: Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              gradient: state
-                                                      is DeleteTopicInProgress
-                                                  ? LinearGradient(
-                                                      colors: [
-                                                        Colors.grey.shade300,
-                                                        Colors.grey.shade400
-                                                      ],
-                                                      begin: Alignment.topLeft,
-                                                      end:
-                                                          Alignment.bottomRight,
-                                                    )
-                                                  : LinearGradient(
-                                                      colors: isDark
-                                                          ? [
-                                                              Colors.grey.shade900,
-                                                              Colors.grey.shade800
-                                                            ]
-                                                          : [
-                                                              Colors.white,
-                                                              Colors.grey.shade100
-                                                            ],
-                                                      begin: Alignment.topLeft,
-                                                      end:
-                                                          Alignment.bottomRight,
-                                                    ),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              border: Border.all(
-                                                color: isDark
-                                                    ? Colors.white.withValues(alpha: 0.08)
-                                                    : Colors.grey.shade300,
-                                                width: 1.5,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: maroonPrimary
-                                                      .withValues(alpha: 0.1),
-                                                  blurRadius: 10,
-                                                  offset: const Offset(0, 4),
-                                                  spreadRadius: -2,
-                                                ),
-                                              ],
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Edit Button
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          HapticFeedback.lightImpact();
+                                          Get.toNamed(
+                                            Routes.teacherAddEditTopicScreen,
+                                            arguments: TeacherAddEditTopicScreen
+                                                .buildArguments(
+                                              topic: topic,
+                                              selectedClassSection:
+                                                  _selectedClassSection,
+                                              selectedLesson: _selectedLesson,
+                                              selectedSubject: _selectedSubject,
                                             ),
-                                            child: state
-                                                    is DeleteTopicInProgress
-                                                ? const Center(
-                                                    child: SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        color: maroonPrimary,
-                                                        strokeWidth: 2,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const Icon(
-                                                    Icons.more_vert_rounded,
-                                                    color: maroonPrimary,
-                                                    size: 22,
-                                                  ),
+                                          )?.then((value) {
+                                            if (value != null &&
+                                                value is bool &&
+                                                value) {
+                                              // Delay to let pop animation finish
+                                              Future.delayed(
+                                                  const Duration(
+                                                      milliseconds: 300), () {
+                                                if (mounted) {
+                                                  getTopics();
+                                                }
+                                              });
+                                            }
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.withValues(
+                                                alpha: isDark ? 0.15 : 0.08),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.blue.withValues(alpha: 0.2),
+                                              width: 1,
+                                            ),
                                           ),
-                                        );
-                                      },
+                                          child: const Icon(
+                                            Icons.edit_rounded,
+                                            color: Colors.blue,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 8),
+                                    // Delete Button
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          if (state is DeleteTopicInProgress) {
+                                            return;
+                                          }
+                                          HapticFeedback.mediumImpact();
+                                          showDialog<bool>(
+                                            context: context,
+                                            builder: (_) =>
+                                                const ConfirmDeleteDialog(),
+                                          ).then((value) {
+                                            if (value != null && value) {
+                                              if (context.mounted) {
+                                                context
+                                                    .read<DeleteTopicCubit>()
+                                                    .deleteTopic(topicId: topic.id);
+                                              }
+                                            }
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.withValues(
+                                                alpha: isDark ? 0.15 : 0.08),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.red.withValues(alpha: 0.2),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: state is DeleteTopicInProgress
+                                              ? const Center(
+                                                  child: SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: CircularProgressIndicator(
+                                                      color: Colors.red,
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.delete_outline_rounded,
+                                                  color: Colors.red,
+                                                  size: 18,
+                                                ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -925,13 +735,12 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color:
-                                        maroonPrimary.withValues(alpha: 0.08),
+                                    color: maroonIconBgColor,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.description_outlined,
-                                    color: maroonPrimary,
+                                    color: maroonIconColor,
                                     size: 18,
                                   ),
                                 ),
@@ -996,13 +805,12 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color:
-                                          maroonPrimary.withValues(alpha: 0.08),
+                                      color: maroonIconBgColor,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.attach_file_rounded,
-                                      color: maroonPrimary,
+                                      color: maroonIconColor,
                                       size: 18,
                                     ),
                                   ),
@@ -1028,12 +836,11 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: maroonPrimary.withValues(
-                                                alpha: 0.1),
+                                            color: maroonIconBgColor,
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: maroonPrimary.withValues(
+                                              color: maroonIconColor.withValues(
                                                   alpha: 0.2),
                                               width: 1,
                                             ),
@@ -1043,7 +850,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                             style: GoogleFonts.poppins(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              color: maroonPrimary,
+                                              color: maroonIconColor,
                                             ),
                                           ),
                                         ),
@@ -1116,7 +923,7 @@ class _TeacherManageTopicScreenState extends State<TeacherManageTopicScreen>
                                               child: Icon(
                                                 _getFileTypeIcon(
                                                     material.fileName),
-                                                color: maroonPrimary,
+                                                color: maroonIconColor,
                                                 size: 20,
                                               ),
                                             ),

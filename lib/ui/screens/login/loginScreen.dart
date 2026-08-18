@@ -521,7 +521,7 @@ class _LoginScreenState extends State<LoginScreen>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Ingatkan Saya",
+              "Ingat Saya",
               style: TextStyle(
                 color: Colors.grey.shade700,
                 fontSize: 14,

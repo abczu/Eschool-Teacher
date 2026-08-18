@@ -18,6 +18,7 @@ import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
@@ -181,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 120),
                         child: PageView(
+                          physics: const SensitivePageScrollPhysics(),
                           controller: _pageController,
                           onPageChanged: (index) {
                             if (_isPageAnimating) return;
@@ -228,5 +230,55 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               },
             ),
     );
+  }
+}
+
+class SensitivePageScrollPhysics extends PageScrollPhysics {
+  const SensitivePageScrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+
+  @override
+  SensitivePageScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return SensitivePageScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
+    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
+        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
+      return super.createBallisticSimulation(position, velocity);
+    }
+
+    final Tolerance tolerance = this.tolerance;
+    final double page = position.pixels / position.viewportDimension;
+    
+    double targetPage;
+    if (velocity < -tolerance.velocity) {
+      targetPage = page.floorToDouble();
+    } else if (velocity > tolerance.velocity) {
+      targetPage = page.ceilToDouble();
+    } else {
+      final double fraction = page - page.floorToDouble();
+      if (velocity < 0) {
+        // Dragging left (towards lower page index)
+        targetPage = fraction < 0.85 ? page.floorToDouble() : page.ceilToDouble();
+      } else if (velocity > 0) {
+        // Dragging right (towards higher page index)
+        targetPage = fraction > 0.15 ? page.ceilToDouble() : page.floorToDouble();
+      } else {
+        targetPage = page.roundToDouble();
+      }
+    }
+
+    final double targetPixels = targetPage * position.viewportDimension;
+    if (targetPixels != position.pixels) {
+      return ScrollSpringSimulation(
+        spring,
+        position.pixels,
+        targetPixels,
+        velocity,
+        tolerance: tolerance,
+      );
+    }
+    return null;
   }
 }

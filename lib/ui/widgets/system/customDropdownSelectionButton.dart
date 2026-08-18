@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +16,7 @@ class CustomSelectionDropdownSelectionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         if (isDisabled) {
@@ -27,7 +28,11 @@ class CustomSelectionDropdownSelectionButton extends StatelessWidget {
         height: 50,
         padding: EdgeInsets.symmetric(horizontal: appContentHorizontalPadding),
         decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).colorScheme.tertiary),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Theme.of(context).colorScheme.tertiary,
+          ),
           color: backgroundColor ?? Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(5.0),
         ),
@@ -40,10 +45,12 @@ class CustomSelectionDropdownSelectionButton extends StatelessWidget {
                 maxLines: 1,
                 style: TextStyle(
                     fontSize: 15.0,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withValues(alpha: 0.76)),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withValues(alpha: 0.76)),
               ),
             ),
             if (!isDisabled) const Icon(Icons.arrow_drop_down)

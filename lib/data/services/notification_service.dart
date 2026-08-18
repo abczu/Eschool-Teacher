@@ -143,6 +143,13 @@ class NotificationService {
         debugPrint("🚀 [NOTIF-NAV] Navigating to generalPermissionScreen");
         Get.toNamed(Routes.generalPermissionScreen);
         break;
+
+      // Extracurricular
+      case 'extracurricular_registration':
+        debugPrint("🚀 [NOTIF-NAV] Navigating to Extracurricular Member Screen");
+        Get.toNamed(Routes.extracurricularMember);
+        break;
+
       // Announcement & General
       case 'announcement':
       case 'announcement_created':

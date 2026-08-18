@@ -53,13 +53,8 @@ class _ExtracurricularAttendanceScreenState
   late final ScrollController _scrollController = ScrollController();
 
   // Theme colors - Dynamic brightened maroon/coral palette
-  Color get _maroonPrimary => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFE53935) // Bright maroon/red for dark mode
-      : const Color(0xFF8B1F41); // Standard app deep maroon for light mode
-
-  Color get _maroonLight => Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFFEF5350) // Bright pastel maroon for dark mode
-      : const Color(0xFFAC3B5C); // Standard highlight maroon for light mode
+  Color get _maroonPrimary => const Color(0xFF8B1F41); // Standard app deep maroon for both modes
+  Color get _maroonLight => const Color(0xFFAC3B5C); // Standard highlight maroon for both modes
 
   @override
   void initState() {
@@ -229,7 +224,7 @@ class _ExtracurricularAttendanceScreenState
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: CustomModernAppBar(
         title: 'Absensi Kurikuler',
         icon: Icons.calendar_today_rounded,
@@ -574,25 +569,6 @@ class _ExtracurricularAttendanceScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title and subtitle section
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Kehadiran Anggota Ekstrakurikuler',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : _maroonPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
 
             // Students attendance container
             Container(

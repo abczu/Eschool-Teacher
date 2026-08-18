@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/deleteStudyMaterialCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/updateStudyMaterialCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
@@ -66,17 +66,23 @@ class StudyMaterialContainer extends StatelessWidget {
               }
             },
             builder: (context, state) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
               return Opacity(
                 opacity: state is DeleteStudyMaterialInProgress ? 0.5 : 1.0,
                 child: Container(
                   padding: EdgeInsets.symmetric(
                       horizontal: appContentHorizontalPadding, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .extension<CustomColors>()!
-                        .totalStaffOverviewBackgroundColor!
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(5),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.02)
+                        : Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.grey.shade200,
+                      width: 1,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -246,9 +252,8 @@ class StudyMaterialContainer extends StatelessWidget {
                                 studyMaterial: studyMaterial);
                           },
                           child: CircleAvatar(
-                            backgroundColor: Theme.of(context)
-                                .extension<CustomColors>()!
-                                .totalStaffOverviewBackgroundColor!,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
                             child: Icon(
                               studyMaterial.studyMaterialType ==
                                       StudyMaterialType.youtubeVideo

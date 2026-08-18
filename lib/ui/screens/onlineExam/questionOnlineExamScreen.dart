@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam/questionOnlineExam.dart';
@@ -70,16 +70,17 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // Set system UI overlay style to ensure status bar has proper contrast
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Make status bar transparent
       statusBarIconBrightness:
-          Brightness.dark, // Dark icons for light background
+          isDark ? Brightness.light : Brightness.dark, // Adjust icons brightness based on theme
     ));
 
     return Scaffold(
       backgroundColor:
-          Colors.grey[50], // Set the scaffold background to white/light grey
+          isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50], // Set the scaffold background dynamically
       // Use extendBodyBehindAppBar to extend content behind the app bar
       extendBodyBehindAppBar: true,
       appBar: CustomModernAppBar(
@@ -285,6 +286,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   }
 
   Widget _buildQuestionsList(List<QuestionOnlineExam> questions) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Expanded(
@@ -318,11 +320,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 12.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Theme.of(context).cardColor : Colors.white,
                           borderRadius: BorderRadius.circular(16.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
                               blurRadius: 8.0,
                               offset: const Offset(0, 4),
                             ),
@@ -331,7 +333,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.touch_app, color: _primaryColor),
+                            Icon(Icons.touch_app, color: isDark ? const Color(0xFFE53935) : _primaryColor),
                             const SizedBox(width: 12.0),
                             Flexible(
                               child: Column(
@@ -342,7 +344,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     'Ketuk kartu soal untuk memilih',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.grey[800],
+                                      color: isDark ? Colors.white : Colors.grey[800],
                                     ),
                                   ),
                                   const SizedBox(height: 4.0),
@@ -350,13 +352,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     'Tekan lama untuk melihat detail soal',
                                     style: TextStyle(
                                         fontSize: 12.0,
-                                        color: Colors.grey[600]),
+                                        color: isDark ? Colors.white60 : Colors.grey[600]),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close, size: 16.0),
+                              icon: Icon(Icons.close, size: 16.0, color: isDark ? Colors.white70 : Colors.grey),
                               onPressed: () {
                                 setState(() {
                                   _hasShownTooltip = true;
@@ -377,6 +379,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   }
 
   Widget _buildQuestionCard(QuestionOnlineExam question, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     bool isSelected = _selectedQuestions.contains(index);
 
     return Container(
@@ -393,7 +396,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
                   color: isSelected
@@ -403,13 +406,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: QuestionUtils.getTypeColor(question.type).withValues(alpha: 0.12),
+                    color: QuestionUtils.getTypeColor(question.type).withValues(alpha: isDark ? 0.05 : 0.12),
                     blurRadius: 40,
                     offset: const Offset(0, 15),
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, 8),
                   ),
@@ -546,11 +549,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: isDark ? Theme.of(context).cardColor : Colors.white,
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.18),
+                                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.18),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -591,7 +594,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                   Text(
                                     '${question.marks} poin',
                                     style: TextStyle(
-                                      color: Colors.grey[800],
+                                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -735,7 +738,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               Text(
                                 "Konten Pertanyaan",
                                 style: TextStyle(
-                                  color: Colors.grey[800],
+                                  color: isDark ? Colors.white70 : Colors.grey[800],
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
@@ -750,12 +753,12 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: Colors.grey.shade100),
+                              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
+                                  color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.02),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -765,7 +768,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               QuestionUtils.parseHtmlString(question.question),
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.grey[800],
+                                color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey[800],
                                 height: 1.5,
                                 letterSpacing: 0.2,
                                 fontWeight: FontWeight.w500,
@@ -784,15 +787,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white,
-                                  Colors.grey.shade50,
-                                ],
+                                colors: isDark
+                                    ? [
+                                        Theme.of(context).scaffoldBackgroundColor,
+                                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                                      ]
+                                    : [
+                                        Colors.white,
+                                        Colors.grey.shade50,
+                                      ],
                               ),
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 12,
                                   spreadRadius: 0,
                                   offset: const Offset(0, 4),
@@ -800,7 +808,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               ],
                               border: Border.all(
                                 color: QuestionUtils.getTypeColor(question.type)
-                                    .withValues(alpha: 0.2),
+                                    .withValues(alpha: isDark ? 0.3 : 0.2),
                                 width: 1.5,
                               ),
                             ),
@@ -856,7 +864,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     Text(
                                       'Pilihan Jawaban',
                                       style: TextStyle(
-                                        color: Colors.grey[500],
+                                        color: isDark ? Colors.white60 : Colors.grey[500],
                                         fontSize: 13.5,
                                         fontWeight: FontWeight.w500,
                                         letterSpacing: 0.3,
@@ -866,7 +874,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     Text(
                                       '${question.options.length} opsi tersedia',
                                       style: TextStyle(
-                                        color: Colors.grey[800],
+                                        color: isDark ? Colors.white : Colors.grey[800],
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: 0.2,

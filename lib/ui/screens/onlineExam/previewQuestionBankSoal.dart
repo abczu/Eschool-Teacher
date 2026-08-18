@@ -202,12 +202,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   void _showHelpInfo() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -219,23 +221,24 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 size: 48,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Bantuan',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
-              const Text(
+              Text(
                 'Ketuk soal untuk memilihnya. Soal yang sudah dipilih akan ditandai dengan centang.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15),
+                style: TextStyle(fontSize: 15, color: isDark ? Colors.white70 : Colors.black),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Soal yang sudah ditambahkan ke ujian akan muncul dalam keadaan terkunci.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15),
+                style: TextStyle(fontSize: 15, color: isDark ? Colors.white70 : Colors.black),
               ),
               const SizedBox(height: 8),
               Container(
@@ -293,9 +296,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       // Menggunakan extendBodyBehindAppBar agar background mentok ke status bar
       extendBodyBehindAppBar: true,
+      backgroundColor: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
       appBar: CustomModernAppBar(
         title: widget.bank.name,
         icon: Icons.question_answer,
@@ -309,7 +314,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       ),
       body: Container(
         // Background putih penuh sampai status bar
-        color: Colors.grey[50],
+        color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[50],
         child: Column(
           children: [
             // Padding for AppBar height
@@ -446,6 +451,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Widget _buildContent() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // Check if any questions have multiple versions
     bool hasMultipleVersions =
         _filteredQuestions.any((q) => q.versions.length > 1);
@@ -457,11 +463,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                       blurRadius: 10,
                       spreadRadius: 0,
                       offset: const Offset(0, 5))
@@ -469,10 +475,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ),
               child: TextField(
                 controller: _searchController,
+                style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'Cari soal...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                  hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey[400], fontSize: 15),
+                  prefixIcon: Icon(Icons.search, color: isDark ? Colors.white54 : Colors.grey[400]),
                   border: InputBorder.none,
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -510,11 +517,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0, vertical: 12.0),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: isDark ? Theme.of(context).cardColor : Colors.white,
                                 borderRadius: BorderRadius.circular(16.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
+                                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
                                     blurRadius: 8.0,
                                     offset: const Offset(0, 4),
                                   ),
@@ -523,8 +530,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.swipe,
-                                      color: Color(0xFF8B0000)),
+                                  Icon(Icons.swipe,
+                                      color: isDark ? const Color(0xFFE53935) : const Color(0xFF8B0000)),
                                   const SizedBox(width: 12.0),
                                   Flexible(
                                     child: Column(
@@ -535,7 +542,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                         Text(
                                           'Geser kanan atau kiri untuk melihat versi soal lain',
                                           style: TextStyle(
-                                            color: Colors.grey[800],
+                                            color: isDark ? Colors.white : Colors.grey[800],
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -544,14 +551,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                         Text(
                                           'Beberapa soal memiliki beberapa versi yang dapat dilihat',
                                           style: TextStyle(
-                                              color: Colors.grey[600],
+                                              color: isDark ? Colors.white60 : Colors.grey[600],
                                               fontSize: 12.0),
                                         ),
                                       ],
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.close, size: 16.0),
+                                    icon: Icon(Icons.close, size: 16.0, color: isDark ? Colors.white70 : Colors.grey),
                                     onPressed: () {
                                       setState(() {
                                         _hasShownSwipeGuide = true;
@@ -612,6 +619,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Widget _buildSwipeableQuestionCard(dynamic question, int index) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final int questionVersionsCount = question.versions.length;
     final PageController pageController = _getPageController(question.id);
     final int activeVersionIndex = _getActiveVersionIndex(question.id);
@@ -632,7 +640,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: isSelected
@@ -648,13 +656,13 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           .withValues(alpha: 0.3)
                       : QuestionUtils.getTypeColor(
                               question.versions[activeVersionIndex].type)
-                          .withValues(alpha: 0.12),
+                          .withValues(alpha: isDark ? 0.05 : 0.12),
                   blurRadius: isSelected ? 15 : 40,
                   offset: const Offset(0, 15),
                   spreadRadius: isSelected ? 2 : 0,
                 ),
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, 8)),
               ],
@@ -877,6 +885,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
   Widget _buildQuestionVersionContent(
       dynamic version, dynamic question, int versionIndex, int totalVersions) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -993,11 +1002,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).cardColor : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -1015,7 +1024,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           Text(
                             '${question.defaultPoint} poin',
                             style: TextStyle(
-                              color: Colors.grey[800],
+                              color: isDark ? Colors.grey[300] : Colors.grey[800],
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
                             ),
@@ -1152,7 +1161,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   Text(
                     "Konten Pertanyaan",
                     style: TextStyle(
-                      color: Colors.grey[800],
+                      color: isDark ? Colors.white70 : Colors.grey[800],
                       fontSize: 15.5,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
@@ -1165,12 +1174,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.grey.shade100),
+                  border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.shade100),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
+                      color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -1180,7 +1189,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   QuestionUtils.parseHtmlString(version.question),
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.grey[800],
+                    color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.grey[800],
                     height: 1.5,
                     letterSpacing: 0.2,
                     fontWeight: FontWeight.w500,
@@ -1196,15 +1205,20 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade50,
-                    ],
+                    colors: isDark
+                        ? [
+                            Theme.of(context).scaffoldBackgroundColor,
+                            Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                          ]
+                        : [
+                            Colors.white,
+                            Colors.grey.shade50,
+                          ],
                   ),
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: isDark ? Colors.black12 : Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
                       spreadRadius: 0,
                       offset: const Offset(0, 4),
@@ -1212,7 +1226,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ],
                   border: Border.all(
                     color: QuestionUtils.getTypeColor(version.type)
-                        .withValues(alpha: 0.2),
+                        .withValues(alpha: isDark ? 0.3 : 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -1270,7 +1284,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         Text(
                           'Pilihan Jawaban',
                           style: TextStyle(
-                            color: Colors.grey[500],
+                            color: isDark ? Colors.white60 : Colors.grey[500],
                             fontSize: 13.5,
                           ),
                         ),
@@ -1278,7 +1292,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         Text(
                           '${version.options.length} Opsi',
                           style: TextStyle(
-                            color: Colors.grey[800],
+                            color: isDark ? Colors.white : Colors.grey[800],
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1347,6 +1361,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   }
 
   Future<void> _saveSelectedQuestions() async {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     try {
       Get.dialog(
         Dialog(
@@ -1355,7 +1370,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -1384,10 +1399,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey[800])),
+                        color: isDark ? Colors.white : Colors.grey[800])),
                 const SizedBox(height: 8),
                 Text('Mohon tunggu sebentar...',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                    style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[300] : Colors.grey[600])),
                 const SizedBox(height: 16),
                 LinearProgressIndicator(
                     backgroundColor: Colors.blue[50],
@@ -1447,18 +1462,22 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Container(
             padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.check_circle_outline,
                     color: Colors.green, size: 60),
                 const SizedBox(height: 20),
-                const Text('Berhasil!',
+                Text('Berhasil!',
                     style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
                 const SizedBox(height: 10),
-                const Text('Soal berhasil ditambahkan ke ujian',
-                    textAlign: TextAlign.center),
+                Text('Soal berhasil ditambahkan ke ujian',
+                    textAlign: TextAlign.center, style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -1500,6 +1519,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   /// Adapts a [BankOnlineQuestion] version to typed models so that
   /// [QuestionDetailWidget] can render it without any inline UI logic.
   void _showQuestionDetail(dynamic question, int activeVersionIndex) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final int displayIndex = question.versions.length - 1 - activeVersionIndex;
     final dynamic version = question.versions[displayIndex];
 
@@ -1510,7 +1530,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               percentage: int.tryParse(opt.percentage.toString()) ?? 0,
               feedback: opt.feedback as String? ?? '',
             ))
-        .toList();
+         .toList();
 
     final q.QuestionVersion typedVersion = q.QuestionVersion(
       id: version.id as int? ?? 0,
@@ -1549,7 +1569,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             maxWidth: MediaQuery.of(context).size.width,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? Theme.of(context).cardColor : Colors.white,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(

@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
+import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
@@ -18,6 +18,7 @@ class UploadImageOrFileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -29,7 +30,11 @@ class UploadImageOrFileButton extends StatelessWidget {
             padding: EdgeInsets.symmetric(
                 horizontal: appContentHorizontalPadding, vertical: 10),
             decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).colorScheme.tertiary),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Theme.of(context).colorScheme.tertiary,
+              ),
               color: Theme.of(context)
                   .extension<CustomColors>()!
                   .totalStaffOverviewBackgroundColor!
@@ -71,7 +76,9 @@ class UploadImageOrFileButton extends StatelessWidget {
           CustomTextContainer(
             textKey: onlyImageAndDocumentsAreAllowedNoteKey,
             style: TextStyle(
-                color: Theme.of(context).extension<CustomColors>()!.redColor!,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFFE53935)
+                    : Theme.of(context).extension<CustomColors>()!.redColor!,
                 fontWeight: FontWeight.bold),
           ),
         ]

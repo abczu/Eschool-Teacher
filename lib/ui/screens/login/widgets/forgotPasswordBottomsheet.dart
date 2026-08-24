@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
+import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
@@ -81,9 +81,22 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
 
   @override
   Widget build(BuildContext context) {
-    return CustomBottomsheet(
-      titleLabelKey: forgotPasswordKey,
-      child: Container(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: Theme.of(context).textTheme.apply(
+              bodyColor: Colors.black87,
+              displayColor: Colors.black87,
+            ),
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+          secondary: _primaryMaroon,
+          onSurface: Colors.black87,
+        ),
+      ),
+      child: CustomBottomsheet(
+        titleLabelKey: forgotPasswordKey,
+        backgroundColor: Colors.transparent,
+        child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -111,46 +124,47 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                     builder: (context, child) {
                       return Transform.rotate(
                         angle: _rotateAnimation.value,
-                        child: Container(
-                          height: 120,
-                          width: 120,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: _lightMaroon.withValues(alpha: 0.3),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: _primaryMaroon.withValues(alpha: 0.2),
-                                blurRadius: 15,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                            border: Border.all(
-                              color: _primaryMaroon.withValues(alpha: 0.5),
-                              width: 2,
-                            ),
-                          ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              Icon(
-                                Icons.lock_reset_rounded,
-                                size: 60,
-                                color: _primaryMaroon,
-                              ),
-                            ],
-                          ),
-                        ),
+                        child: child,
                       );
                     },
+                    child: Container(
+                      height: 120,
+                      width: 120,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: _lightMaroon.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: _primaryMaroon.withValues(alpha: 0.2),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                        border: Border.all(
+                          color: _primaryMaroon.withValues(alpha: 0.5),
+                          width: 2,
+                        ),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 80,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Icon(
+                            Icons.lock_reset_rounded,
+                            size: 60,
+                            color: _primaryMaroon,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   // Teks deskripsi
@@ -256,6 +270,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -276,7 +291,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
       curve: Curves.elasticOut,
       builder: (context, value, child) {
         return Opacity(
-          opacity: value,
+          opacity: value.clamp(0.0, 1.0),
           child: Transform.translate(
             offset: Offset(0, 30 * (1 - value)),
             child: child,
@@ -412,7 +427,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
       curve: Curves.elasticOut,
       builder: (context, value, child) {
         return Opacity(
-          opacity: value,
+          opacity: value.clamp(0.0, 1.0),
           child: Transform.scale(
             scale: 0.7 + (0.3 * value),
             child: child,

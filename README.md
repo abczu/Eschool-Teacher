@@ -1,7 +1,7 @@
     
 ---
 
-# 📱 eSchool Mobile – Aplikasi Guru & Staff
+# 📱 eSchool Mobile – Aplikasi Guru & Staf
 
 **Platform manajemen sekolah terintegrasi, fleksibel, dan berbasis SaaS.**
 🔗 Web resmi: [https://eschool.ac.id](https://eschool.ac.id)
@@ -11,7 +11,7 @@
 ## 🧠 Apa Itu eSchool Mobile?
  playstore-deploy
 
-**eSchool Mobile – Guru & Staff** adalah aplikasi pendamping berbasis mobile yang dirancang untuk membantu guru dan staff sekolah dalam menjalankan operasional harian secara digital dan efisien.
+**eSchool Mobile – Guru & Staf** adalah aplikasi pendamping berbasis mobile yang dirancang untuk membantu guru dan staff sekolah dalam menjalankan operasional harian secara digital dan efisien.
 Aplikasi ini merupakan bagian dari **eSchool**, platform manajemen sekolah berbasis **SaaS (Software as a Service)** yang juga tersedia dalam versi web.
 
 Aplikasi ini memberikan **kendali penuh** kepada guru dan staff terhadap aktivitas pembelajaran, kepegawaian, absensi, pengumuman, hingga keuangan — langsung dari genggaman tangan.
@@ -96,7 +96,7 @@ Aplikasi ini memberikan **kendali penuh** kepada guru dan staff terhadap aktivit
 ## 📌 Kenapa eSchool?
 
 ✅ **Efisiensi operasional** sekolah
-✅ **Mobilitas tinggi** untuk guru & staff
+✅ **Mobilitas tinggi** untuk guru & staf
 ✅ **Integrasi penuh** dengan sistem backend
 ✅ **Realtime & paperless**
 ✅ **Aman dan privat** dengan sistem login dan otorisasi pengguna
@@ -113,7 +113,7 @@ Untuk informasi lebih lanjut atau demo, kunjungi:
 
 =======
 
-**eSchool Mobile – Guru & Staff** adalah aplikasi pendamping berbasis mobile yang dirancang untuk membantu guru dan staff sekolah dalam menjalankan operasional harian secara digital dan efisien.
+**eSchool Mobile – Guru & Staf** adalah aplikasi pendamping berbasis mobile yang dirancang untuk membantu guru dan staff sekolah dalam menjalankan operasional harian secara digital dan efisien.
 Aplikasi ini merupakan bagian dari **eSchool**, platform manajemen sekolah berbasis **SaaS (Software as a Service)** yang juga tersedia dalam versi web.
 
 Aplikasi ini memberikan **kendali penuh** kepada guru dan staff terhadap aktivitas pembelajaran, kepegawaian, absensi, pengumuman, hingga keuangan — langsung dari genggaman tangan.
@@ -198,7 +198,7 @@ Aplikasi ini memberikan **kendali penuh** kepada guru dan staff terhadap aktivit
 ## 📌 Kenapa eSchool?
 
 ✅ **Efisiensi operasional** sekolah
-✅ **Mobilitas tinggi** untuk guru & staff
+✅ **Mobilitas tinggi** untuk guru & staf
 ✅ **Integrasi penuh** dengan sistem backend
 ✅ **Realtime & paperless**
 ✅ **Aman dan privat** dengan sistem login dan otorisasi pengguna

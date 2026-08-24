@@ -112,6 +112,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
     final Color maroonDark = isDark ? const Color(0xFF4A0E17) : const Color.fromARGB(255, 124, 9, 31);
 
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
+      final currentProfileImage = context.read<AuthCubit>().getUserDetails().image ?? "";
       return SizedBox(
         height: 140 + MediaQuery.of(context).padding.top,
         width: MediaQuery.of(context).size.width,
@@ -284,7 +285,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                       child: Row(
                         children: [
                           GestureDetector(
-                            onTap: () => ProfileImagePreview.show(context, widget.profileImage, 'home_avatar'),
+                            onTap: () => ProfileImagePreview.show(context, currentProfileImage, 'home_avatar'),
                             child: Hero(
                               tag: 'home_avatar',
                               child: Container(
@@ -301,10 +302,10 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                   ],
                                 ),
                                 child: ClipOval(
-                                  child: widget.profileImage.isEmpty
+                                  child: currentProfileImage.isEmpty
                                       ? Icon(Icons.person, color: maroonPrimary, size: 30)
                                       : CachedNetworkImage(
-                                          imageUrl: widget.profileImage,
+                                          imageUrl: currentProfileImage,
                                           fit: BoxFit.cover,
                                           placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                                           errorWidget: (context, url, error) => Icon(Icons.person, color: maroonPrimary, size: 30),
@@ -351,6 +352,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                 return _buildHeaderButton(
                                   icon: Icons.notifications_active_rounded,
                                   onTap: () => Get.toNamed(Routes.notificationsScreen),
+                                  color: const Color(0xFF800020),
                                 );
                               }
                               if (state is StaffAllowedPermissionsAndModulesFetchFailure) {
@@ -360,6 +362,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                     context.read<AuthCubit>().signOut();
                                     Get.offNamed(Routes.loginScreen);
                                   },
+                                  color: const Color(0xFF800020),
                                 );
                               }
                               return const SizedBox(width: 48, height: 48);
@@ -382,7 +385,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
     return 'Selamat Datang ✨';
   }
 
-  Widget _buildHeaderButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildHeaderButton({required IconData icon, required VoidCallback onTap, required Color color}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -397,13 +400,13 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                color,
+                color.withValues(alpha: 0.8),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                color: color.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),

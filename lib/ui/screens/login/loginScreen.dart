@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
@@ -41,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   // Animations for background elements
   late final Animation<double> _backgroundFadeAnimation;
-  late final Animation<double> _blurAnimation;
 
   // Animations for floating elements
   late final Animation<double> _float1;
@@ -125,13 +124,6 @@ class _LoginScreenState extends State<LoginScreen>
       CurvedAnimation(
         parent: _backgroundAnimationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
-
-    _blurAnimation = Tween<double>(begin: 0.0, end: 3.0).animate(
-      CurvedAnimation(
-        parent: _backgroundAnimationController,
-        curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
       ),
     );
 
@@ -473,6 +465,7 @@ class _LoginScreenState extends State<LoginScreen>
               child: const ForgotPasswordBottomsheet(),
             ),
             context: context,
+            backgroundColor: Colors.white,
           );
         },
         style: TextButton.styleFrom(
@@ -695,35 +688,36 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          lightMaroon,
-                          primaryMaroon,
-                          maroonRich,
-                        ],
-                        center: Alignment.topLeft,
-                        radius: 1.0,
-                        stops: const [0.2, 0.5, 0.9],
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.school_rounded,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                child: child,
               ),
             ),
           ),
         );
       },
+      child: Center(
+        child: Container(
+          width: 96,
+          height: 96,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                lightMaroon,
+                primaryMaroon,
+                maroonRich,
+              ],
+              center: Alignment.topLeft,
+              radius: 1.0,
+              stops: const [0.2, 0.5, 0.9],
+            ),
+          ),
+          child: const Icon(
+            Icons.school_rounded,
+            size: 50,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 
@@ -994,13 +988,16 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         const SizedBox(height: 8),
-        CustomTextContainer(
-          textKey: signInScreenSubTitleKey,
-          style: TextStyle(
-            fontSize: Utils.getScaledValue(context, isSmallScreen ? 14 : 16),
-            height: 1.4,
-            color: Colors.grey.shade700,
-            fontWeight: FontWeight.w400,
+        Center(
+          child: CustomTextContainer(
+            textKey: signInScreenSubTitleKey,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: Utils.getScaledValue(context, isSmallScreen ? 14 : 16),
+              height: 1.4,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
         SizedBox(height: isSmallScreen ? 20 : 32),
@@ -1059,35 +1056,35 @@ class _LoginScreenState extends State<LoginScreen>
     return Positioned(
       top: top,
       left: left,
-      child: AnimatedBuilder(
-        animation: _floatingElementsController,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, animation.value),
-            child: Transform.rotate(
-              angle: angle ?? 0,
-              child: FadeTransition(
-                opacity: _backgroundFadeAnimation,
-                child: Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(size / 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: child,
-                ),
+      child: FadeTransition(
+        opacity: _backgroundFadeAnimation,
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, animation.value),
+              child: Transform.rotate(
+                angle: angle ?? 0,
+                child: child,
               ),
+            );
+          },
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(size / 2),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -1103,38 +1100,39 @@ class _LoginScreenState extends State<LoginScreen>
     return Positioned(
       top: top,
       left: left,
-      child: AnimatedBuilder(
-        animation: _floatingElementsController,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, animation.value),
-            child: Transform.rotate(
-              angle: angle,
-              child: FadeTransition(
-                opacity: _backgroundFadeAnimation,
-                child: Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: colors,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(size / 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.first.withValues(alpha: 0.3),
-                        blurRadius: 15,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
+      child: FadeTransition(
+        opacity: _backgroundFadeAnimation,
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, animation.value),
+              child: Transform.rotate(
+                angle: angle,
+                child: child,
               ),
+            );
+          },
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: colors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(size / 3),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.first.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -1222,19 +1220,18 @@ class _LoginScreenState extends State<LoginScreen>
           ),
 
         // Blur effect that increases over time
-        AnimatedBuilder(
-            animation: _backgroundAnimationController,
-            builder: (context, child) {
-              return BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: _blurAnimation.value,
-                  sigmaY: _blurAnimation.value,
-                ),
-                child: Container(
-                  color: Colors.transparent,
-                ),
-              );
-            }),
+        FadeTransition(
+          opacity: _backgroundFadeAnimation,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 3.0,
+              sigmaY: 3.0,
+            ),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
       ],
     );
   }

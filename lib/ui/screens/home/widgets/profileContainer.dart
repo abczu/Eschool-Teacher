@@ -1492,19 +1492,23 @@ class _ProfileContainerState extends State<ProfileContainer>
     required ThemeMode mode,
     required bool isSelected,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color activeColor = const Color(0xFF800020);
+    final Color inactiveColor = isDark ? Colors.white54 : Colors.grey;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isSelected
-              ? maroonPrimary.withValues(alpha: 0.1)
-              : Colors.grey.withValues(alpha: 0.1),
+              ? activeColor.withValues(alpha: 0.1)
+              : inactiveColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: isSelected ? maroonPrimary : Colors.grey,
+          color: isSelected ? activeColor : inactiveColor,
           size: 24,
         ),
       ),
@@ -1513,12 +1517,12 @@ class _ProfileContainerState extends State<ProfileContainer>
         style: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          color: isSelected ? maroonPrimary : null,
+          color: isSelected ? activeColor : (isDark ? Colors.white70 : null),
         ),
       ),
       trailing: isSelected
-          ? Icon(Icons.check_circle, color: maroonPrimary)
-          : const Icon(Icons.circle_outlined, color: Colors.grey),
+          ? Icon(Icons.check_circle, color: activeColor)
+          : Icon(Icons.circle_outlined, color: inactiveColor),
       onTap: () {
         context.read<ThemeCubit>().changeTheme(mode);
         Navigator.pop(context);

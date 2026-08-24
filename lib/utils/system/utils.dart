@@ -156,11 +156,12 @@ class Utils {
   static Future<dynamic> showBottomSheet(
       {required Widget child,
       required BuildContext context,
-      bool? enableDrag}) async {
+      bool? enableDrag,
+      Color? backgroundColor}) async {
     final result = Get.bottomSheet(child,
         enableDrag: enableDrag ?? true,
         isScrollControlled: true,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(bottomsheetBorderRadius),

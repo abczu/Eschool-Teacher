@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 class CustomBottomsheet extends StatelessWidget {
   final Widget child;
   final String titleLabelKey;
+  final Color? backgroundColor;
 
   const CustomBottomsheet(
-      {super.key, required this.child, this.titleLabelKey = ''});
+      {super.key, required this.child, this.titleLabelKey = '', this.backgroundColor});
 
   Widget _buildContent({required BuildContext context}) {
     return Column(
@@ -49,7 +50,7 @@ class CustomBottomsheet extends StatelessWidget {
       padding:
           EdgeInsets.symmetric(vertical: appContentHorizontalPadding * (1.25)),
       decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(bottomsheetBorderRadius),
               topRight: Radius.circular(bottomsheetBorderRadius))),

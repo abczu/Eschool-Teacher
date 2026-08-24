@@ -132,7 +132,7 @@ class _MyAppState extends State<MyApp> {
                   ],
                 );
               },
-              title: 'eSchool - Guru & Staff',
+              title: 'eSchool - Guru & Staf',
               debugShowCheckedModeBanner: false,
               translationsKeys: AppTranslation.translationsKeys,
               theme: ThemeData(

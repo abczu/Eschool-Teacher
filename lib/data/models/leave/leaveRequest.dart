@@ -195,6 +195,47 @@ class User {
         mobile = json['mobile'] as String?,
         fullName = json['full_name'] as String?;
 
+  String getFullName() {
+    final first = (firstName ?? "").trim();
+    final last = (lastName ?? "").trim();
+    final full = (fullName ?? "").trim();
+
+    String rawName = "";
+    if (first.isNotEmpty && last.isNotEmpty) {
+      if (first.toLowerCase() == last.toLowerCase()) {
+        rawName = first;
+      } else if (first.toLowerCase().contains(last.toLowerCase())) {
+        rawName = first;
+      } else if (last.toLowerCase().contains(first.toLowerCase())) {
+        rawName = last;
+      } else {
+        rawName = "$first $last";
+      }
+    } else if (first.isNotEmpty) {
+      rawName = first;
+    } else if (full.isNotEmpty) {
+      rawName = full;
+    } else if (last.isNotEmpty) {
+      rawName = last;
+    }
+
+    if (rawName.isEmpty) return "";
+
+    // Hapus pengulangan kata duplikat jika ada kata yang terulang
+    final words = rawName.split(RegExp(r'\s+'));
+    final seen = <String>{};
+    final uniqueWords = <String>[];
+    for (final w in words) {
+      final lower = w.toLowerCase();
+      if (!seen.contains(lower)) {
+        seen.add(lower);
+        uniqueWords.add(w);
+      }
+    }
+
+    return uniqueWords.join(' ');
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'first_name': firstName,

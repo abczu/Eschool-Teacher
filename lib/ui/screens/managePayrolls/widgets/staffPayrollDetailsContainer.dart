@@ -428,16 +428,7 @@ class StaffPayrollDetailsContainerState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.staffPayRoll.userDetails?.firstName ??
-                      (((widget.staffPayRoll.userDetails?.firstName ?? "") +
-                              (widget.staffPayRoll.userDetails?.lastName !=
-                                          null &&
-                                      widget.staffPayRoll.userDetails
-                                              ?.lastName !=
-                                          ''
-                                  ? " ${widget.staffPayRoll.userDetails!.lastName!}"
-                                  : ""))
-                          .trim()),
+                  widget.staffPayRoll.userDetails?.getFullName() ?? "-",
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

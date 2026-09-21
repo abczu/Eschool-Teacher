@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/profileImageContainer.dart';
@@ -309,7 +309,9 @@ class StudentListCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                studentDetails.firstName ?? "-",
+                                studentDetails.cleanFullName.isEmpty
+                                    ? "-"
+                                    : studentDetails.cleanFullName,
                                 style: const TextStyle(
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.w600,

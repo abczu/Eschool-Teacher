@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
@@ -30,18 +30,21 @@ class _CreateExtracurricularTimetableScreenState
   final _formKey = GlobalKey<FormState>();
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
+  late final AnimationController _appBarAnimationController;
 
   String? selectedExtracurricularId;
   String? selectedDay;
   bool get isEditMode => widget.existingEntry != null;
 
-  Color get _primaryColor => Theme.of(context).brightness == Brightness.dark
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get _primaryColor => isDark
       ? const Color(0xFFE53935)
-      : const Color(0xffd22f3c);
-  Color get _highlightColor => Theme.of(context).brightness == Brightness.dark
+      : const Color(0xFF8B1F41);
+  Color get _highlightColor => isDark
       ? const Color(0xFFEF5350)
-      : const Color(0xffd22f3c);
-  final Color _accentColor = const Color(0xFFD4A574); // Warm gold
+      : const Color(0xFFA84B5C);
+  Color get _accentColor => isDark ? const Color(0xFFE57373) : const Color(0xFFD4A574);
   final Color _softColor = const Color(0xFFF5E6D3); // Cream
 
   final List<String> days = [
@@ -67,6 +70,7 @@ class _CreateExtracurricularTimetableScreenState
   @override
   void initState() {
     super.initState();
+    _appBarAnimationController = AnimationController(vsync: this);
     _initializeData();
   }
 
@@ -84,6 +88,7 @@ class _CreateExtracurricularTimetableScreenState
 
   @override
   void dispose() {
+    _appBarAnimationController.dispose();
     _startTimeController.dispose();
     _endTimeController.dispose();
     super.dispose();
@@ -92,11 +97,15 @@ class _CreateExtracurricularTimetableScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : Colors.grey.shade50,
       appBar: CustomModernAppBar(
         title: isEditMode ? 'Edit Jadwal' : 'Tambah Jadwal',
         icon: isEditMode ? Icons.edit_calendar : Icons.add_alarm,
-        fabAnimationController: AnimationController(vsync: this),
+        fabAnimationController: _appBarAnimationController,
+        primaryColor: _primaryColor,
+        lightColor: _highlightColor,
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: BlocListener<ExtracurricularTimetableCubit,
@@ -150,15 +159,24 @@ class _CreateExtracurricularTimetableScreenState
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              _primaryColor.withValues(alpha: 0.1),
-              _softColor.withValues(alpha: 0.3)
-            ],
+            colors: isDark
+                ? [
+                    _primaryColor.withValues(alpha: 0.15),
+                    Theme.of(context).cardColor,
+                  ]
+                : [
+                    _primaryColor.withValues(alpha: 0.1),
+                    _softColor.withValues(alpha: 0.3)
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _primaryColor.withValues(alpha: 0.2)),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.2),
+          ),
         ),
         child: Row(
           children: [
@@ -195,7 +213,7 @@ class _CreateExtracurricularTimetableScreenState
                         ? 'Perbarui informasi jadwal ekstrakurikuler'
                         : 'Atur waktu pelaksanaan ekstrakurikuler',
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: isDark ? Colors.white70 : Colors.grey.shade600,
                       fontSize: 14,
                     ),
                   ),
@@ -214,15 +232,22 @@ class _CreateExtracurricularTimetableScreenState
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,15 +265,26 @@ class _CreateExtracurricularTimetableScreenState
                 widget.extracurriculars!.isNotEmpty)
               DropdownButtonFormField<String>(
                 initialValue: selectedExtracurricularId,
+                dropdownColor:
+                    isDark ? Theme.of(context).cardColor : Colors.white,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 16,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Pilih Ekstrakurikuler',
+                  labelStyle: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.grey.shade600,
+                  ),
                   prefixIcon: Icon(Icons.school, color: _primaryColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: isDark
+                      ? Theme.of(context).colorScheme.surface
+                      : Colors.grey.shade50,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: _primaryColor, width: 2),
@@ -257,7 +293,12 @@ class _CreateExtracurricularTimetableScreenState
                 items: widget.extracurriculars!.map((extracurricular) {
                   return DropdownMenuItem<String>(
                     value: extracurricular.id.toString(),
-                    child: Text(extracurricular.name),
+                    child: Text(
+                      extracurricular.name,
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -276,18 +317,33 @@ class _CreateExtracurricularTimetableScreenState
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  color: isDark
+                      ? Colors.orange.withValues(alpha: 0.12)
+                      : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.shade200),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.orange.withValues(alpha: 0.3)
+                        : Colors.orange.shade200,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.orange.shade600),
+                    Icon(
+                      Icons.info_outline,
+                      color: isDark
+                          ? Colors.orange.shade300
+                          : Colors.orange.shade600,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Data ekstrakurikuler tidak tersedia',
-                        style: TextStyle(color: Colors.orange.shade700),
+                        style: TextStyle(
+                          color: isDark
+                              ? Colors.orange.shade200
+                              : Colors.orange.shade700,
+                        ),
                       ),
                     ),
                   ],
@@ -305,15 +361,22 @@ class _CreateExtracurricularTimetableScreenState
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,19 +407,27 @@ class _CreateExtracurricularTimetableScreenState
                     decoration: BoxDecoration(
                       color: isSelected
                           ? _primaryColor
-                          : _accentColor.withValues(alpha: 0.1),
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.06)
+                              : _accentColor.withValues(alpha: 0.1)),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
                         color: isSelected
                             ? _primaryColor
-                            : _accentColor.withValues(alpha: 0.5),
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : _accentColor.withValues(alpha: 0.5)),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
                     child: Text(
                       dayTranslations[day] ?? day,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey.shade700,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.85)
+                                : Colors.grey.shade700),
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
@@ -388,15 +459,22 @@ class _CreateExtracurricularTimetableScreenState
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,16 +523,27 @@ class _CreateExtracurricularTimetableScreenState
   }) {
     return TextFormField(
       controller: controller,
+      style: TextStyle(
+        color: isDark ? Colors.white : Colors.black87,
+      ),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          color: isDark ? Colors.white70 : Colors.grey.shade600,
+        ),
         hintText: hint,
+        hintStyle: TextStyle(
+          color: isDark ? Colors.white38 : Colors.grey.shade400,
+        ),
         prefixIcon: Icon(icon, color: _primaryColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark
+            ? Theme.of(context).colorScheme.surface
+            : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: _primaryColor, width: 2),
@@ -480,14 +569,23 @@ class _CreateExtracurricularTimetableScreenState
       initialTime: TimeOfDay.now(),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: _primaryColor,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
+          data: isDark
+              ? Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.dark(
+                    primary: _primaryColor,
+                    onPrimary: Colors.white,
+                    surface: Theme.of(context).cardColor,
+                    onSurface: Colors.white,
+                  ),
+                )
+              : Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.light(
+                    primary: _primaryColor,
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                  ),
+                ),
           child: child!,
         );
       },

@@ -65,18 +65,26 @@ class LeaveRepository {
 
       // Handle pagination structure: result['data']['data'] contains the actual list
       final data = result['data'];
+      List rawList;
       if (data is Map && data.containsKey('data')) {
-        return ((data['data'] ?? []) as List)
-            .map((leaveRequest) =>
-                LeaveRequest.fromJson(Map.from(leaveRequest ?? {})))
-            .toList();
+        rawList = (data['data'] ?? []) as List;
       } else {
         // Fallback for direct list structure if pagination is not used
-        return ((result['data'] ?? []) as List)
-            .map((leaveRequest) =>
-                LeaveRequest.fromJson(Map.from(leaveRequest ?? {})))
-            .toList();
+        rawList = (result['data'] ?? []) as List;
       }
+
+      // Debug: log is_homeroom values from API response
+      for (var item in rawList) {
+        if (item is Map) {
+          debugPrint(
+              'DEBUG: Student Leave id=${item['id']} | is_homeroom=${item['is_homeroom']} (type: ${item['is_homeroom']?.runtimeType})');
+        }
+      }
+
+      return rawList
+          .map((leaveRequest) =>
+              LeaveRequest.fromJson(Map.from(leaveRequest ?? {})))
+          .toList();
     } catch (e) {
       throw ApiException(e.toString());
     }

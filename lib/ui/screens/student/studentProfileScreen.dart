@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
@@ -569,8 +569,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     child: _buildProfileImage(
                       imageUrl: widget.studentDetails.image ?? "",
                       nameInitials:
-                          widget.studentDetails.firstName?.isNotEmpty == true
-                              ? widget.studentDetails.firstName!
+                          widget.studentDetails.cleanFullName.isNotEmpty == true
+                              ? widget.studentDetails.cleanFullName
                                   .substring(0, 1)
                                   .toUpperCase()
                               : "S",
@@ -582,7 +582,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.studentDetails.firstName ?? "-",
+                          widget.studentDetails.cleanFullName.isEmpty
+                              ? "-"
+                              : widget.studentDetails.cleanFullName,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

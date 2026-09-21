@@ -33,7 +33,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
     return HomeContainerAppbar(profileImage: profileImage);
   }
 
-  void getHomeScreenData() {
+  void getHomeScreenData({bool isSilent = false}) {
     final staffAllowedPermissionsAndModulesCubit =
         context.read<StaffAllowedPermissionsAndModulesCubit>();
 
@@ -46,7 +46,8 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
         staffLeaveModuleEnabled: staffAllowedPermissionsAndModulesCubit
             .isPermissionGiven(permission: "leave-list"),
         listTeacherTimetablePermission: false,
-        isTeacher: true);
+        isTeacher: true,
+        isSilent: isSilent);
 
     if (staffAllowedPermissionsAndModulesCubit.isPermissionGiven(
         permission: viewTimetablePermissionKey)) {
@@ -114,7 +115,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer>
                             if (staffPermissionsCubit.isPermissionGiven(
                                 permission: "leave-list"))
                               TeacherPermissionContainer(
-                                onPermissionUpdated: getHomeScreenData,
+                                onPermissionUpdated: () => getHomeScreenData(isSilent: true),
                               ),
                             if (staffPermissionsCubit.isPermissionGiven(
                                 permission: "leave-list"))

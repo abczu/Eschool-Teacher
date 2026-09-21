@@ -116,6 +116,9 @@ import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurric
 import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularMemberRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/extracurricularAttendanceScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/violation/violationsMainScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/violation/studentViolationDetailScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/violation/giveViolationPointsScreen.dart';
 
 // Nama route
 class Routes {
@@ -239,6 +242,11 @@ class Routes {
   static const String contactListScreen = "/contact-list";
   static const String contactDetailScreen = "/contact-detail";
   static const String submitContactScreen = "/submit-contact";
+
+  // Violation (Pelanggaran Siswa) routes
+  static const String violationsMainScreen = "/violations-main";
+  static const String studentViolationDetailScreen = "/student-violation-detail";
+  static const String giveViolationPointsScreen = "/give-violation-points";
 
   // Nama page
   static final List<GetPage> getPages = [
@@ -909,6 +917,20 @@ class Routes {
         create: (context) => SubmitContactCubit(ContactRepository()),
         child: const SubmitContactScreen(),
       ),
+    ),
+
+    // Violation (Pelanggaran Siswa) routes
+    GetPage(
+      name: violationsMainScreen,
+      page: () => ViolationsMainScreen.getRouteInstance(),
+    ),
+    GetPage(
+      name: studentViolationDetailScreen,
+      page: () => StudentViolationDetailScreen.getRouteInstance(),
+    ),
+    GetPage(
+      name: giveViolationPointsScreen,
+      page: () => GiveViolationPointsScreen.getRouteInstance(),
     ),
   ]; // Add semicolon here
 

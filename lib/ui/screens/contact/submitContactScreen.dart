@@ -47,8 +47,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
       if (authState is Authenticated) {
         final userDetails = context.read<AuthCubit>().getUserDetails();
         _nameController.text =
-            '${userDetails.firstName ?? ''} ${userDetails.lastName ?? ''}'
-                .trim();
+            userDetails.getFullName();
         _emailController.text = userDetails.email ?? '';
       }
     });

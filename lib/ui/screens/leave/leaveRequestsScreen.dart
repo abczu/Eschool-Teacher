@@ -455,14 +455,11 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CustomTextContainer(
-                              textKey: leaveRequest.user?.fullName ??
-                                  (leaveRequest.user?.firstName != null &&
-                                          leaveRequest.user?.lastName != null
-                                      ? "${leaveRequest.user?.firstName} ${leaveRequest.user?.lastName}"
-                                      : leaveRequest.user?.firstName ??
-                                          (leaveRequest.userId != null
-                                              ? "Siswa ID: ${leaveRequest.userId}"
-                                              : "Nama tidak tersedia")),
+                              textKey: (leaveRequest.user?.getFullName().isNotEmpty ?? false)
+                                  ? leaveRequest.user!.getFullName()
+                                  : (leaveRequest.userId != null
+                                      ? "Siswa ID: ${leaveRequest.userId}"
+                                      : "Nama tidak tersedia"),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -721,7 +718,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                   LayoutBuilder(
                     builder: (context, boxConstraints) {
                       // Check if it's a student leave and not homeroom teacher
-                      if (!isStaffLeave && leaveRequest.isHomeroom == false) {
+                      // isHomeroom is nullable (bool?), so we must check != true
+                      // to handle both null and false cases correctly
+                      if (!isStaffLeave && leaveRequest.isHomeroom != true) {
                         return Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),

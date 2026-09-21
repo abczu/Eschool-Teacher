@@ -293,6 +293,13 @@ class StudentDetails {
     return 'StudentDetails(id: $id, firstName: $firstName, lastName: $lastName, rollNumber: $rollNumber)';
   }
 
+  String get cleanFullName {
+    final name = (fullName != null && fullName!.trim().isNotEmpty)
+        ? fullName!
+        : '${firstName ?? ''} ${lastName ?? ''}';
+    return name.trim();
+  }
+
   String getGender() {
     if (gender == "male") {
       return "Laki-Laki";

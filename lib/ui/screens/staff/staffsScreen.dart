@@ -347,7 +347,7 @@ class _StaffsScreenState extends State<StaffsScreen>
 
       // Filter berdasarkan pencarian teks
       if (searchQuery.isEmpty) return true;
-      final name = (staff.firstName ?? "").toLowerCase();
+      final name = staff.getFullName().toLowerCase();
       final roles = staff.getRoles().toLowerCase();
       return name.contains(searchQuery) || roles.contains(searchQuery);
     }).toList();
@@ -520,7 +520,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      staffDetails.firstName ?? "-",
+                                      staffDetails.getFullName().isEmpty ? (staffDetails.firstName ?? "-") : staffDetails.getFullName(),
                                       style: GoogleFonts.poppins(
                                         fontWeight: isHovered
                                             ? FontWeight.w600

@@ -416,13 +416,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
           final staffList = _searchQuery.isEmpty
               ? state.staffsPayRoll
               : state.staffsPayRoll
-                  .where((staff) =>
-                      ((staff.userDetails?.firstName ?? "")
-                          .toLowerCase()
-                          .contains(_searchQuery.toLowerCase())) ||
-                      ((staff.userDetails?.lastName ?? "")
-                          .toLowerCase()
-                          .contains(_searchQuery.toLowerCase())))
+                  .where((staff) => (staff.userDetails?.getFullName() ?? "").toLowerCase().contains(_searchQuery.toLowerCase()))
                   .toList();
 
           if (staffList.isEmpty && _searchQuery.isNotEmpty) {

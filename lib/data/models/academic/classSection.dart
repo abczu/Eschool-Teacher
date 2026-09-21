@@ -144,7 +144,7 @@ class ClassSection {
     return (classTeachers?.isEmpty ?? true)
         ? "-"
         : (classTeachers!
-            .map((e) => e.teacher?.firstName)
+            .map((e) => e.teacher?.getFullName() ?? e.teacher?.firstName)
             .where((name) => name != null && name.isNotEmpty)
             .toList()
             .join(","));

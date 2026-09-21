@@ -103,7 +103,7 @@ class _TeacherPermissionContainerState
               : Padding(
                   padding: const EdgeInsets.only(bottom: 25),
                   child: SizedBox(
-                    height: 380,
+                    height: 415,
                     child: StackedPermissionSwiper(
                       permissions: todaysPermission,
                       onPermissionUpdated: () {

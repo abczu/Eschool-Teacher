@@ -109,6 +109,24 @@ class NotificationUtility {
           }
           break;
 
+        case 'violation_warning':
+        case 'violation':
+        case 'pelanggaran':
+          final studentId = int.tryParse(notificationData['student_id']?.toString() ?? '');
+          final studentName = notificationData['student_name']?.toString();
+          if (studentId != null) {
+            Get.toNamed(
+              Routes.studentViolationDetailScreen,
+              arguments: {
+                'studentId': studentId,
+                'studentName': studentName,
+              },
+            );
+          } else {
+            Get.toNamed(Routes.violationsMainScreen);
+          }
+          break;
+
         default:
           Get.toNamed(Routes.notificationsScreen);
       }

@@ -83,16 +83,23 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     // Listen to classes and session years to get the default session year
     context.read<ClassesAndSessionYearsCubit>().stream.listen((state) {
       if (state is ClassesAndSessionYearsFetchSuccess) {
-        final defaultSessionYear = state.sessionYears.cast<SessionYear?>().firstWhere((e) => e?.isThisDefault() ?? false, orElse: () => null);
+        final defaultSessionYear = state.sessionYears
+            .cast<SessionYear?>()
+            .firstWhere((e) => e?.isThisDefault() ?? false, orElse: () => null);
         if (defaultSessionYear != null) {
-          debugPrint("RankingAttendanceScreen: Found default session year: ${defaultSessionYear.id}");
-          context.read<AttendanceRankingCubit>().getAttendanceRanking(sessionYearId: defaultSessionYear.id);
+          debugPrint(
+              "RankingAttendanceScreen: Found default session year: ${defaultSessionYear.id}");
+          context
+              .read<AttendanceRankingCubit>()
+              .getAttendanceRanking(sessionYearId: defaultSessionYear.id);
         } else {
-          debugPrint("RankingAttendanceScreen: No default session year found, fetching without ID");
+          debugPrint(
+              "RankingAttendanceScreen: No default session year found, fetching without ID");
           context.read<AttendanceRankingCubit>().getAttendanceRanking();
         }
       } else if (state is ClassesAndSessionYearsFetchFailure) {
-        debugPrint("RankingAttendanceScreen: Failed to load session years, fetching without ID");
+        debugPrint(
+            "RankingAttendanceScreen: Failed to load session years, fetching without ID");
         context.read<AttendanceRankingCubit>().getAttendanceRanking();
       }
     });
@@ -101,9 +108,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       if (mounted) {
         debugPrint(
             "RankingAttendanceScreen: Initializing class sections data...");
-        context
-            .read<ClassesAndSessionYearsCubit>()
-            .getClassesAndSessionYears();
+        context.read<ClassesAndSessionYearsCubit>().getClassesAndSessionYears();
         // Initialize grade levels
         context.read<GradeLevelCubit>().getGradeLevels();
       }
@@ -222,10 +227,12 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
     // 3. Simple Grade Level Filter
     if (_selectedGradeLevel != null && _selectedGradeLevel!.name != null) {
-      final String targetGrade = _selectedGradeLevel!.name!.toLowerCase().trim();
-      
+      final String targetGrade =
+          _selectedGradeLevel!.name!.toLowerCase().trim();
+
       filteredData = AttendanceRanking(
-        groupedByClassLevel: attendanceRankings.groupedByClassLevel?.where((gl) {
+        groupedByClassLevel:
+            attendanceRankings.groupedByClassLevel?.where((gl) {
           final level = (gl.classLevel ?? "").toLowerCase();
           return level.contains(targetGrade) || targetGrade.contains(level);
         }).toList(),
@@ -247,22 +254,30 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       debugPrint("DEBUG: Filtering by Class: $targetNormalized");
 
       filteredData = AttendanceRanking(
-        groupedByClassLevel: filteredData.groupedByClassLevel, // Keep the same groups
+        groupedByClassLevel:
+            filteredData.groupedByClassLevel, // Keep the same groups
         allStudents: filteredData.allStudents?.where((s) {
-          final String sClass = (s.className ?? "").toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), "");
-          
+          final String sClass = (s.className ?? "")
+              .toLowerCase()
+              .replaceAll(RegExp(r'[^a-zA-Z0-9]'), "");
+
           // Debug matching
-          final bool isMatch = sClass.contains(targetNormalized) || targetNormalized.contains(sClass);
-          if (isMatch) debugPrint("DEBUG: Match found for student ${s.studentName} in class $sClass");
-          
+          final bool isMatch = sClass.contains(targetNormalized) ||
+              targetNormalized.contains(sClass);
+          if (isMatch)
+            debugPrint(
+                "DEBUG: Match found for student ${s.studentName} in class $sClass");
+
           return isMatch;
         }).toList(),
       );
     }
 
     // 5. Recovery Logic: If allStudents is empty, try to populate from grouped data
-    if ((filteredData.allStudents == null || filteredData.allStudents!.isEmpty) &&
-        (filteredData.groupedByClassLevel != null && filteredData.groupedByClassLevel!.isNotEmpty)) {
+    if ((filteredData.allStudents == null ||
+            filteredData.allStudents!.isEmpty) &&
+        (filteredData.groupedByClassLevel != null &&
+            filteredData.groupedByClassLevel!.isNotEmpty)) {
       List<AllStudents> recList = [];
       for (var group in filteredData.groupedByClassLevel!) {
         for (var top in (group.topStudents ?? [])) {
@@ -292,7 +307,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
     // 6. Check Empty State
     final bool isEmpty = (filteredData.allStudents?.isEmpty ?? true) &&
-                         (filteredData.groupedByClassLevel?.isEmpty ?? true);
+        (filteredData.groupedByClassLevel?.isEmpty ?? true);
 
     if (isEmpty) {
       return Center(
@@ -303,7 +318,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
             children: [
               Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.shade400),
               const SizedBox(height: 16),
-              const Text("Tidak ada data peringkat kehadiran", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              const Text("Tidak ada data peringkat kehadiran",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
         ),
@@ -731,62 +747,68 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
               children: [
                 // Search field appears when search is active
                 if (_isSearchActive)
-                  Builder(
-                    builder: (context) {
-                      final bool isDark = Theme.of(context).brightness == Brightness.dark;
-                      final Color searchBgColor = isDark ? Theme.of(context).cardColor : Colors.white;
-                      final Color searchBorderColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade300;
-                      final Color searchTextColor = isDark ? Colors.white : Colors.black87;
-                      final Color searchHintColor = isDark ? Colors.white60 : Colors.grey.shade500;
+                  Builder(builder: (context) {
+                    final bool isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final Color searchBgColor =
+                        isDark ? Theme.of(context).cardColor : Colors.white;
+                    final Color searchBorderColor = isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.grey.shade300;
+                    final Color searchTextColor =
+                        isDark ? Colors.white : Colors.black87;
+                    final Color searchHintColor =
+                        isDark ? Colors.white60 : Colors.grey.shade500;
 
-                      return Container(
-                        height: 56,
-                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                        decoration: BoxDecoration(
-                          color: searchBgColor,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: searchBorderColor,
-                            width: 1.0,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                    return Container(
+                      height: 56,
+                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                      decoration: BoxDecoration(
+                        color: searchBgColor,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: searchBorderColor,
+                          width: 1.0,
                         ),
-                        child: TextField(
-                          controller: _searchController,
-                          style: GoogleFonts.poppins(
-                            color: searchTextColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.black.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        style: GoogleFonts.poppins(
+                          color: searchTextColor,
+                          fontSize: 16,
+                        ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Cari nama siswa...',
+                          hintStyle: GoogleFonts.poppins(
+                            color: searchHintColor,
                             fontSize: 16,
                           ),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Cari nama siswa...',
-                            hintStyle: GoogleFonts.poppins(
-                              color: searchHintColor,
-                              fontSize: 16,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: isDark ? Colors.white70 : _maroonPrimary,
-                            ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 12),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: isDark ? Colors.white70 : _maroonPrimary,
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                          autofocus: true,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
                         ),
-                      );
-                    }
-                  )
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                        autofocus: true,
+                      ),
+                    );
+                  })
                       .animate()
                       .fadeIn(duration: 300.ms)
                       .slideY(begin: -0.2, end: 0),
@@ -892,7 +914,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 );
               },
               backgroundColor: _maroonPrimary,
-              tooltip: "Refresh Data",
+              tooltip: "Perbarui Data",
               child: const Icon(Icons.refresh_rounded, color: Colors.white),
             ),
           );

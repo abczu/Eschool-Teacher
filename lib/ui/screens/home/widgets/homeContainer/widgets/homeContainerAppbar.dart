@@ -332,7 +332,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  context.read<AuthCubit>().getUserDetails().fullName ?? "",
+                                  context.read<AuthCubit>().getUserDetails().getFullName(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.poppins(

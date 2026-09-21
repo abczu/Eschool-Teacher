@@ -366,9 +366,7 @@ class _TeacherAddAttendanceScreenSubjectState
           final filteredStudents = _searchQuery.isEmpty
               ? allStudents
               : allStudents.where((student) {
-                  final fullName = (student.fullName ??
-                          '${student.firstName ?? ''} ${student.lastName ?? ''}')
-                      .toLowerCase();
+                  final fullName = student.cleanFullName.toLowerCase();
                   return fullName.contains(_searchQuery);
                 }).toList();
 

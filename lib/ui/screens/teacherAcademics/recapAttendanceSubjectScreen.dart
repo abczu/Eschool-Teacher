@@ -382,22 +382,19 @@ class _RecapAttendanceSubjectScreenState
         builder: (_) => DownloadAttendanceRecapDialog(
           url: url,
           fileName: "Rekap-Absensi-$month-$_selectedYear",
+          isPreview: false,
         ),
       );
     } else {
-      debugPrint("[RecapSubject] Navigating to AttendanceRecapScreen for preview...");
-      getx.Get.toNamed(
-        Routes.attendanceRecapScreen,
-        arguments: {
-          'schoolId': effectiveSchoolId,
-          'token': token,
-          'month': month,
-          'year': _selectedYear,
-          'classId': classId,
-          'classSectionId': classSectionId,
-          'isDownload': isDownload,
-          'teacherId': user.id,
-        },
+      debugPrint("[RecapSubject] Showing preview dialog for: $url");
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => DownloadAttendanceRecapDialog(
+          url: url,
+          fileName: "Preview-Rekap-Absensi-$month-$_selectedYear",
+          isPreview: true,
+        ),
       );
     }
   }

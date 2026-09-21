@@ -1,3 +1,5 @@
+import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 import 'dart:math';
 import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
@@ -201,34 +203,41 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
             ),
 
-            AnimationLimiter(
-              child: RefreshIndicator(
-                color: maroonPrimary,
-                backgroundColor: isDark
-                    ? Theme.of(context).cardColor
-                    : Colors.white,
-                onRefresh: () async {
-                  context
-                      .read<StaffAllowedPermissionsAndModulesCubit>()
-                      .getPermissionAndAllowedModules();
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsetsDirectional.only(
-                    top: Utils.appContentTopScrollPadding(context: context) +
-                        110,
-                    end: 16, // Samakan dengan Akademik
-                    start: 16, // Samakan dengan Akademik
-                    bottom: 100,
-                  ),
-                  child: Column(
-                    children: AnimationConfiguration.toStaggeredList(
-                      duration: const Duration(milliseconds: 600),
-                      childAnimationBuilder: (widget) => SlideAnimation(
-                        verticalOffset: 30.0,
-                        child: FadeInAnimation(child: widget),
-                      ),
-                      children: <Widget>[
+            Align(
+              alignment: Alignment.topCenter,
+              child: BlocBuilder<StaffAllowedPermissionsAndModulesCubit,
+                  StaffAllowedPermissionsAndModulesState>(
+                builder: (context, state) {
+                  if (state is StaffAllowedPermissionsAndModulesFetchSuccess) {
+                    return AnimationLimiter(
+                      child: RefreshIndicator(
+                        color: maroonPrimary,
+                        backgroundColor: isDark
+                            ? Theme.of(context).cardColor
+                            : Colors.white,
+                        edgeOffset: Utils.appContentTopScrollPadding(context: context) + 110,
+                        onRefresh: () async {
+                          context
+                              .read<StaffAllowedPermissionsAndModulesCubit>()
+                              .getPermissionAndAllowedModules();
+                        },
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsetsDirectional.only(
+                            top: Utils.appContentTopScrollPadding(context: context) +
+                                110,
+                            end: 16, // Samakan dengan Akademik
+                            start: 16, // Samakan dengan Akademik
+                            bottom: 100,
+                          ),
+                          child: Column(
+                            children: AnimationConfiguration.toStaggeredList(
+                              duration: const Duration(milliseconds: 600),
+                              childAnimationBuilder: (widget) => SlideAnimation(
+                                verticalOffset: 30.0,
+                                child: FadeInAnimation(child: widget),
+                              ),
+                              children: <Widget>[
                         const SizedBox(height: 8),
 
                         // // Welcome message
@@ -503,6 +512,29 @@ class _ProfileContainerState extends State<ProfileContainer>
                     ),
                   ),
                 ),
+              ),
+            );
+                  } else if (state
+                      is StaffAllowedPermissionsAndModulesFetchFailure) {
+                    return Center(
+                      child: CustomErrorWidget(
+                        message: state.errorMessage,
+                        onRetry: () {
+                          context
+                              .read<StaffAllowedPermissionsAndModulesCubit>()
+                              .getPermissionAndAllowedModules();
+                        },
+                        primaryColor: maroonPrimary,
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: CustomCircularProgressIndicator(
+                        indicatorColor: maroonPrimary,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
 
@@ -1325,7 +1357,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 builder: (context) {
                   final userDetails =
                       context.read<AuthCubit>().getUserDetails();
-                  final fullName = (userDetails.firstName ?? "").trim();
+                  final fullName = userDetails.getFullName();
                   return Text(
                     fullName.isEmpty ? "Pengguna" : fullName,
                     style: GoogleFonts.poppins(

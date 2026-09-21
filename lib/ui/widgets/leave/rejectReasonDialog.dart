@@ -186,7 +186,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
 
                         // Reason input field
                         Text(
-                          "Alasan Penolakan *",
+                          "Alasan Penolakan",
                           style: TextStyle(
                             fontFamily: GoogleFonts.poppins().fontFamily,
                             fontSize: 14,

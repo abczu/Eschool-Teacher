@@ -790,7 +790,7 @@ class _TeacherTimeTableDetailsScreenState
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                widget.teacherDetails.firstName ?? "-",
+                                widget.teacherDetails.getFullName().isEmpty ? (widget.teacherDetails.firstName ?? "-") : widget.teacherDetails.getFullName(),
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 15,

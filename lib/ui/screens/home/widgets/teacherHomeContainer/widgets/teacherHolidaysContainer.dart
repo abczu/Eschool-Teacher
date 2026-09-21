@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/app/routes.dart';
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/ui/screens/system/holidaysScreen.dart';
@@ -16,6 +16,16 @@ class TeacherHolidaysContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Holiday> holidays = context.read<HomeScreenDataCubit>().getHolidays();
+
+    // Filter out past holidays (endDate or startDate already passed)
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    holidays = holidays.where((holiday) {
+      final endDate = holiday.endDate != null
+          ? DateTime.parse(holiday.endDate!)
+          : DateTime.parse(holiday.startDate ?? "");
+      return !endDate.isBefore(today);
+    }).toList();
 
     // Sort holidays based on startDate
     holidays.sort((a, b) {

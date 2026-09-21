@@ -1,4 +1,4 @@
-﻿import 'package:eschool_saas_staff/data/models/system/holiday.dart';
+import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/holidayContainer.dart';
 import 'package:eschool_saas_staff/utils/system/constants.dart';
@@ -54,7 +54,17 @@ class _HolidaysScreenState extends State<HolidaysScreen>
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _controller.forward();
-    _filteredHolidays = widget.holidays;
+    
+    // Filter out past holidays
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    _filteredHolidays = widget.holidays.where((holiday) {
+      final endDate = holiday.endDate != null
+          ? DateTime.parse(holiday.endDate!)
+          : DateTime.parse(holiday.startDate ?? "");
+      return !endDate.isBefore(today);
+    }).toList();
+
     _scrollController.addListener(_scrollListener);
   }
 

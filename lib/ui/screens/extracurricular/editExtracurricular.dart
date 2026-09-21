@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
@@ -26,8 +26,14 @@ class _EditExtracurricularState extends State<EditExtracurricular>
   late AnimationController _animationController;
   late AnimationController _pulseController;
 
-  static const Color _primaryColor = Color(0xFF7A1E23);
-  static const Color _highlightColor = Color(0xFFB84D4D);
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get _primaryColor => isDark
+      ? const Color(0xFFE53935)
+      : const Color(0xFF8B1F41);
+  Color get _highlightColor => isDark
+      ? const Color(0xFFEF5350)
+      : const Color(0xFFA84B5C);
 
   @override
   void initState() {
@@ -64,7 +70,9 @@ class _EditExtracurricularState extends State<EditExtracurricular>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : Colors.grey[50],
       appBar: CustomModernAppBar(
         title: 'Edit Ekstrakurikuler',
         icon: Icons.edit,
@@ -100,20 +108,27 @@ class _EditExtracurricularState extends State<EditExtracurricular>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Informasi Dasar',
               style: TextStyle(
                 fontSize: 18,
@@ -149,20 +164,27 @@ class _EditExtracurricularState extends State<EditExtracurricular>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
           ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : _primaryColor.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Pelatih/Pembina',
               style: TextStyle(
                 fontSize: 18,
@@ -194,7 +216,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
               'Pelatih saat ini: ${widget.extracurricular.coachName}',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? Colors.white70 : Colors.grey[600],
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -216,6 +238,9 @@ class _EditExtracurricularState extends State<EditExtracurricular>
   }) {
     return TextFormField(
       controller: controller,
+      style: TextStyle(
+        color: isDark ? Colors.white : Colors.black87,
+      ),
       maxLines: maxLines,
       minLines: minLines,
       keyboardType: keyboardType,
@@ -223,17 +248,21 @@ class _EditExtracurricularState extends State<EditExtracurricular>
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade600),
+        labelStyle: TextStyle(
+          color: isDark ? Colors.white70 : Colors.grey.shade600,
+        ),
         prefixIcon: Icon(icon, color: _primaryColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: isDark
+            ? Theme.of(context).colorScheme.surface
+            : Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _primaryColor, width: 2),
+          borderSide: BorderSide(color: _primaryColor, width: 2),
         ),
       ),
     );
@@ -246,7 +275,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
         width: double.infinity,
         height: 55,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [_primaryColor, _highlightColor],
           ),
           borderRadius: BorderRadius.circular(15),
@@ -302,17 +331,17 @@ class _EditExtracurricularState extends State<EditExtracurricular>
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Theme.of(context).cardColor : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: const Column(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -320,17 +349,18 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                       height: 50,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFF7A1E23),
+                          _primaryColor,
                         ),
                         strokeWidth: 4,
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Text(
                       'Menyimpan perubahan...',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                   ],
@@ -361,7 +391,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: Colors.white,
+                color: isDark ? Theme.of(context).cardColor : Colors.white,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -379,7 +409,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Berhasil!',
                     style: TextStyle(
                       fontSize: 24,
@@ -393,7 +423,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.white70 : Colors.grey[600],
                     ),
                   ),
                   const SizedBox(height: 20),

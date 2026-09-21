@@ -169,6 +169,7 @@ class _AcademicsContainerState extends State<AcademicsContainer>
                     backgroundColor: isDark
                         ? Theme.of(context).cardColor
                         : Colors.white,
+                    edgeOffset: Utils.appContentTopScrollPadding(context: context) + 20,
                     onRefresh: () async {
                       context
                           .read<StaffAllowedPermissionsAndModulesCubit>()

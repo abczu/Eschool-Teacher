@@ -28,7 +28,7 @@ class ClassesCubit extends Cubit<ClassesState> {
 
   ClassesCubit() : super(ClassesInitial());
 
-  void getClasses({bool forceRefresh = false}) async {
+  void getClasses({bool forceRefresh = false, bool? modeAll}) async {
     // Prevent redundant fetching if already successful and not forced
     if (!forceRefresh && state is ClassesFetchSuccess) {
       return;
@@ -36,7 +36,7 @@ class ClassesCubit extends Cubit<ClassesState> {
 
     try {
       emit(ClassesFetchInProgress());
-      final result = await _academicRepository.getClasses();
+      final result = await _academicRepository.getClasses(modeAll: modeAll);
       emit(ClassesFetchSuccess(
           classes: result.classes, primaryClasses: result.primaryClasses));
     } catch (e) {

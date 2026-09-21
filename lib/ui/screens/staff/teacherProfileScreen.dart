@@ -523,7 +523,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen>
                                             end: Alignment.centerRight,
                                           ).createShader(bounds),
                                           child: Text(
-                                            widget.teacher.firstName ?? "",
+                                            widget.teacher.getFullName().isEmpty ? (widget.teacher.firstName ?? "") : widget.teacher.getFullName(),
                                             style: GoogleFonts.poppins(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,

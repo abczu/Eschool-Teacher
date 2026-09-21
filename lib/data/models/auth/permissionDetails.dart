@@ -21,6 +21,7 @@ class PermissionDetails {
   final String? fullName;
   final User? user;
   final List<Leave> leaves;
+  final bool? isHomeroom;
 
   PermissionDetails({
     this.id,
@@ -40,6 +41,7 @@ class PermissionDetails {
     this.fullName,
     this.user,
     required this.leaves,
+    this.isHomeroom,
   });
 
   PermissionDetails copyWith({
@@ -60,6 +62,7 @@ class PermissionDetails {
     String? fullName,
     User? user,
     List<Leave>? leaves,
+    bool? isHomeroom,
     ClassSection? classSection,
   }) {
     return PermissionDetails(
@@ -80,6 +83,7 @@ class PermissionDetails {
       fullName: fullName ?? this.fullName,
       user: user ?? this.user,
       leaves: leaves ?? this.leaves,
+      isHomeroom: isHomeroom ?? this.isHomeroom,
     );
   }
 
@@ -112,6 +116,7 @@ class PermissionDetails {
         user = (json['user'] as Map<String, dynamic>?) != null
             ? User.fromJson(json['user'] as Map<String, dynamic>)
             : null,
+        isHomeroom = json['is_homeroom'] == 1 || json['is_homeroom'] == true,
         leaves = (json['leaves'] as List<dynamic>?)
                 ?.map((leave) => Leave.fromJson(leave as Map<String, dynamic>))
                 .toList() ??
@@ -134,6 +139,7 @@ class PermissionDetails {
         firstName = json['student_name'] as String?,
         lastName = null,
         fullName = json['student_name'] as String?,
+        isHomeroom = json['is_homeroom'] == 1 || json['is_homeroom'] == true,
         user = User(
           id: json['user_id'] as int?,
           firstName: json['student_name'] as String?,
@@ -206,6 +212,7 @@ class PermissionDetails {
         'last_name': lastName,
         'full_name': fullName,
         'user': user?.toJson(),
+        'is_homeroom': isHomeroom,
         'leaves': leaves.map((leave) => leave.toJson()).toList(),
       };
 }
@@ -337,6 +344,47 @@ class User {
         fullName = json['full_name'] as String?,
         schoolNames = json['school_names'] as String?,
         role = json['role'] as String?;
+
+  String getFullName() {
+    final first = (firstName ?? "").trim();
+    final last = (lastName ?? "").trim();
+    final full = (fullName ?? "").trim();
+
+    String rawName = "";
+    if (first.isNotEmpty && last.isNotEmpty) {
+      if (first.toLowerCase() == last.toLowerCase()) {
+        rawName = first;
+      } else if (first.toLowerCase().contains(last.toLowerCase())) {
+        rawName = first;
+      } else if (last.toLowerCase().contains(first.toLowerCase())) {
+        rawName = last;
+      } else {
+        rawName = "$first $last";
+      }
+    } else if (first.isNotEmpty) {
+      rawName = first;
+    } else if (full.isNotEmpty) {
+      rawName = full;
+    } else if (last.isNotEmpty) {
+      rawName = last;
+    }
+
+    if (rawName.isEmpty) return "";
+
+    // Hapus pengulangan kata duplikat jika ada kata yang terulang
+    final words = rawName.split(RegExp(r'\s+'));
+    final seen = <String>{};
+    final uniqueWords = <String>[];
+    for (final w in words) {
+      final lower = w.toLowerCase();
+      if (!seen.contains(lower)) {
+        seen.add(lower);
+        uniqueWords.add(w);
+      }
+    }
+
+    return uniqueWords.join(' ');
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

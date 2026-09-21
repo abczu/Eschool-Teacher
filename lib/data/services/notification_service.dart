@@ -130,7 +130,8 @@ class NotificationService {
   }
 
   void _handleNavigation(RemoteMessage message) {
-    var type = (message.data['type'] ?? '').toString();
+    final additionalData = message.data;
+    var type = (additionalData['type'] ?? '').toString();
     // Normalize type string
     type = type.trim().toLowerCase().replaceAll('-', '_');
 
@@ -177,6 +178,25 @@ class NotificationService {
       case 'attendance_update':
       case 'attendance_marked':
         Get.toNamed(Routes.teacherViewAttendanceScreen);
+        break;
+
+      // Pelanggaran Siswa
+      case 'violation_warning':
+      case 'violation':
+      case 'pelanggaran':
+        final studentId = int.tryParse(additionalData['student_id']?.toString() ?? '');
+        final studentName = additionalData['student_name']?.toString();
+        if (studentId != null) {
+          Get.toNamed(
+            Routes.studentViolationDetailScreen,
+            arguments: {
+              'studentId': studentId,
+              'studentName': studentName,
+            },
+          );
+        } else {
+          Get.toNamed(Routes.violationsMainScreen);
+        }
         break;
 
       // ... existing cases ...

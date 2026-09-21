@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/utils/system/in_appbanner.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
 import 'package:flutter/foundation.dart';
@@ -424,6 +423,26 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                             ),
                           ],
                         ),
+
+                      // Kedisiplinan & Pelanggaran Section
+                      _buildMenuSection(
+                        context: context,
+                        title: "Kedisiplinan & Pelanggaran",
+                        icon: Icons.gavel_rounded,
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
+                        index: 9,
+                        menus: [
+                          _buildMenuItem(
+                            context: context,
+                            icon: Icons.shield_outlined,
+                            title: "Pelanggaran Siswa",
+                            index: 21,
+                            onTap: () =>
+                                Get.toNamed(Routes.violationsMainScreen),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -513,12 +532,16 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         ),
                       ),
                       const SizedBox(width: 14),
-                      Text(
-                        title,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

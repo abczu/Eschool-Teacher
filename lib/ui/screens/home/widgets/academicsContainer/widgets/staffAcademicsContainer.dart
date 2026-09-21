@@ -580,6 +580,25 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                           ],
                         )
                       : const SizedBox(),
+
+                  // Kedisiplinan & Pelanggaran Section
+                  _buildMenuSection(
+                    context: context,
+                    title: "Kedisiplinan & Pelanggaran",
+                    icon: Icons.gavel_rounded,
+                    iconColor: const Color(0xFF8B0000).withValues(alpha: 0.9),
+                    index: 9,
+                    menus: [
+                      _buildMenuItem(
+                        context: context,
+                        icon: Icons.shield_outlined,
+                        title: "Pelanggaran Siswa",
+                        index: 25,
+                        onTap: () =>
+                            Get.toNamed(Routes.violationsMainScreen),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -665,12 +684,16 @@ class _StaffAcademicsContainerState extends State<StaffAcademicsContainer>
                             ),
                           ),
                           const SizedBox(width: 14),
-                          Text(
-                            title,
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

@@ -785,7 +785,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   final filteredStudents = searchQuery.isEmpty
                       ? state.students
                       : state.students.where((student) {
-                          final name = (student.firstName ?? "").toLowerCase();
+                          final name = student.cleanFullName.toLowerCase();
                           final admissionNo =
                               (student.student?.admissionNo ?? student.rollNumber ?? "")
                                   .toLowerCase();

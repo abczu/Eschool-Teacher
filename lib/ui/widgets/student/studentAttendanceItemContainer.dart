@@ -57,8 +57,7 @@ class _StudentAttendanceItemContainerState
       !(widget.studentDetails.fullName?.contains("(nonaktif)") ?? false);
 
   String get cleanStudentName {
-    final name = widget.studentDetails.firstName ?? "";
-    return name.trim();
+    return widget.studentDetails.cleanFullName;
   }
 
   @override

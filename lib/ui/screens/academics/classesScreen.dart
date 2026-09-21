@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/classesWithTeacherDetailsCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/subjectTeacher.dart';

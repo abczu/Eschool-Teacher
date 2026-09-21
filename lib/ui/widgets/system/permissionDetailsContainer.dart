@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentPermissionCubit.dart';
 import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
@@ -345,7 +346,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ],
                     border: Border.all(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                            ? Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.2)
                             : _maroonPrimary.withValues(alpha: 0.2)),
                   ),
                   child: Column(
@@ -358,7 +362,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             children: [
                               Icon(
                                 Icons.photo_library_rounded,
-                                color: Theme.of(context).brightness == Brightness.dark
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
                                     ? Theme.of(context).colorScheme.primary
                                     : _maroonPrimary,
                                 size: 24,
@@ -369,7 +374,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).brightness == Brightness.dark
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
                                       ? Theme.of(context).colorScheme.primary
                                       : _maroonPrimary,
                                   letterSpacing: 0.5,
@@ -386,13 +392,15 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Theme.of(context).brightness == Brightness.dark
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
                                       ? Colors.white.withValues(alpha: 0.1)
                                       : _maroonLight.withValues(alpha: 0.1),
                                 ),
                                 child: Icon(
                                   Icons.close_rounded,
-                                  color: Theme.of(context).brightness == Brightness.dark
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
                                       ? Theme.of(context).colorScheme.primary
                                       : _maroonPrimary,
                                   size: 22,
@@ -459,7 +467,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                             return Container(
                                               height: 240,
                                               decoration: BoxDecoration(
-                                                color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceVariant
+                                                    .withValues(alpha: 0.3),
                                                 borderRadius:
                                                     BorderRadius.circular(16),
                                               ),
@@ -482,8 +493,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                                         .expectedTotalBytes ??
                                                                     1)
                                                             : null,
-                                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                                            Theme.of(context).colorScheme.primary),
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                                Color>(Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .primary),
                                                         strokeWidth: 3,
                                                       ),
                                                     ),
@@ -491,7 +506,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                     Text(
                                                       "Memuat lampiran...",
                                                       style: TextStyle(
-                                                        color: Theme.of(context).colorScheme.onSurface,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface,
                                                         fontWeight:
                                                             FontWeight.w500,
                                                       ),
@@ -523,14 +540,18 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                     Icon(
                                                       Icons
                                                           .broken_image_rounded,
-                                                      color: Theme.of(context).colorScheme.onSurface,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface,
                                                       size: 48,
                                                     ),
                                                     const SizedBox(height: 16),
                                                     Text(
                                                       "Tidak dapat memuat gambar",
                                                       style: TextStyle(
-                                                        color: Theme.of(context).colorScheme.onSurface,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface,
                                                         fontWeight:
                                                             FontWeight.w500,
                                                         fontSize: 15,
@@ -781,448 +802,475 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
               sigmaY: isDark ? 12 : 0,
             ),
             child: Stack(
-            children: [
-              // Background pattern and decorative elements
-              if (!widget.isCompact) ...[
-                Positioned(
-                  top: -20,
-                  right: -20,
-                  child: Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          _maroonAccent.withValues(alpha: 0.2),
-                          Colors.transparent,
-                        ],
-                        radius: 0.7,
+              children: [
+                // Background pattern and decorative elements
+                if (!widget.isCompact) ...[
+                  Positioned(
+                    top: -20,
+                    right: -20,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            _maroonAccent.withValues(alpha: 0.2),
+                            Colors.transparent,
+                          ],
+                          radius: 0.7,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom: -15,
-                  left: -15,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          _goldAccent.withValues(alpha: 0.15),
-                          Colors.transparent,
-                        ],
-                        radius: 0.7,
+                  Positioned(
+                    bottom: -15,
+                    left: -15,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            _goldAccent.withValues(alpha: 0.15),
+                            Colors.transparent,
+                          ],
+                          radius: 0.7,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
 
-              // Main content
-              Container(
-                padding: EdgeInsets.all(widget.isCompact ? 16 : 24),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    // Header with leave type and attachment button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Main content
+                Container(
+                  padding: EdgeInsets.all(widget.isCompact ? 16 : 24),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLeaveTypeChip(getSafeLeaveType()),
-                        // Commented out status badge to prevent overflow
-                        // Row(
-                        //   children: [
-                        //     _buildLeaveTypeChip(getSafeLeaveType()),
-                        //     const SizedBox(width: 12),
-                        //     _buildHeaderStatusBadge(),
-                        //   ],
-                        // ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _showAttachments(context),
-                            borderRadius: BorderRadius.circular(50),
-                            splashColor: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : _maroonPrimary.withValues(alpha: 0.1),
-                            highlightColor: isDark
-                                ? Colors.white.withValues(alpha: 0.05)
-                                : _maroonPrimary.withValues(alpha: 0.05),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? (_isHovering
-                                        ? Colors.white.withValues(alpha: 0.15)
-                                        : Colors.white.withValues(alpha: 0.08))
-                                    : (_isHovering
-                                        ? _maroonPrimary.withValues(alpha: 0.15)
-                                        : _maroonPrimary.withValues(alpha: 0.1)),
-                                shape: BoxShape.circle,
-                                boxShadow: _isHovering
-                                    ? [
-                                        BoxShadow(
-                                          color: isDark
-                                              ? Colors.black.withValues(alpha: 0.3)
-                                              : _maroonPrimary.withValues(
-                                                  alpha: 0.2),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        )
-                                      ]
-                                    : null,
-                              ),
-                              child: Icon(
-                                Icons.attach_file_rounded,
-                                size: 22,
-                                color: isDark ? Colors.white : _maroonPrimary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: widget.isCompact ? 12 : 28),
-
-                    // Student info header section with enhanced styling
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: widget.isCompact ? 44 : 60,
-                          height: widget.isCompact ? 44 : 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                _maroonPrimary.withValues(alpha: 0.8),
-                                _maroonDark,
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _maroonPrimary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: widget.isCompact ? 22 : 30,
-                          ),
-                        ),
-                        SizedBox(width: widget.isCompact ? 12 : 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.permissionDetails.user?.fullName ?? "",
-                                style: TextStyle(
-                                  fontSize: widget.isCompact
-                                      ? 16
-                                      : (isSmallScreen ? 20 : 22),
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  letterSpacing: 0.3,
-                                  height: 1.2,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                              const SizedBox(height: 8),
-                              if (widget.isCompact)
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: _buildBadgeChip("Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}"),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildBadgeChip("Absen: ${widget.permissionDetails.rollNumber}"),
-                                  ],
-                                )
-                              else ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                        // Header with leave type and attachment button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildLeaveTypeChip(getSafeLeaveType()),
+                            // Commented out status badge to prevent overflow
+                            // Row(
+                            //   children: [
+                            //     _buildLeaveTypeChip(getSafeLeaveType()),
+                            //     const SizedBox(width: 12),
+                            //     _buildHeaderStatusBadge(),
+                            //   ],
+                            // ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _showAttachments(context),
+                                borderRadius: BorderRadius.circular(50),
+                                splashColor: isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : _maroonPrimary.withValues(alpha: 0.1),
+                                highlightColor: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : _maroonPrimary.withValues(alpha: 0.05),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey.shade50,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.grey.shade200,
-                                    ),
+                                    color: isDark
+                                        ? (_isHovering
+                                            ? Colors.white
+                                                .withValues(alpha: 0.15)
+                                            : Colors.white
+                                                .withValues(alpha: 0.08))
+                                        : (_isHovering
+                                            ? _maroonPrimary.withValues(
+                                                alpha: 0.15)
+                                            : _maroonPrimary.withValues(
+                                                alpha: 0.1)),
+                                    shape: BoxShape.circle,
+                                    boxShadow: _isHovering
+                                        ? [
+                                            BoxShadow(
+                                              color: isDark
+                                                  ? Colors.black
+                                                      .withValues(alpha: 0.3)
+                                                  : _maroonPrimary.withValues(
+                                                      alpha: 0.2),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            )
+                                          ]
+                                        : null,
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.class_outlined,
-                                        size: 16,
-                                        color:
-                                            _maroonPrimary.withValues(alpha: 0.7),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade50,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.format_list_numbered,
-                                        size: 16,
-                                        color:
-                                            _maroonPrimary.withValues(alpha: 0.7),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Absen: ${widget.permissionDetails.rollNumber}',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ],
+                                  child: Icon(
+                                    Icons.attach_file_rounded,
+                                    size: 22,
+                                    color:
+                                        isDark ? Colors.white : _maroonPrimary,
                                   ),
                                 ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: widget.isCompact ? 12 : 24),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              _maroonLight.withValues(alpha: 0.6),
-                              _maroonLight.withValues(alpha: 0.6),
-                              Colors.transparent,
-                            ],
-                            stops: const [0.0, 0.2, 0.8, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Reason section with enhanced styling
-                    if (widget.isCompact)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: _maroonLight.withValues(alpha: 0.05),
-                          border: Border.all(
-                            color: _maroonPrimary.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        child: Text(
-                          "Keterangan: ${translateRole(safeLastLeave?.reason ?? '')}",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            height: 1.4,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      )
-                    else
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: _maroonLight.withValues(alpha: 0.05),
-                          border: Border.all(
-                            color: _maroonPrimary.withValues(alpha: 0.15),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _maroonPrimary.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
+                              ),
                             ),
                           ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                        SizedBox(height: widget.isCompact ? 12 : 28),
+
+                        // Student info header section with enhanced styling
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: widget.isCompact ? 44 : 60,
+                              height: widget.isCompact ? 44 : 60,
                               decoration: BoxDecoration(
-                                color: _maroonPrimary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.description_outlined,
-                                    color: _maroonPrimary,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    "Keterangan",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      letterSpacing: 0.5,
-                                    ),
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    _maroonPrimary.withValues(alpha: 0.8),
+                                    _maroonDark,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        _maroonPrimary.withValues(alpha: 0.3),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 5),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
+                              child: Icon(
+                                Icons.person,
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              child: Text(
-                                translateRole(safeLastLeave?.reason ?? ''),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  height: 1.6,
-                                  color: Colors.black87,
-                                  letterSpacing: 0.2,
-                                ),
+                                size: widget.isCompact ? 22 : 30,
                               ),
                             ),
-                          ],
-                        ),
-                      ), // Footer with date in a more elegant style
-                    if (safeLastLeave?.fromDate != null)
-                      Padding(
-                        padding: EdgeInsets.only(top: widget.isCompact ? 10 : 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // School branding indicator
-
-                            const SizedBox(width: 8),
-
-                            // Date container
-                            Flexible(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: isSmallScreen ? 12 : 16,
-                                    vertical: widget.isCompact ? 6 : 10),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      _maroonLight.withValues(alpha: 0.2),
-                                      _goldAccent.withValues(alpha: 0.15),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.03),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
+                            SizedBox(width: widget.isCompact ? 12 : 20),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.permissionDetails.user?.fullName ??
+                                        "",
+                                    style: TextStyle(
+                                      fontSize: widget.isCompact
+                                          ? 16
+                                          : (isSmallScreen ? 20 : 22),
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      letterSpacing: 0.3,
+                                      height: 1.2,
                                     ),
-                                  ],
-                                  border: Border.all(
-                                    color: _maroonLight.withValues(alpha: 0.2),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today_rounded,
-                                      size: 16,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                    SizedBox(width: isSmallScreen ? 6 : 10),
-                                    Flexible(
-                                      child: Text(
-                                        safeLastLeave?.fromDate ?? '',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: FontWeight.w600,
+                                  const SizedBox(height: 8),
+                                  if (widget.isCompact)
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: _buildBadgeChip(
+                                              "Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}"),
                                         ),
-                                        overflow: TextOverflow.ellipsis,
+                                        const SizedBox(width: 8),
+                                        _buildBadgeChip(
+                                            "Absen: ${widget.permissionDetails.rollNumber}"),
+                                      ],
+                                    )
+                                  else ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.grey.shade200,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.class_outlined,
+                                            size: 16,
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.7),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.grey.shade200,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.format_list_numbered,
+                                            size: 16,
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.7),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Absen: ${widget.permissionDetails.rollNumber}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
-                                ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
 
-                    // Action buttons section
-                    _buildActionButtons(),
-                  ],       // children: [ (Column)
-                ),         // Column
-              ),           // SingleChildScrollView
-            ),             // Container
-            ],             // children: [ (Stack)
-          ),               // Stack
-        ),                 // BackdropFilter
-      ),                   // ClipRRect
-    ),                     // AnimatedContainer
-  );                       // MouseRegion (return)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: widget.isCompact ? 12 : 24),
+                          child: Container(
+                            height: 1,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.transparent,
+                                  _maroonLight.withValues(alpha: 0.6),
+                                  _maroonLight.withValues(alpha: 0.6),
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 0.2, 0.8, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Reason section with enhanced styling
+                        if (widget.isCompact)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: _maroonLight.withValues(alpha: 0.05),
+                              border: Border.all(
+                                color: _maroonPrimary.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            child: Text(
+                              "Keterangan: ${translateRole(safeLastLeave?.reason ?? '')}",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                                height: 1.4,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        else
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: _maroonLight.withValues(alpha: 0.05),
+                              border: Border.all(
+                                color: _maroonPrimary.withValues(alpha: 0.15),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _maroonPrimary.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        _maroonPrimary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.description_outlined,
+                                        color: _maroonPrimary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "Keterangan",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    translateRole(safeLastLeave?.reason ?? ''),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      height: 1.6,
+                                      color: Colors.black87,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ), // Footer with date in a more elegant style
+                        if (safeLastLeave?.fromDate != null)
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: widget.isCompact ? 10 : 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // School branding indicator
+
+                                const SizedBox(width: 8),
+
+                                // Date container
+                                Flexible(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: isSmallScreen ? 12 : 16,
+                                        vertical: widget.isCompact ? 6 : 10),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          _maroonLight.withValues(alpha: 0.2),
+                                          _goldAccent.withValues(alpha: 0.15),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.03),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color:
+                                            _maroonLight.withValues(alpha: 0.2),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_rounded,
+                                          size: 16,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                        ),
+                                        SizedBox(width: isSmallScreen ? 6 : 10),
+                                        Flexible(
+                                          child: Text(
+                                            safeLastLeave?.fromDate ?? '',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Action buttons section
+                        _buildActionButtons(),
+                      ], // children: [ (Column)
+                    ), // Column
+                  ), // SingleChildScrollView
+                ), // Container
+              ], // children: [ (Stack)
+            ), // Stack
+          ), // BackdropFilter
+        ), // ClipRRect
+      ), // AnimatedContainer
+    ); // MouseRegion (return)
   }
 
   Widget _buildErrorUI() {
@@ -1498,17 +1546,169 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
 
     // Check if leave is already approved or rejected (use optimistic status if available)
     final int status = _optimisticStatus ?? lastLeave.status ?? 0;
+    final bool isHomeroom = widget.permissionDetails.isHomeroom == true;
+    final rejectionReason =
+        _optimisticRejectionReason ?? safeLastLeave?.rejectionReason;
 
-    // Debug logging
-    debugPrint("DEBUG _buildActionButtons:");
-    debugPrint("  - Server status: ${lastLeave.status}");
-    debugPrint("  - Optimistic status: $_optimisticStatus");
-    debugPrint("  - Final status: $status");
+    return Container(
+      margin: EdgeInsets.only(top: widget.isCompact ? 10 : 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ─── 1. Card Penanda Status (Selalu Tampil) ───
+          if (status == 1)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.isCompact ? 12 : 14,
+                vertical: widget.isCompact ? 8 : 12,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF6FFED),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFB7EB8F)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.check_circle, size: 18, color: Color(0xFF52C41A)),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Izin telah disetujui",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF389E0D),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (status == 2)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.isCompact ? 12 : 14,
+                vertical: widget.isCompact ? 8 : 12,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF1F0),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFA39E)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.cancel, size: 18, color: Color(0xFFF5222D)),
+                      SizedBox(width: 8),
+                      Text(
+                        "Izin telah ditolak",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFCF1322),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (rejectionReason != null &&
+                      rejectionReason.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      "Alasan: $rejectionReason",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF820014),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            )
+          else
+            // Status == 0 (Belum Disetujui / Menunggu Konfirmasi)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.isCompact ? 12 : 14,
+                vertical: widget.isCompact ? 8 : 12,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7E6),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFD591)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.pending_actions_rounded,
+                      size: 18, color: Color(0xFFFA8C16)),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Menunggu Persetujuan",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFD46B08),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-    if (status == 1 || status == 2) {
-      return _buildStatusSection(status);
-    }
+          // ─── 2. Keterangan Hak Akses (Non-Walas) ATAU Tombol Aksi (Walas) ───
+          if (!isHomeroom) ...[
+            // Meskipun status sudah disetujui / ditolak / pending, tetap tampilkan keterangan bahwa hanya walas yang memproses
+            Container(
+              margin: EdgeInsets.only(top: widget.isCompact ? 8 : 12),
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.isCompact ? 12 : 14,
+                vertical: widget.isCompact ? 8 : 12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: Colors.amber.shade700,
+                    size: widget.isCompact ? 18 : 20,
+                  ),
+                  SizedBox(width: widget.isCompact ? 8 : 12),
+                  Expanded(
+                    child: Text(
+                      'Hanya Wali Kelas yang dapat memproses izin ini.',
+                      style: TextStyle(
+                        color: Colors.amber.shade900,
+                        fontSize: widget.isCompact ? 12 : 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Guru adalah Wali Kelas
+            if (status == 0)
+              _buildHomeroomPendingActionButtons(lastLeave)
+            else
+              _buildEditButtons(status),
+          ],
+        ],
+      ),
+    );
+  }
 
+  Widget _buildHomeroomPendingActionButtons(dynamic lastLeave) {
     return BlocConsumer<ApproveOrRejectStudentPermissionCubit,
         ApproveOrRejectStudentPermissionState>(
       bloc: _approveRejectCubit,
@@ -1518,8 +1718,6 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             message: "Izin berhasil diperbarui",
             context: context,
           );
-          // Don't clear optimistic state immediately - let it persist until refresh
-          // The parent will refresh the data and rebuild this widget with new data
           widget.onPermissionUpdated?.call();
         } else if (state is ApproveOrRejectStudentPermissionFailure) {
           setState(() {
@@ -1536,7 +1734,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         final bool isInProgress =
             state is ApproveOrRejectStudentPermissionInProgress;
         return Container(
-          margin: const EdgeInsets.only(top: 20),
+          margin: EdgeInsets.only(top: widget.isCompact ? 8 : 16),
           child: Row(
             children: [
               Expanded(
@@ -1570,93 +1768,17 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   }
 
   Widget _buildStatusSection(int status) {
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      child: Column(
-        children: [
-          // Show rejection reason if available
-          if (status == 2) ...[
-            Builder(
-              builder: (context) {
-                final rejectionReason = _optimisticRejectionReason ??
-                    safeLastLeave?.rejectionReason;
-                if (rejectionReason != null && rejectionReason.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline_rounded,
-                              color: Colors.red.shade600,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Alasan Penolakan',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.red.shade200,
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    Colors.red.shade100.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  rejectionReason,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.red.shade800,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
-          _buildEditButtons(status),
-        ],
-      ),
-    );
+    return _buildActionButtons();
   }
 
   Widget _buildEditButtons(int currentStatus) {
     final lastLeave = safeLastLeave;
     if (lastLeave == null) return const SizedBox.shrink();
+
+    // If the user is NOT a homeroom teacher, they cannot change the approval status.
+    if (widget.permissionDetails.isHomeroom != true) {
+      return const SizedBox.shrink();
+    }
 
     return BlocProvider(
       create: (context) => ApproveOrRejectStudentPermissionCubit(),
@@ -1953,34 +2075,73 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   void _approveLeave(BuildContext context, int leaveId) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("Konfirmasi"),
-        content: const Text("Apakah Anda yakin ingin menyetujui izin ini?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text("Batal"),
+      builder: (dialogContext) {
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF2A2A2C) : Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-
-              // Optimistic update
-              setState(() {
-                _optimisticStatus = 1; // Approved
-                _optimisticRejectionReason = null;
-              });
-
-              // Make API call using class member cubit
-              _approveRejectCubit.approveOrRejectStudentPermission(
-                leaveId: leaveId,
-                approveLeave: true,
-              );
-            },
-            child: const Text("Setujui"),
+          title: Text(
+            "Konfirmasi",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
-        ],
-      ),
+          content: Text(
+            "Apakah Anda yakin ingin menyetujui izin ini?",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDark ? Colors.white70 : Colors.grey.shade700,
+              height: 1.5,
+            ),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                "Batal",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+
+                // Optimistic update
+                setState(() {
+                  _optimisticStatus = 1; // Approved
+                  _optimisticRejectionReason = null;
+                });
+
+                // Make API call using class member cubit
+                _approveRejectCubit.approveOrRejectStudentPermission(
+                  leaveId: leaveId,
+                  approveLeave: true,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Setujui",
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1999,13 +2160,11 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           });
 
           // Make API call
-          context
-              .read<ApproveOrRejectStudentPermissionCubit>()
-              .approveOrRejectStudentPermission(
-                leaveId: leaveId,
-                approveLeave: false,
-                rejectReason: rejectReason,
-              );
+          _approveRejectCubit.approveOrRejectStudentPermission(
+            leaveId: leaveId,
+            approveLeave: false,
+            rejectReason: rejectReason,
+          );
         },
         onCancel: () => Navigator.of(dialogContext).pop(),
       ),
@@ -2015,37 +2174,73 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   void _changeToApprove(BuildContext context, int leaveId) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("Ubah Keputusan"),
-        content: const Text(
-            "Apakah Anda yakin ingin mengubah keputusan menjadi 'Disetujui'?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text("Batal"),
+      builder: (dialogContext) {
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF2A2A2C) : Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-
-              // Optimistic update
-              setState(() {
-                _optimisticStatus = 1; // Approved
-                _optimisticRejectionReason = null; // Clear rejection reason
-              });
-
-              // Make API call
-              context
-                  .read<ApproveOrRejectStudentPermissionCubit>()
-                  .approveOrRejectStudentPermission(
-                    leaveId: leaveId,
-                    approveLeave: true,
-                  );
-            },
-            child: const Text("Ya, Ubah"),
+          title: Text(
+            "Ubah Keputusan",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
-        ],
-      ),
+          content: Text(
+            "Apakah Anda yakin ingin mengubah keputusan menjadi 'Disetujui'?",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDark ? Colors.white70 : Colors.grey.shade700,
+              height: 1.5,
+            ),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                "Batal",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+
+                // Optimistic update
+                setState(() {
+                  _optimisticStatus = 1; // Approved
+                  _optimisticRejectionReason = null; // Clear rejection reason
+                });
+
+                // Make API call
+                _approveRejectCubit.approveOrRejectStudentPermission(
+                  leaveId: leaveId,
+                  approveLeave: true,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Ya, Ubah",
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

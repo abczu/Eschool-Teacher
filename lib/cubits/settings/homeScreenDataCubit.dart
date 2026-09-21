@@ -89,9 +89,12 @@ class HomeScreenDataCubit extends Cubit<HomeScreenDataState> {
     required bool isTeacher,
     required bool holidayModuleEnabled,
     required bool staffLeaveModuleEnabled,
+    bool isSilent = false,
   }) async {
     try {
-      emit(HomeScreenDataFetchInProgress());
+      if (!isSilent) {
+        emit(HomeScreenDataFetchInProgress());
+      }
 
       // Fetch statistics defensively
       var totalLeaveRequests = 0;

@@ -528,7 +528,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.leaveDetails.leave?.user?.firstName ??
+                                widget.leaveDetails.leave?.user?.getFullName() ?? widget.leaveDetails.leave?.user?.firstName ??
                                     "",
                                 style: TextStyle(
                                   fontSize: isSmallScreen ? 20 : 22,

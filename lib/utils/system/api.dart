@@ -346,6 +346,32 @@ class Api {
   static String get replyContact => "${databaseUrl}contacts"; // /{id}/reply
   static String get getContactStats => "${databaseUrl}contacts/stats";
 
+  // Violation (Pelanggaran Siswa) APIs
+  static String get teacherViolationRolesCheck =>
+      "${databaseUrl}teacher/violations/roles-check";
+  static String get teacherViolationAllStudents =>
+      "${databaseUrl}teacher/violations/all-students";
+  static String get teacherViolationHomeroomStudents =>
+      "${databaseUrl}teacher/violations/homeroom-students";
+  static String get teacherViolationTypes =>
+      "${databaseUrl}teacher/violations/types";
+  static String get teacherViolationGivePoints =>
+      "${databaseUrl}teacher/violations/give-points";
+  static String teacherViolationStudentDetail(int studentId) =>
+      "${databaseUrl}teacher/violations/student-detail/$studentId";
+  static String teacherViolationDelete(int violationId) =>
+      "${databaseUrl}teacher/violations/$violationId";
+  static String get teacherViolationExportPdf =>
+      "${databaseUrl}teacher/violations/export-pdf";
+  static String get teacherViolationHomeroomExportPdf =>
+      "${databaseUrl}teacher/violations/homeroom/export-pdf";
+  static String parentViolationChildren(int studentId) =>
+      "${databaseUrl}parent/violations/children/$studentId";
+  static String parentViolationChildrenExportPdf(int studentId) =>
+      "${databaseUrl}parent/violations/children/$studentId/export-pdf";
+  static String get studentViolationSummary =>
+      "${databaseUrl}student/violations/summary";
+
   static Map<String, String> headers(
       {bool useAuthToken = false,
       bool includeSchoolCode = true,
@@ -379,6 +405,7 @@ class Api {
     return {
       "Authorization": "Bearer $jwtToken",
       if (includeSchoolCode) "school-code": schoolCode,
+      if (includeSchoolCode) "school_code": schoolCode,
       if (contentType != null) "Content-Type": contentType,
       "Accept": "application/json",
       "X-Requested-With": "XMLHttpRequest",
@@ -683,7 +710,7 @@ class Api {
 
   static Future<Map<String, dynamic>> delete({
     required String url,
-    required Map<String, dynamic> body,
+    Map<String, dynamic>? body,
     bool? useAuthToken,
     Map<String, dynamic>? queryParameters,
   }) async {
@@ -697,7 +724,7 @@ class Api {
       final Dio dio = _dio;
       final response = await dio.delete(
         url,
-        data: body,
+        data: body ?? {},
         queryParameters: queryParameters,
         options: Options(
           headers: headers(useAuthToken: useAuthToken ?? false),

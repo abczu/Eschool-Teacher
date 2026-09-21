@@ -243,7 +243,7 @@ class _TeachersScreenState extends State<TeachersScreen>
       // Filter pencarian lokal (nama atau role)
       bool matchesSearch = true;
       if (searchQuery.isNotEmpty) {
-        final name = (teacher.firstName ?? "").toLowerCase();
+        final name = teacher.getFullName().toLowerCase();
         final role = teacher.getRoles().toLowerCase();
         matchesSearch = name.contains(searchQuery) || role.contains(searchQuery);
       }
@@ -419,7 +419,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      teacherDetails.firstName ?? "-",
+                                      teacherDetails.getFullName().isEmpty ? (teacherDetails.firstName ?? "-") : teacherDetails.getFullName(),
                                       style: GoogleFonts.poppins(
                                         fontWeight: isHovered
                                             ? FontWeight.w600

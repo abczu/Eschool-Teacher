@@ -67,7 +67,7 @@ class TeachersTimeTableContainer extends StatelessWidget {
                   ),
                   const Spacer(),
                   CustomTextContainer(
-                    textKey: teacher.firstName ?? "",
+                    textKey: teacher.getFullName().isEmpty ? (teacher.firstName ?? "") : teacher.getFullName(),
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600),

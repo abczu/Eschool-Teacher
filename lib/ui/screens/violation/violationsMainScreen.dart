@@ -14,7 +14,6 @@ import 'package:eschool_saas_staff/ui/screens/violation/widgets/violationFilterB
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
-import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/snackBarUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,18 +65,10 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     )..repeat(reverse: true);
     _scrollController.addListener(_onScroll);
 
-    // Langsung muat data awal dan sesuaikan tab begitu screen aktif
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final roleState = context.read<ViolationRoleCheckCubit>().state;
-        ViolationRoleCheck? rawCheck;
-        if (roleState is ViolationRoleCheckSuccess) {
-          rawCheck = roleState.roleCheck;
-        }
-        final effectiveRole = _resolveRoleCheck(rawCheck);
-        _setupInitialTabAndFetch(effectiveRole);
-      }
-    });
+    // JANGAN tebak role di sini: ViolationRoleCheck & Classes masih loading.
+    // Tab + fetch pertama dilakukan setelah role benar-benar loaded
+    // (lihat listener ViolationRoleCheck di build). Ini mencegah walas-only
+    // salah memanggil endpoint all-students (400 "Hanya Kesiswaan...").
   }
 
   @override
@@ -99,19 +90,24 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
   }
 
   void _onSearchChanged(String query) {
+    // Update ikon clear & filter lokal homeroom secara instan
+    setState(() {});
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       if (_activeTabIndex == 0) {
+        // Tab kesiswaan: cari via backend TANPA loader fullscreen
+        // agar list tidak kedip setiap ketik. Hasil backend tetap
+        // difilter ulang secara lokal di builder sebagai safety net.
         context.read<ViolationStudentsCubit>().getKesiswaanStudents(
-              classId: _selectedClassId,
+              classSectionId: _selectedClassId,
               sortBy: _selectedSortBy,
-              search: query,
-              isRefresh: false,
+              search: query.trim(),
+              isRefresh: true,
             );
       } else {
         // Tab wali kelas: filter pencarian secara instan di UI lokal
-        setState(() {});
+        if (mounted) setState(() {});
       }
     });
   }
@@ -157,10 +153,67 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     );
   }
 
+  /// Fallback classId untuk walas: _selectedClassId → homeroomClasses →
+  /// primaryClasses. Menutupi response homeroom yang flat tanpa class_id,
+  /// agar avatar (foto web) + nama kelas tampil sama seperti kesiswaan.
+  int? _resolveFallbackClassId(ViolationRoleCheck roleCheck) {
+    if (_selectedClassId != null && _selectedClassId! > 0) {
+      return _selectedClassId;
+    }
+    if (roleCheck.homeroomClasses.isNotEmpty &&
+        roleCheck.homeroomClasses.first.classId > 0) {
+      return roleCheck.homeroomClasses.first.classId;
+    }
+    final classesState = context.read<ClassesCubit>().state;
+    if (classesState is ClassesFetchSuccess) {
+      final all = [
+        ...classesState.primaryClasses,
+        ...classesState.classes,
+      ];
+      if (_selectedClassId != null) {
+        final match =
+            all.where((c) => c.id == _selectedClassId).firstOrNull;
+        final id = match?.id ?? match?.classId ?? 0;
+        if (id > 0) return id;
+      }
+      if (all.isNotEmpty) {
+        final id = all.first.id ?? all.first.classId ?? 0;
+        if (id > 0) return id;
+      }
+    }
+    return null;
+  }
+
+  /// Fallback nama kelas untuk walas saat item.className null/kosong,
+  /// agar baris info kelas tampil sama seperti kartu kesiswaan.
+  String? _resolveFallbackClassName(ViolationRoleCheck roleCheck) {
+    final classesState = context.read<ClassesCubit>().state;
+    if (classesState is ClassesFetchSuccess) {
+      final all = [
+        ...classesState.primaryClasses,
+        ...classesState.classes,
+      ];
+      final targetId = _resolveFallbackClassId(roleCheck);
+      if (targetId != null) {
+        final match = all.where((c) => c.id == targetId).firstOrNull;
+        final name = match?.fullName ?? match?.name;
+        if (name != null && name.trim().isNotEmpty) return name.trim();
+      }
+      if (all.isNotEmpty) {
+        final name = all.first.fullName ?? all.first.name;
+        if (name != null && name.trim().isNotEmpty) return name.trim();
+      }
+    }
+    if (roleCheck.homeroomClasses.isNotEmpty) {
+      final name = roleCheck.homeroomClasses.first.className.trim();
+      if (name.isNotEmpty) return name;
+    }
+    return null;
+  }
+
   void _setupInitialTabAndFetch(ViolationRoleCheck roleCheck) {
     if (_hasInitializedTab) return;
     _hasInitializedTab = true;
-
     // Aturan Penentuan Tab Sesuai Role:
     // 1. Walas saja: hanya menampilkan siswa kelasnya saja (_activeTabIndex = 1)
     // 2. Kesiswaan saja: hanya menampilkan siswa full (_activeTabIndex = 0)
@@ -178,22 +231,79 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     _fetchStudentsForCurrentTab(roleCheck);
   }
 
-  void _fetchStudentsForCurrentTab(ViolationRoleCheck roleCheck) {
-    if (_activeTabIndex == 0) {
-      // Siswa Full (Kesiswaan / Satu Sekolah)
-      context.read<ViolationStudentsCubit>().getKesiswaanStudents(
-            classSectionId: _selectedClassId,
-            sortBy: _selectedSortBy,
-            search: _searchController.text,
-          );
-    } else {
-      // Siswa Kelas (Wali Kelas)
-      context.read<ViolationStudentsCubit>().getHomeroomStudents(
+  /// Koreksi tab jika tidak sesuai role final.
+  /// Dipanggil setiap kali role check / daftar kelas selesai loaded,
+  /// untuk memperbaiki kasus init dini yang salah tab.
+  void _syncTabWithRole(ViolationRoleCheck roleCheck) {
+    if (!_hasInitializedTab) {
+      _setupInitialTabAndFetch(roleCheck);
+      return;
+    }
+    int? expected;
+    if (roleCheck.isHomeroom && !roleCheck.isKesiswaan) {
+      expected = 1; // Walas saja -> wajib tab kelas perwalian
+    } else if (roleCheck.isKesiswaan && !roleCheck.isHomeroom) {
+      expected = 0; // Kesiswaan saja -> wajib tab siswa full
+    }
+    // Dual role (keduanya true): biarkan pilihan user, jangan paksa pindah.
+    if (expected != null && _activeTabIndex != expected) {
+      setState(() {
+        _activeTabIndex = expected!;
+        _selectedClassId = null;
+      });
+      _fetchStudentsForCurrentTab(roleCheck);
+    }
+  }
+
+  /// Fetch siswa untuk tab aktif.
+  /// [isRefresh] = true dipakai pull-to-refresh agar tidak tampil loader
+  /// fullscreen (indikator RefreshIndicator yang tampil) dan data terbaru
+  /// dari backend (misal poin baru via web) langsung diambil ulang.
+  Future<void> _fetchStudentsForCurrentTab(
+    ViolationRoleCheck roleCheck, {
+    bool isRefresh = false,
+  }) {
+    // GUARD: jangan pernah panggil endpoint kesiswaan untuk akun non-kesiswaan.
+    // Backend mengembalikan 400 "Hanya Kesiswaan yang berwenang...".
+    // Walas-only wajib memakai endpoint homeroom (otomatis scope kelas perwalian).
+    if (_activeTabIndex == 0 && !roleCheck.isKesiswaan) {
+      _activeTabIndex = 1;
+      if (mounted) setState(() {});
+      return context.read<ViolationStudentsCubit>().getHomeroomStudents(
             classSectionId: _selectedClassId,
             filter: _selectedFilter,
             sortBy: _selectedSortBy,
+            isRefresh: isRefresh,
           );
     }
+    if (_activeTabIndex == 1 && !roleCheck.isHomeroom && roleCheck.isKesiswaan) {
+      _activeTabIndex = 0;
+      if (mounted) setState(() {});
+    }
+    if (_activeTabIndex == 0) {
+      // Siswa Full (Kesiswaan / Satu Sekolah)
+      return context.read<ViolationStudentsCubit>().getKesiswaanStudents(
+            classSectionId: _selectedClassId,
+            sortBy: _selectedSortBy,
+            search: _searchController.text,
+            isRefresh: isRefresh,
+          );
+    } else {
+      // Siswa Kelas (Wali Kelas)
+      return context.read<ViolationStudentsCubit>().getHomeroomStudents(
+            classSectionId: _selectedClassId,
+            filter: _selectedFilter,
+            sortBy: _selectedSortBy,
+            isRefresh: isRefresh,
+          );
+    }
+  }
+
+  /// Handler khusus pull-to-refresh: bersihkan cache avatar agar foto
+  /// terbaru ikut diambil, lalu fetch ulang data siswa dari backend.
+  Future<void> _handlePullRefresh(ViolationRoleCheck roleCheck) async {
+    StudentAvatarHelper.clearCache();
+    await _fetchStudentsForCurrentTab(roleCheck, isRefresh: true);
   }
 
   void _openFilter(ViolationRoleCheck roleCheck) {
@@ -272,10 +382,22 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
           listener: (context, roleState) {
             if (roleState is ViolationRoleCheckSuccess) {
               final roleCheck = _resolveRoleCheck(roleState.roleCheck);
-              if (!_hasInitializedTab) {
-                _setupInitialTabAndFetch(roleCheck);
-              }
-              setState(() {});
+              // Init pertama HANYA setelah role asli dari backend tiba,
+              // plus auto-koreksi jika tab saat ini tidak sesuai role.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                _syncTabWithRole(roleCheck);
+                if (mounted) setState(() {});
+              });
+            } else if (roleState is ViolationRoleCheckFailure) {
+              // Role gagal dimuat (misal offline): fallback agar walas
+              // tetap bisa melihat kelasnya, bukan memanggil all-students.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                final fallback = _resolveRoleCheck(null);
+                _syncTabWithRole(fallback);
+                if (mounted) setState(() {});
+              });
             }
           },
           builder: (context, roleState) {
@@ -284,11 +406,50 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
               rawCheck = roleState.roleCheck;
             }
             final ViolationRoleCheck roleCheck = _resolveRoleCheck(rawCheck);
+            final bool isDark =
+                Theme.of(context).brightness == Brightness.dark;
 
             // Kondisi: Hanya tampilkan tab selector jika guru adalah Walas DAN Kesiswaan
             final bool showTabs = roleCheck.isKesiswaan && roleCheck.isHomeroom;
 
-            return Scaffold(
+            // Dengarkan daftar kelas yang telat loaded: fallback walas
+            // (_resolveRoleCheck) bergantung padanya, jadi sync ulang tab
+            // saat kelas tiba agar tidak stuck di endpoint yang salah.
+            return BlocListener<ClassesCubit, ClassesState>(
+              listener: (context, classesState) {
+                if (classesState is ClassesFetchSuccess) {
+                  final roleState =
+                      context.read<ViolationRoleCheckCubit>().state;
+                  final raw = roleState is ViolationRoleCheckSuccess
+                      ? roleState.roleCheck
+                      : null;
+                  // Hanya sync jika role backend sudah ada ATAU
+                  // fallback kelas mengubah hasil resolve.
+                  if (raw != null || !_hasInitializedTab) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      final resolved = _resolveRoleCheck(raw);
+                      _syncTabWithRole(resolved);
+                      // Kelas baru tiba → coba lengkapi foto walas yang
+                      // sebelumnya skip karena fallbackClassId masih null.
+                      final studentsState =
+                          context.read<ViolationStudentsCubit>().state;
+                      if (studentsState is ViolationStudentsFetchSuccess) {
+                        StudentAvatarHelper.loadAvatarsForStudents(
+                          studentsState.students,
+                          fallbackClassId:
+                              _resolveFallbackClassId(resolved),
+                          onLoaded: () {
+                            if (mounted) setState(() {});
+                          },
+                        );
+                      }
+                      if (mounted) setState(() {});
+                    });
+                  }
+                }
+              },
+              child: Scaffold(
               backgroundColor: Theme.of(context).brightness == Brightness.dark
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Colors.grey.shade50,
@@ -306,10 +467,11 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                 children: [
 
                   // 1. Tab Selector (HANYA MUNCUL jika Walas DAN Kesiswaan)
-                  if (showTabs) _buildSegmentedTabBar(primaryColor, roleCheck),
+                  if (showTabs)
+                    _buildSegmentedTabBar(primaryColor, roleCheck, isDark),
 
                   // 2. Search Bar & Filter Button
-                  _buildSearchBar(primaryColor, roleCheck),
+                  _buildSearchBar(primaryColor, roleCheck, isDark),
 
                   // 3. Main List Siswa
                   Expanded(
@@ -319,6 +481,8 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                         if (studentsState is ViolationStudentsFetchSuccess) {
                           StudentAvatarHelper.loadAvatarsForStudents(
                             studentsState.students,
+                            fallbackClassId:
+                                _resolveFallbackClassId(roleCheck),
                             onLoaded: () {
                               if (mounted) setState(() {});
                             },
@@ -344,9 +508,13 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                           List<StudentViolationItem> students =
                               studentsState.students;
 
-                          // Trigger background avatar loading
+                          // Trigger background avatar loading (foto web via student-list).
+                          // fallbackClassId menutupi item walas yang classId-nya null,
+                          // agar foto tampil sama seperti tab kesiswaan.
                           StudentAvatarHelper.loadAvatarsForStudents(
                             students,
+                            fallbackClassId:
+                                _resolveFallbackClassId(roleCheck),
                             onLoaded: () {
                               if (mounted) setState(() {});
                             },
@@ -382,23 +550,75 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                             }).toList();
                           }
 
-                          // Filter lokal untuk nama siswa jika berada di tab Wali Kelas
-                          if (_activeTabIndex == 1 &&
-                              _searchController.text.trim().isNotEmpty) {
-                            final q =
-                                _searchController.text.trim().toLowerCase();
+                          // Filter pencarian lokal — berlaku untuk SEMUA tab.
+                          // Safety net: backend kadang mengabaikan param `search`,
+                          // jadi pastikan list yang tampil benar-benar cocok
+                          // dengan ketikan di search bar (nama / NISN / kelas).
+                          final searchQuery =
+                              _searchController.text.trim().toLowerCase();
+                          if (searchQuery.isNotEmpty) {
                             students = students
                                 .where((s) =>
-                                    s.studentName.toLowerCase().contains(q) ||
-                                    (s.nisn?.toLowerCase().contains(q) ??
+                                    s.studentName
+                                        .toLowerCase()
+                                        .contains(searchQuery) ||
+                                    (s.nisn
+                                            ?.toLowerCase()
+                                            .contains(searchQuery) ??
+                                        false) ||
+                                    (s.className
+                                            ?.toLowerCase()
+                                            .contains(searchQuery) ??
                                         false))
                                 .toList();
                           }
 
+                          // Filter status pelanggaran lokal (khusus walas).
+                          // Safety net: backend kadang mengabaikan param `filter`,
+                          // buktinya pilih "Bersih (0 Poin)" tapi siswa 5 poin
+                          // tetap muncul. Filter di sini dijamin jalan.
+                          final statusFilter = (_selectedFilter ??
+                                  studentsState.selectedFilter ??
+                                  'all')
+                              .toLowerCase()
+                              .trim();
+                          if (_activeTabIndex == 1 ||
+                              studentsState.isHomeroomView) {
+                            if (statusFilter == 'with_points') {
+                              students = students
+                                  .where((s) => s.totalPoints > 0)
+                                  .toList();
+                            } else if (statusFilter == 'clean') {
+                              students = students
+                                  .where((s) => s.totalPoints <= 0)
+                                  .toList();
+                            }
+
+                            // Sort lokal (safety net bila backend abaikan sort_by).
+                            final sortKey = (_selectedSortBy ??
+                                    studentsState.selectedSortBy ??
+                                    'attendance_number')
+                                .toLowerCase()
+                                .trim();
+                            if (sortKey == 'alphabetical') {
+                              students.sort((a, b) => a.studentName
+                                  .toLowerCase()
+                                  .compareTo(b.studentName.toLowerCase()));
+                            } else if (sortKey == 'highest_points') {
+                              students.sort((a, b) =>
+                                  b.totalPoints.compareTo(a.totalPoints));
+                            } else {
+                              // attendance_number (default): absen kecil dulu,
+                              // yang tanpa nomor absen ditaruh paling bawah.
+                              students.sort((a, b) => (a.rollNumber ?? 9999)
+                                  .compareTo(b.rollNumber ?? 9999));
+                            }
+                          }
+
                           if (students.isEmpty) {
                             return RefreshIndicator(
-                              onRefresh: () async =>
-                                  _fetchStudentsForCurrentTab(roleCheck),
+                              onRefresh: () =>
+                                  _handlePullRefresh(roleCheck),
                               child: ListView(
                                 physics:
                                     const AlwaysScrollableScrollPhysics(),
@@ -419,14 +639,23 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                                         ),
                                         const SizedBox(height: 16),
                                         Text(
-                                          _activeTabIndex == 1
-                                              ? "Tidak ada data siswa ditemukan di kelas ini"
-                                              : "Tidak ada siswa dengan catatan pelanggaran",
+                                          searchQuery.isNotEmpty
+                                              ? "Tidak ditemukan hasil untuk \"${_searchController.text.trim()}\""
+                                              : (statusFilter == 'clean'
+                                                  ? "Tidak ada siswa bersih (0 poin) di kelas ini"
+                                                  : (statusFilter ==
+                                                          'with_points'
+                                                      ? "Tidak ada siswa dengan poin pelanggaran di kelas ini"
+                                                      : (_activeTabIndex == 1
+                                                          ? "Tidak ada data siswa ditemukan di kelas ini"
+                                                          : "Tidak ada siswa dengan catatan pelanggaran"))),
                                           textAlign: TextAlign.center,
                                           style: GoogleFonts.poppins(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.black87,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black87,
                                           ),
                                         ),
                                         const SizedBox(height: 6),
@@ -436,7 +665,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                                               : "Semua siswa dalam status tertib / 0 poin sanksi.",
                                           style: GoogleFonts.poppins(
                                             fontSize: 12,
-                                            color: Colors.grey.shade600,
+                                            color: isDark
+                                                ? Colors.white60
+                                                : Colors.grey.shade600,
                                           ),
                                         ),
                                       ],
@@ -448,8 +679,8 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                           }
 
                           return RefreshIndicator(
-                            onRefresh: () async =>
-                                _fetchStudentsForCurrentTab(roleCheck),
+                            onRefresh: () =>
+                                _handlePullRefresh(roleCheck),
                             child: ListView.separated(
                               controller: _scrollController,
                               physics: const AlwaysScrollableScrollPhysics(),
@@ -475,6 +706,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                                   item: item,
                                   primaryColor: primaryColor,
                                   isKesiswaan: roleCheck.isKesiswaan,
+                                  isDark: isDark,
+                                  fallbackClassName:
+                                      _resolveFallbackClassName(roleCheck),
                                   onTap: () async {
                                     final refreshed = await Get.toNamed(
                                       Routes.studentViolationDetailScreen,
@@ -521,19 +755,21 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                       ),
                     )
                   : null,
-            );
+            ),
+          );
           },
         );
       },
     );
   }
+
   Widget _buildSegmentedTabBar(
-      Color primaryColor, ViolationRoleCheck roleCheck) {
+      Color primaryColor, ViolationRoleCheck roleCheck, bool isDark) {
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 4),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: isDark ? Colors.white10 : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -557,7 +793,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                 duration: const Duration(milliseconds: 250),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _activeTabIndex == 1 ? Colors.white : Colors.transparent,
+                  color: _activeTabIndex == 1
+                      ? (isDark ? Colors.grey.shade800 : Colors.white)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: _activeTabIndex == 1
                       ? [
@@ -577,7 +815,7 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                       size: 18,
                       color: _activeTabIndex == 1
                           ? primaryColor
-                          : Colors.grey.shade700,
+                          : (isDark ? Colors.white70 : Colors.grey.shade700),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -589,7 +827,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                             : FontWeight.w500,
                         color: _activeTabIndex == 1
                             ? primaryColor
-                            : Colors.grey.shade700,
+                            : (isDark
+                                ? Colors.white70
+                                : Colors.grey.shade700),
                       ),
                     ),
                   ],
@@ -615,7 +855,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                 duration: const Duration(milliseconds: 250),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _activeTabIndex == 0 ? Colors.white : Colors.transparent,
+                  color: _activeTabIndex == 0
+                      ? (isDark ? Colors.grey.shade800 : Colors.white)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: _activeTabIndex == 0
                       ? [
@@ -635,7 +877,7 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                       size: 18,
                       color: _activeTabIndex == 0
                           ? primaryColor
-                          : Colors.grey.shade700,
+                          : (isDark ? Colors.white70 : Colors.grey.shade700),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -647,7 +889,9 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                             : FontWeight.w500,
                         color: _activeTabIndex == 0
                             ? primaryColor
-                            : Colors.grey.shade700,
+                            : (isDark
+                                ? Colors.white70
+                                : Colors.grey.shade700),
                       ),
                     ),
                   ],
@@ -660,7 +904,10 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     );
   }
 
-  Widget _buildSearchBar(Color primaryColor, ViolationRoleCheck roleCheck) {
+  Widget _buildSearchBar(
+      Color primaryColor, ViolationRoleCheck roleCheck, bool isDark) {
+    final bool hasActiveFilter = _selectedClassId != null ||
+        (_selectedFilter != null && _selectedFilter != 'all');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -669,9 +916,13 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color:
+                    isDark ? Theme.of(context).cardColor : Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(
+                    color: isDark
+                        ? Colors.white12
+                        : Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -683,17 +934,28 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
               child: TextField(
                 controller: _searchController,
                 onChanged: _onSearchChanged,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
                 decoration: InputDecoration(
                   hintText: "Cari nama siswa / NISN...",
                   hintStyle: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: Colors.grey.shade500,
+                    color: isDark
+                        ? Colors.white38
+                        : Colors.grey.shade500,
                   ),
-                  prefixIcon:
-                      const Icon(Icons.search_rounded, color: Colors.grey, size: 20),
+                  prefixIcon: Icon(Icons.search_rounded,
+                      color: isDark ? Colors.white54 : Colors.grey,
+                      size: 20),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          icon: Icon(Icons.clear_rounded,
+                              size: 18,
+                              color: isDark
+                                  ? Colors.white70
+                                  : Colors.grey.shade600),
                           onPressed: () {
                             _searchController.clear();
                             _onSearchChanged('');
@@ -714,25 +976,26 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
               height: 46,
               width: 46,
               decoration: BoxDecoration(
-                color: _selectedClassId != null ||
-                        (_selectedFilter != null && _selectedFilter != 'all')
+                color: hasActiveFilter
                     ? primaryColor
-                    : Colors.white,
+                    : (isDark
+                        ? Theme.of(context).cardColor
+                        : Colors.white),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: _selectedClassId != null ||
-                          (_selectedFilter != null && _selectedFilter != 'all')
+                  color: hasActiveFilter
                       ? primaryColor
-                      : Colors.grey.shade300,
+                      : (isDark
+                          ? Colors.white12
+                          : Colors.grey.shade300),
                 ),
               ),
               child: Icon(
                 Icons.tune_rounded,
                 size: 22,
-                color: _selectedClassId != null ||
-                        (_selectedFilter != null && _selectedFilter != 'all')
+                color: hasActiveFilter
                     ? Colors.white
-                    : Colors.black87,
+                    : (isDark ? Colors.white70 : Colors.black87),
               ),
             ),
           ),
@@ -745,12 +1008,20 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     required StudentViolationItem item,
     required Color primaryColor,
     required bool isKesiswaan,
+    required bool isDark,
+    String? fallbackClassName,
     required VoidCallback onTap,
   }) {
     final sanction = ViolationSanctionHelper.getSanctionLevel(
       item.totalPoints,
       customStatusName: item.sanctionName,
     );
+    // Samakan dengan kesiswaan: jika response walas flat tanpa className,
+    // tampilkan nama kelas perwalian agar tidak muncul "- • Absen X".
+    final displayClassName =
+        (item.className != null && item.className!.trim().isNotEmpty)
+            ? item.className!.trim()
+            : (fallbackClassName ?? '-');
 
     return InkWell(
       onTap: onTap,
@@ -758,9 +1029,10 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+              color: isDark ? Colors.white12 : Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -807,34 +1079,26 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                           ),
                         ),
                       ),
-                      errorWidget: (context, url, error) => Container(
+                      errorWidget: (context, url, error) => SizedBox(
                         width: 48,
                         height: 48,
-                        decoration: BoxDecoration(
-                          color: primaryColor.withValues(alpha: 0.08),
-                          shape: BoxShape.circle,
-                        ),
                         child: Icon(
-                          Icons.person_rounded,
-                          color: primaryColor.withValues(alpha: 0.4),
-                          size: 26,
+                          Icons.person,
+                          color: isDark ? Colors.white70 : Colors.black,
+                          size: 36,
                         ),
                       ),
                     ),
                   );
                 }
 
-                return Container(
+                return SizedBox(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.08),
-                    shape: BoxShape.circle,
-                  ),
                   child: Icon(
-                    Icons.person_rounded,
-                    color: primaryColor.withValues(alpha: 0.4),
-                    size: 26,
+                    Icons.person,
+                    color: isDark ? Colors.white70 : Colors.black,
+                    size: 36,
                   ),
                 );
               },
@@ -851,17 +1115,19 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: isDark ? Colors.white : Colors.black87,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "${item.className ?? '-'} ${item.rollNumber != null ? '• Absen ${item.rollNumber}' : ''}",
+                    "$displayClassName ${item.rollNumber != null ? '• Absen ${item.rollNumber}' : ''}",
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: isDark
+                          ? Colors.white60
+                          : Colors.grey.shade600,
                     ),
                   ),
                   const SizedBox(height: 6),

@@ -128,6 +128,7 @@ class StudentViolationDetail {
   final String studentName;
   final String? nisn;
   final String? admissionNo;
+  final int? classId;
   final String? className;
   final int? rollNumber;
   final String? avatarUrl;
@@ -140,6 +141,7 @@ class StudentViolationDetail {
     required this.studentName,
     this.nisn,
     this.admissionNo,
+    this.classId,
     this.className,
     this.rollNumber,
     this.avatarUrl,
@@ -153,6 +155,7 @@ class StudentViolationDetail {
       StudentAvatarHelper.getAvatarUrl(
         studentId: studentId,
         studentName: studentName,
+        classId: classId,
       );
 
   factory StudentViolationDetail.fromJson(Map<String, dynamic> json) {
@@ -176,11 +179,32 @@ class StudentViolationDetail {
 
     final classSection = studentData['class_section'] ?? json['class_section'];
     String? cName;
+    int? cId;
     if (classSection is Map) {
-      cName = classSection['name']?.toString() ??
+      cName = classSection['full_name']?.toString() ??
+          classSection['name']?.toString() ??
           classSection['class_name']?.toString();
+      cId = int.tryParse(classSection['id']?.toString() ?? '');
     } else {
-      cName = json['class_name']?.toString() ?? studentData['class_name']?.toString();
+      cName = json['class_name']?.toString() ??
+          studentData['class_name']?.toString() ??
+          json['class_section_name']?.toString();
+      cId = int.tryParse(json['class_section_id']?.toString() ?? '') ??
+          int.tryParse(studentData['class_section_id']?.toString() ?? '') ??
+          int.tryParse(json['class_id']?.toString() ?? '') ??
+          int.tryParse(studentData['class_id']?.toString() ?? '');
+    }
+
+    String? normalizeAvatar(dynamic v) {
+      if (v == null) return null;
+      final s = v.toString().trim();
+      if (s.isEmpty) return null;
+      final lower = s.toLowerCase();
+      if (lower == 'null' || lower == 'nil' || lower == '-') return null;
+      if (lower.endsWith('default.png') || lower.endsWith('default.jpg')) {
+        return null;
+      }
+      return s;
     }
 
     final pts = int.tryParse(json['total_points']?.toString() ?? '') ??
@@ -201,15 +225,27 @@ class StudentViolationDetail {
       studentName: sName,
       nisn: (studentData['nisn'] ?? json['nisn'])?.toString(),
       admissionNo: (studentData['admission_no'] ?? json['admission_no'])?.toString(),
+      classId: cId,
       className: cName,
       rollNumber: int.tryParse((studentData['roll_number'] ?? json['roll_number'] ?? json['attendance_number'])?.toString() ?? ''),
-      avatarUrl: (userData['image'] ??
-              userData['avatar'] ??
-              studentData['image'] ??
-              studentData['avatar'] ??
-              json['image'] ??
-              json['photo'])
-          ?.toString(),
+      avatarUrl: normalizeAvatar(userData['image']) ??
+          normalizeAvatar(userData['photo']) ??
+          normalizeAvatar(userData['photo_url']) ??
+          normalizeAvatar(userData['avatar']) ??
+          normalizeAvatar(userData['profileUrl']) ??
+          normalizeAvatar(userData['profile_url']) ??
+          normalizeAvatar(studentData['image']) ??
+          normalizeAvatar(studentData['photo']) ??
+          normalizeAvatar(studentData['photo_url']) ??
+          normalizeAvatar(studentData['avatar']) ??
+          normalizeAvatar(studentData['profileUrl']) ??
+          normalizeAvatar(studentData['profile_url']) ??
+          normalizeAvatar(json['image']) ??
+          normalizeAvatar(json['photo']) ??
+          normalizeAvatar(json['photo_url']) ??
+          normalizeAvatar(json['avatar']) ??
+          normalizeAvatar(json['profileUrl']) ??
+          normalizeAvatar(json['profile_url']),
       totalPoints: pts,
       sanctionStatus: json['sanction_status']?.toString() ??
           json['sanction_name']?.toString() ??

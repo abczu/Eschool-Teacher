@@ -81,6 +81,7 @@ class _ViolationFilterBottomSheetState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final bool isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.only(
@@ -89,9 +90,9 @@ class _ViolationFilterBottomSheetState
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: isDark ? theme.cardColor : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -103,7 +104,7 @@ class _ViolationFilterBottomSheetState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: isDark ? Colors.white24 : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -119,7 +120,7 @@ class _ViolationFilterBottomSheetState
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
               TextButton(
@@ -151,11 +152,11 @@ class _ViolationFilterBottomSheetState
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 10),
-          _buildClassSelectionChips(primaryColor),
+          _buildClassSelectionChips(primaryColor, isDark),
 
           // 2. Filter Status Siswa (Hanya untuk Wali Kelas)
           if (widget.isHomeroomView) ...[
@@ -165,7 +166,7 @@ class _ViolationFilterBottomSheetState
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
             const SizedBox(height: 10),
@@ -179,6 +180,7 @@ class _ViolationFilterBottomSheetState
                   groupValue: _selectedFilter,
                   onSelected: (val) => setState(() => _selectedFilter = val),
                   primaryColor: primaryColor,
+                  isDark: isDark,
                 ),
                 _buildFilterChip(
                   label: "Ada Poin Pelanggaran",
@@ -186,6 +188,7 @@ class _ViolationFilterBottomSheetState
                   groupValue: _selectedFilter,
                   onSelected: (val) => setState(() => _selectedFilter = val),
                   primaryColor: primaryColor,
+                  isDark: isDark,
                 ),
                 _buildFilterChip(
                   label: "Bersih (0 Poin)",
@@ -193,6 +196,7 @@ class _ViolationFilterBottomSheetState
                   groupValue: _selectedFilter,
                   onSelected: (val) => setState(() => _selectedFilter = val),
                   primaryColor: primaryColor,
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -205,7 +209,7 @@ class _ViolationFilterBottomSheetState
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 10),
@@ -221,6 +225,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                     _buildFilterChip(
                       label: "Abjad (A - Z)",
@@ -229,6 +234,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                     _buildFilterChip(
                       label: "Poin Tertinggi",
@@ -237,6 +243,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                   ]
                 : [
@@ -247,6 +254,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                     _buildFilterChip(
                       label: "Poin Terendah",
@@ -255,6 +263,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                     _buildFilterChip(
                       label: "Abjad (A - Z)",
@@ -263,6 +272,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                     _buildFilterChip(
                       label: "Terbaru",
@@ -271,6 +281,7 @@ class _ViolationFilterBottomSheetState
                       onSelected: (val) =>
                           setState(() => _selectedSortBy = val),
                       primaryColor: primaryColor,
+                      isDark: isDark,
                     ),
                   ],
           ),
@@ -311,7 +322,7 @@ class _ViolationFilterBottomSheetState
     );
   }
 
-  Widget _buildClassSelectionChips(Color primaryColor) {
+  Widget _buildClassSelectionChips(Color primaryColor, bool isDark) {
     if (widget.isHomeroomView) {
       final classes = widget.homeroomClasses ?? [];
       return Wrap(
@@ -324,6 +335,7 @@ class _ViolationFilterBottomSheetState
             groupValue: _selectedClassId,
             onSelected: (val) => setState(() => _selectedClassId = null),
             primaryColor: primaryColor,
+            isDark: isDark,
           ),
           ...classes.map((c) => _buildFilterChip(
                 label: c.className,
@@ -331,6 +343,7 @@ class _ViolationFilterBottomSheetState
                 groupValue: _selectedClassId,
                 onSelected: (val) => setState(() => _selectedClassId = val),
                 primaryColor: primaryColor,
+                isDark: isDark,
               )),
         ],
       );
@@ -347,6 +360,7 @@ class _ViolationFilterBottomSheetState
               groupValue: _selectedClassId,
               onSelected: (val) => setState(() => _selectedClassId = null),
               primaryColor: primaryColor,
+              isDark: isDark,
             ),
             const SizedBox(width: 8),
             ...classes.map((c) {
@@ -359,6 +373,7 @@ class _ViolationFilterBottomSheetState
                   groupValue: _selectedClassId,
                   onSelected: (val) => setState(() => _selectedClassId = val),
                   primaryColor: primaryColor,
+                  isDark: isDark,
                 ),
               );
             }),
@@ -374,6 +389,7 @@ class _ViolationFilterBottomSheetState
     required T groupValue,
     required Function(T) onSelected,
     required Color primaryColor,
+    required bool isDark,
   }) {
     final bool isSelected = value == groupValue;
     return ChoiceChip(
@@ -383,14 +399,18 @@ class _ViolationFilterBottomSheetState
       labelStyle: GoogleFonts.poppins(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-        color: isSelected ? Colors.white : Colors.black87,
+        color: isSelected
+            ? Colors.white
+            : (isDark ? Colors.white70 : Colors.black87),
       ),
       selectedColor: primaryColor,
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: isDark ? Colors.white10 : Colors.grey.shade100,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: isSelected ? primaryColor : Colors.grey.shade300,
+          color: isSelected
+              ? primaryColor
+              : (isDark ? Colors.white24 : Colors.grey.shade300),
         ),
       ),
       showCheckmark: false,

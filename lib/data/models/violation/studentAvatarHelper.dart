@@ -10,15 +10,42 @@ class StudentAvatarHelper {
   static final Set<int> _loadedClassSectionIds = {};
   static final Set<int> _loadingClassSectionIds = {};
 
-  /// Extract valid image URL from StudentDetails
+  /// Bersihkan cache avatar agar pull-to-refresh mengambil foto terbaru
+  /// dari web (misal foto siswa baru diganti via backend/web).
+  static void clearCache() {
+    _studentIdToImage.clear();
+    _studentNameToImage.clear();
+    _loadedClassSectionIds.clear();
+    _loadingClassSectionIds.clear();
+  }
+
+  /// Extract valid image URL from StudentDetails (sumber foto web).
   static String? extractImage(StudentDetails s) {
-    if (s.image != null && s.image!.trim().isNotEmpty) {
-      return s.image!.trim();
-    }
-    if (s.profileUrl != null && s.profileUrl!.trim().isNotEmpty) {
-      return s.profileUrl!.trim();
-    }
+    final normalized = normalizeAvatarUrl(s.image) ??
+        normalizeAvatarUrl(s.profileUrl);
+    if (normalized != null) return normalized;
+    // Baca juga via toJson untuk key photo/avatar/profile_url bila ada.
+    try {
+      final map = (s as dynamic).toJson() as Map<String, dynamic>;
+      for (final k in ['photo', 'photo_url', 'avatar', 'profile_url']) {
+        final v = normalizeAvatarUrl(map[k]);
+        if (v != null) return v;
+      }
+    } catch (_) {}
     return null;
+  }
+
+  /// Normalisasi URL avatar: tolak kosong / "null" / default placeholder.
+  static String? normalizeAvatarUrl(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString().trim();
+    if (s.isEmpty) return null;
+    final lower = s.toLowerCase();
+    if (lower == 'null' || lower == 'nil' || lower == '-') return null;
+    if (lower.endsWith('default.png') || lower.endsWith('default.jpg')) {
+      return null;
+    }
+    return s;
   }
 
   /// Format full URL if needed (handles relative paths with storageUrl)
@@ -79,31 +106,45 @@ class StudentAvatarHelper {
     return null;
   }
 
-  /// Background loader: loads students for classes of the given violation items
+  /// Background loader: loads students for classes of the given violation items.
+  /// [fallbackClassId] dipakai untuk item walas yang `classId`-nya null
+  /// (response homeroom flat tanpa class_section) — ambil dari
+  /// `roleCheck.homeroomClasses[0]` / `_selectedClassId` di caller.
+  /// Maksimal 1 fetch per classId, bukan N+1 per siswa.
   static Future<void> loadAvatarsForStudents(
     List<StudentViolationItem> items, {
+    int? fallbackClassId,
     VoidCallback? onLoaded,
   }) async {
     final List<int> classIdsToFetch = [];
+    void considerClassId(int? cId) {
+      if (cId != null &&
+          cId > 0 &&
+          !_loadedClassSectionIds.contains(cId) &&
+          !_loadingClassSectionIds.contains(cId) &&
+          !classIdsToFetch.contains(cId)) {
+        classIdsToFetch.add(cId);
+      }
+    }
+
     for (final item in items) {
       // If avatar is already cached, continue
       if (getAvatarUrl(
             studentId: item.studentId,
             studentName: item.studentName,
-            classId: item.classId,
+            classId: item.classId ?? fallbackClassId,
           ) !=
           null) {
         continue;
       }
 
       final cId = item.classId;
-      if (cId != null &&
-          cId > 0 &&
-          !_loadedClassSectionIds.contains(cId) &&
-          !_loadingClassSectionIds.contains(cId)) {
-        if (!classIdsToFetch.contains(cId)) {
-          classIdsToFetch.add(cId);
-        }
+      if (cId != null && cId > 0) {
+        considerClassId(cId);
+      } else {
+        // Item walas tanpa classId: fallback ke kelas perwalian agar
+        // foto web (student-list) tetap bisa diambil, bukan skip diam.
+        considerClassId(fallbackClassId);
       }
     }
 
@@ -128,6 +169,47 @@ class StudentAvatarHelper {
 
     if (hasNewAvatars && onLoaded != null) {
       onLoaded();
+    }
+  }
+
+  /// Loader untuk 1 siswa (dipakai halaman detail).
+  /// Mengecek cache dulu; jika belum ada, fetch 1x per kelas lalu panggil [onLoaded]
+  /// agar UI rebuild dan foto web muncul.
+  static Future<void> loadAvatarForStudent({
+    required int studentId,
+    String? studentName,
+    int? classId,
+    int? fallbackClassId,
+    VoidCallback? onLoaded,
+  }) async {
+    final effectiveClassId =
+        (classId != null && classId > 0) ? classId : fallbackClassId;
+    if (getAvatarUrl(
+          studentId: studentId,
+          studentName: studentName,
+          classId: effectiveClassId,
+        ) !=
+        null) {
+      return;
+    }
+    if (effectiveClassId == null || effectiveClassId <= 0) return;
+    if (_loadedClassSectionIds.contains(effectiveClassId) ||
+        _loadingClassSectionIds.contains(effectiveClassId)) {
+      return;
+    }
+    _loadingClassSectionIds.add(effectiveClassId);
+    try {
+      final students = await StudentRepository().getAllStudents(
+        classSectionId: effectiveClassId,
+      );
+      cacheStudents(students, classSectionId: effectiveClassId);
+      _loadedClassSectionIds.add(effectiveClassId);
+      onLoaded?.call();
+    } catch (e) {
+      debugPrint(
+          '[StudentAvatarHelper] Failed to load students for class $effectiveClassId: $e');
+    } finally {
+      _loadingClassSectionIds.remove(effectiveClassId);
     }
   }
 }

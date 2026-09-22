@@ -668,6 +668,16 @@ class Api {
         return {'pdf': base64Encode(response.data), 'error': false};
       }
       return Map<String, dynamic>.from(response.data);
+    } on DioException catch (e) {
+      AppLogger.error('Api.get', 'DioException',
+          data: {
+            'url': url,
+            'statusCode': e.response?.statusCode,
+            'response': e.response?.data,
+            'query': queryParameters,
+          },
+          error: e);
+      throw ApiException(_extractErrorMessage(e.response));
     } catch (e, st) {
       AppLogger.error('Api.get', 'Request failed',
           data: {

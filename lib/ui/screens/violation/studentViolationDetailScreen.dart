@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/violation/studentViolationDetailCubit.dart';
 import 'package:eschool_saas_staff/data/models/violation/studentAvatarHelper.dart';
 import 'package:eschool_saas_staff/data/models/violation/studentViolationDetail.dart';
@@ -8,13 +7,11 @@ import 'package:eschool_saas_staff/ui/screens/violation/widgets/imagePreviewDial
 import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
-import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/snackBarUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class StudentViolationDetailScreen extends StatefulWidget {
   final int studentId;
@@ -70,6 +67,7 @@ class _StudentViolationDetailScreenState
     super.dispose();
   }
   void _confirmDeleteViolation(ViolationRecord record, int studentId) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -83,22 +81,25 @@ class _StudentViolationDetailScreenState
         ),
         content: Text(
           "Apakah Anda yakin ingin menghapus catatan pelanggaran \"${record.violationName}\"? Tindakan ini akan mengurangi akumulasi poin siswa.",
-          style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade700),
+          style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: isDark ? Colors.white70 : Colors.grey.shade700),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
               "Batal",
-              style: GoogleFonts.poppins(color: Colors.grey.shade600),
+              style: GoogleFonts.poppins(
+                  color: isDark ? Colors.white60 : Colors.grey.shade600),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              final success = await context
-                  .read<StudentViolationDetailCubit>()
-                  .deleteViolationItem(record.id, studentId);
+              final cubit = context.read<StudentViolationDetailCubit>();
+              final success =
+                  await cubit.deleteViolationItem(record.id, studentId);
               if (success) {
                 if (mounted) {
                   SnackBarUtils.showSnackBar(
@@ -109,9 +110,16 @@ class _StudentViolationDetailScreenState
                 }
               } else {
                 if (mounted) {
+                  final currentState = cubit.state;
+                  final backendMsg =
+                      currentState is StudentViolationDetailFetchSuccess
+                          ? currentState.deleteErrorMessage
+                          : null;
                   SnackBarUtils.showSnackBar(
                     context: context,
-                    message: "Gagal menghapus catatan pelanggaran",
+                    message: backendMsg != null && backendMsg.trim().isNotEmpty
+                        ? backendMsg
+                        : "Gagal menghapus catatan pelanggaran",
                     backgroundColor: Colors.redAccent,
                   );
                 }
@@ -137,6 +145,7 @@ class _StudentViolationDetailScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final bool isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -176,8 +185,24 @@ class _StudentViolationDetailScreenState
               customStatusName: detail.sanctionStatus,
             );
 
+            // Lengkapi foto web via cache student-list bila response
+            // student-detail belum membawa image (kasus walas).
+            if (detail.displayAvatarUrl == null) {
+              StudentAvatarHelper.loadAvatarForStudent(
+                studentId: detail.studentId,
+                studentName: detail.studentName,
+                classId: detail.classId,
+                onLoaded: () {
+                  if (mounted) setState(() {});
+                },
+              );
+            }
+
             return RefreshIndicator(
               onRefresh: () async {
+                // Bersihkan cache avatar agar foto/poin terbaru dari
+                // backend/web ikut terambil saat pull-to-refresh.
+                StudentAvatarHelper.clearCache();
                 await context
                     .read<StudentViolationDetailCubit>()
                     .getStudentDetail(widget.studentId, isRefresh: true);
@@ -189,7 +214,8 @@ class _StudentViolationDetailScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Profil Siswa & Kartu Sanksi
-                    _buildStudentProfileCard(detail, sanction, primaryColor),
+                    _buildStudentProfileCard(
+                        detail, sanction, primaryColor, isDark),
 
                     const SizedBox(height: 24),
 
@@ -202,7 +228,7 @@ class _StudentViolationDetailScreenState
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
                         if (state.isDeleting)
@@ -221,9 +247,14 @@ class _StudentViolationDetailScreenState
                         width: double.infinity,
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark
+                              ? Theme.of(context).cardColor
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.shade200),
+                          border: Border.all(
+                              color: isDark
+                                  ? Colors.white12
+                                  : Colors.grey.shade200),
                         ),
                         child: Column(
                           children: [
@@ -235,7 +266,8 @@ class _StudentViolationDetailScreenState
                               style: GoogleFonts.poppins(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color:
+                                    isDark ? Colors.white : Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -244,7 +276,9 @@ class _StudentViolationDetailScreenState
                               textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: Colors.grey.shade600,
+                                color: isDark
+                                    ? Colors.white60
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           ],
@@ -260,8 +294,10 @@ class _StudentViolationDetailScreenState
                         itemBuilder: (context, index) {
                           final record = detail.violations[index];
                           return _buildViolationCard(
+                            context: context,
                             record: record,
                             studentId: detail.studentId,
+                            isDark: isDark,
                             isDeletingThis: state.isDeleting &&
                                 state.deletingViolationId == record.id,
                           );
@@ -284,11 +320,12 @@ class _StudentViolationDetailScreenState
     StudentViolationDetail detail,
     SanctionLevel sanction,
     Color primaryColor,
+    bool isDark,
   ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -304,7 +341,8 @@ class _StudentViolationDetailScreenState
             padding: const EdgeInsets.all(18),
             child: Row(
               children: [
-                // Avatar
+                // Avatar — sama seperti list/web: ikon orang jika tidak ada foto.
+                // Jangan tampilkan huruf inisial.
                 Builder(
                   builder: (context) {
                     final avatar = detail.displayAvatarUrl;
@@ -312,6 +350,16 @@ class _StudentViolationDetailScreenState
                         (avatar != null && avatar.trim().isNotEmpty)
                             ? StudentAvatarHelper.formatImageUrl(avatar.trim())
                             : null;
+
+                    Widget defaultAvatar() => SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: Icon(
+                            Icons.person,
+                            color: isDark ? Colors.white70 : Colors.black,
+                            size: 44,
+                          ),
+                        );
 
                     if (fullAvatar != null) {
                       return ClipRRect(
@@ -321,54 +369,14 @@ class _StudentViolationDetailScreenState
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => CircleAvatar(
-                            radius: 30,
-                            backgroundColor:
-                                primaryColor.withValues(alpha: 0.1),
-                            child: Text(
-                              detail.studentName.isNotEmpty
-                                  ? detail.studentName[0].toUpperCase()
-                                  : 'S',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => CircleAvatar(
-                            radius: 30,
-                            backgroundColor:
-                                primaryColor.withValues(alpha: 0.1),
-                            child: Text(
-                              detail.studentName.isNotEmpty
-                                  ? detail.studentName[0].toUpperCase()
-                                  : 'S',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
+                          placeholder: (context, url) => defaultAvatar(),
+                          errorWidget: (context, url, error) =>
+                              defaultAvatar(),
                         ),
                       );
                     }
 
-                    return CircleAvatar(
-                      radius: 30,
-                      backgroundColor: primaryColor.withValues(alpha: 0.1),
-                      child: Text(
-                        detail.studentName.isNotEmpty
-                            ? detail.studentName[0].toUpperCase()
-                            : 'S',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: primaryColor,
-                        ),
-                      ),
-                    );
+                    return defaultAvatar();
                   },
                 ),
                 const SizedBox(width: 14),
@@ -383,7 +391,7 @@ class _StudentViolationDetailScreenState
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -393,7 +401,9 @@ class _StudentViolationDetailScreenState
                         "${detail.className ?? 'Kelas -'} ${detail.rollNumber != null ? '• Absen ${detail.rollNumber}' : ''}",
                         style: GoogleFonts.poppins(
                           fontSize: 13,
-                          color: Colors.grey.shade700,
+                          color: isDark
+                              ? Colors.white60
+                              : Colors.grey.shade700,
                         ),
                       ),
                       if (detail.nisn != null && detail.nisn!.isNotEmpty)
@@ -401,7 +411,9 @@ class _StudentViolationDetailScreenState
                           "NISN: ${detail.nisn}",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
-                            color: Colors.grey.shade500,
+                            color: isDark
+                                ? Colors.white38
+                                : Colors.grey.shade500,
                           ),
                         ),
                     ],
@@ -475,18 +487,24 @@ class _StudentViolationDetailScreenState
   }
 
   Widget _buildViolationCard({
+    required BuildContext context,
     required ViolationRecord record,
     required int studentId,
+    required bool isDark,
     required bool isDeletingThis,
   }) {
     final catColor = ViolationSanctionHelper.getCategoryColor(record.category);
     final formattedDate = record.formattedIncidentDate;
+    final cardColor =
+        isDark ? Theme.of(context).cardColor : Colors.white;
+    final borderColor =
+        isDark ? Colors.white12 : Colors.grey.shade200;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -619,7 +637,7 @@ class _StudentViolationDetailScreenState
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: isDark ? Colors.white : Colors.black87,
                           height: 1.35,
                         ),
                       ),
@@ -632,10 +650,14 @@ class _StudentViolationDetailScreenState
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.amber.shade50,
+                            color: isDark
+                                ? Colors.amber.withValues(alpha: 0.08)
+                                : Colors.amber.shade50,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.amber.shade200,
+                              color: isDark
+                                  ? Colors.amber.withValues(alpha: 0.25)
+                                  : Colors.amber.shade200,
                               width: 0.8,
                             ),
                           ),
@@ -647,15 +669,19 @@ class _StudentViolationDetailScreenState
                                   Icon(
                                     Icons.sticky_note_2_rounded,
                                     size: 15,
-                                    color: Colors.amber.shade700,
+                                    color: isDark
+                                        ? Colors.amber.shade200
+                                        : Colors.amber.shade700,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "Catatan / Kronologi",
+                                    "Catatan / Deskripsi",
                                     style: GoogleFonts.poppins(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.amber.shade800,
+                                      color: isDark
+                                          ? Colors.amber.shade200
+                                          : Colors.amber.shade800,
                                     ),
                                   ),
                                 ],
@@ -665,7 +691,9 @@ class _StudentViolationDetailScreenState
                                 record.notes!,
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
-                                  color: Colors.grey.shade800,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : Colors.grey.shade800,
                                   height: 1.45,
                                 ),
                               ),
@@ -676,17 +704,20 @@ class _StudentViolationDetailScreenState
 
                       const SizedBox(height: 12),
 
-                      // Bottom Row: Date + Photo Thumbnail side by side
+                      // Bottom Row: Date + Attachment icon
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Date Pill
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: isDark
+                                  ? Colors.white10
+                                  : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey.shade200),
+                              border: Border.all(color: borderColor),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -694,7 +725,9 @@ class _StudentViolationDetailScreenState
                                 Icon(
                                   Icons.calendar_today_rounded,
                                   size: 14,
-                                  color: Colors.grey.shade600,
+                                  color: isDark
+                                      ? Colors.white54
+                                      : Colors.grey.shade600,
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
@@ -702,17 +735,18 @@ class _StudentViolationDetailScreenState
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.grey.shade700,
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.grey.shade700,
                                   ),
                                 ),
                               ],
                             ),
                           ),
 
-                          // Photo Thumbnail (if available)
+                          // Attachment icon (if photo available)
                           if (record.photoUrl != null &&
-                              record.photoUrl!.trim().isNotEmpty) ...[
-                            const SizedBox(width: 8),
+                              record.photoUrl!.trim().isNotEmpty)
                             InkWell(
                               onTap: () => ImagePreviewDialog.show(
                                 context,
@@ -721,41 +755,22 @@ class _StudentViolationDetailScreenState
                               ),
                               borderRadius: BorderRadius.circular(8),
                               child: Container(
+                                padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white10
+                                      : Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.blue.shade200,
-                                    width: 1.2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blue.withValues(alpha: 0.08),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(7),
-                                  child: CachedNetworkImage(
-                                    imageUrl: record.photoUrl!.startsWith('http')
-                                        ? record.photoUrl!
-                                        : "$storageUrl${record.photoUrl}",
-                                    width: 34,
-                                    height: 34,
-                                    fit: BoxFit.cover,
-                                    errorWidget: (_, __, ___) => Container(
-                                      width: 34,
-                                      height: 34,
-                                      color: Colors.grey.shade200,
-                                      child: Icon(Icons.image_rounded,
-                                          size: 16, color: Colors.grey.shade400),
-                                    ),
-                                  ),
+                                child: Icon(
+                                  Icons.attach_file_rounded,
+                                  size: 18,
+                                  color: isDark
+                                      ? Colors.white54
+                                      : Colors.grey.shade600,
                                 ),
                               ),
                             ),
-                          ],
                         ],
                       ),
 
@@ -766,13 +781,18 @@ class _StudentViolationDetailScreenState
                         Row(
                           children: [
                             Icon(Icons.person_outline_rounded,
-                                size: 13, color: Colors.grey.shade500),
+                                size: 13,
+                                color: isDark
+                                    ? Colors.white38
+                                    : Colors.grey.shade500),
                             const SizedBox(width: 4),
                             Text(
                               "Dicatat oleh: ${record.reportedByName}",
                               style: GoogleFonts.poppins(
                                 fontSize: 11,
-                                color: Colors.grey.shade600,
+                                color: isDark
+                                    ? Colors.white54
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           ],

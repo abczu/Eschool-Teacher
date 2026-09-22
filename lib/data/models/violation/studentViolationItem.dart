@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:eschool_saas_staff/data/models/violation/studentAvatarHelper.dart';
 
 class StudentViolationItem {
@@ -80,21 +79,39 @@ class StudentViolationItem {
         int.tryParse(studentData['total_points']?.toString() ?? '') ??
         0;
 
-    // Parse avatar URL from multiple possible fields
-    final resolvedAvatar = (userData['image'] ??
-            userData['avatar'] ??
-            userData['profileUrl'] ??
-            userData['profile_url'] ??
-            studentData['image'] ??
-            studentData['avatar'] ??
-            studentData['profileUrl'] ??
-            studentData['profile_url'] ??
-            json['image'] ??
-            json['photo'] ??
-            json['avatar'] ??
-            json['profileUrl'] ??
-            json['profile_url'])
-        ?.toString();
+    // Parse avatar URL dari backend (homeroom/all-students/student-detail).
+    // Backend idealnya kirim `image` langsung; tetap dukung varian key lain
+    // agar kompatibel sebelum/sesudah update TeacherViolationService.
+    String? normalizeAvatar(dynamic v) {
+      if (v == null) return null;
+      final s = v.toString().trim();
+      if (s.isEmpty) return null;
+      final lower = s.toLowerCase();
+      if (lower == 'null' || lower == 'nil' || lower == '-') return null;
+      if (lower.endsWith('default.png') || lower.endsWith('default.jpg')) {
+        return null;
+      }
+      return s;
+    }
+
+    final resolvedAvatar = normalizeAvatar(userData['image']) ??
+        normalizeAvatar(userData['photo']) ??
+        normalizeAvatar(userData['photo_url']) ??
+        normalizeAvatar(userData['avatar']) ??
+        normalizeAvatar(userData['profileUrl']) ??
+        normalizeAvatar(userData['profile_url']) ??
+        normalizeAvatar(studentData['image']) ??
+        normalizeAvatar(studentData['photo']) ??
+        normalizeAvatar(studentData['photo_url']) ??
+        normalizeAvatar(studentData['avatar']) ??
+        normalizeAvatar(studentData['profileUrl']) ??
+        normalizeAvatar(studentData['profile_url']) ??
+        normalizeAvatar(json['image']) ??
+        normalizeAvatar(json['photo']) ??
+        normalizeAvatar(json['photo_url']) ??
+        normalizeAvatar(json['avatar']) ??
+        normalizeAvatar(json['profileUrl']) ??
+        normalizeAvatar(json['profile_url']);
 
     return StudentViolationItem(
       studentId: id,

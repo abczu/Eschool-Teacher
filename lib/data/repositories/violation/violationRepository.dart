@@ -215,12 +215,28 @@ class ViolationRepository {
   }
 
   /// 7. Hapus Catatan Pelanggaran (Kesiswaan Only)
+  /// Pastikan benar-benar terhapus di backend (bukan hanya di UI lokal).
+  /// - Melempar [ApiException] jika backend mengembalikan error / gagal.
   Future<void> deleteViolation(int violationId) async {
     try {
-      await Api.delete(
+      if (violationId <= 0) {
+        throw ApiException('ID pelanggaran tidak valid');
+      }
+      final response = await Api.delete(
         url: Api.teacherViolationDelete(violationId),
         useAuthToken: true,
       );
+      // Backend kadang mengembalikan 200 dengan flag error=true.
+      // Anggap gagal jika flag tersebut muncul agar UI tidak mengira sukses.
+      if (response['error'] == true) {
+        throw ApiException(
+          response['message']?.toString() ?? 'Gagal menghapus di server',
+        );
+      }
+      AppLogger.debug('ViolationRepository.deleteViolation', 'Deleted', data: {
+        'violationId': violationId,
+        'response': response,
+      });
     } catch (e) {
       AppLogger.error('ViolationRepository.deleteViolation', 'Error', error: e);
       rethrow;

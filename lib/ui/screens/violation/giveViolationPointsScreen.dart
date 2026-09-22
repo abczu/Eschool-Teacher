@@ -139,6 +139,11 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final bool isDarkPicker =
+            Theme.of(context).brightness == Brightness.dark;
+        // Tema gelap: biarkan date picker mengikuti tema sistem.
+        // Tema terang: tint dengan warna primary aplikasi.
+        if (isDarkPicker) return child!;
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
@@ -180,12 +185,23 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
           value: classesCubit,
           child: StatefulBuilder(
             builder: (context, setModalState) {
+              final bool isDarkModal =
+                  Theme.of(context).brightness == Brightness.dark;
+              final Color modalCardColor = isDarkModal
+                  ? Theme.of(context).cardColor
+                  : Colors.white;
+              final Color modalMutedColor = isDarkModal
+                  ? Colors.white60
+                  : Colors.grey.shade600;
+              final Color modalTitleColor =
+                  isDarkModal ? Colors.white : Colors.black87;
               return Container(
                 height: MediaQuery.of(context).size.height * 0.85,
                 padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                decoration: BoxDecoration(
+                  color: modalCardColor,
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(24)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +211,9 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: isDarkModal
+                              ? Colors.white24
+                              : Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -299,7 +317,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                 child: Text(
                                   "Kelas tidak ditemukan",
                                   style: GoogleFonts.poppins(
-                                      color: Colors.grey.shade600),
+                                      color: modalMutedColor),
                                 ),
                               );
                             }
@@ -330,7 +348,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
+                                      color: modalTitleColor,
                                     ),
                                   ),
                                   trailing: const Icon(
@@ -413,7 +431,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                       "",
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
-                                    color: Colors.grey.shade600,
+                                    color: modalMutedColor,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -452,7 +470,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                     child: Text(
                                       "Tidak ada data siswa di kelas ini",
                                       style: GoogleFonts.poppins(
-                                          color: Colors.grey.shade600),
+                                          color: modalMutedColor),
                                     ),
                                   )
                                 : Builder(
@@ -480,7 +498,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                           child: Text(
                                             "Tidak ada siswa yang cocok",
                                             style: GoogleFonts.poppins(
-                                                color: Colors.grey.shade600),
+                                                color: modalMutedColor),
                                           ),
                                         );
                                       }
@@ -598,7 +616,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                               "NISN / No: $nisn",
                                               style: GoogleFonts.poppins(
                                                   fontSize: 12,
-                                                  color: Colors.grey.shade600),
+                                                  color: modalMutedColor),
                                             ),
                                             trailing: const Icon(
                                                 Icons.chevron_right_rounded,
@@ -670,6 +688,14 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final bool isDark = theme.brightness == Brightness.dark;
+    final Color fieldFillColor =
+        isDark ? Colors.white10 : Colors.grey.shade50;
+    final Color fieldBorderColor =
+        isDark ? Colors.white24 : Colors.grey.shade300;
+    final Color labelColor = isDark ? Colors.white : Colors.black87;
+    final Color subtleTextColor =
+        isDark ? Colors.white60 : Colors.grey.shade600;
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -718,7 +744,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: labelColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -731,9 +757,9 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
+                        color: fieldFillColor,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: fieldBorderColor),
                       ),
                       child: Row(
                         children: [
@@ -769,8 +795,8 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                         ? FontWeight.w600
                                         : FontWeight.w400,
                                     color: _selectedStudentName != null
-                                        ? Colors.black87
-                                        : Colors.grey.shade600,
+                                        ? labelColor
+                                        : subtleTextColor,
                                   ),
                                 ),
                                 if (_selectedClassName != null)
@@ -778,7 +804,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                     "Kelas: $_selectedClassName",
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
-                                      color: Colors.grey.shade600,
+                                      color: subtleTextColor,
                                     ),
                                   ),
                               ],
@@ -800,7 +826,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: labelColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -833,21 +859,21 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                         decoration: InputDecoration(
                           hintText: "Pilih Jenis Pelanggaran",
                           hintStyle: GoogleFonts.poppins(
-                              color: Colors.grey.shade600, fontSize: 14),
+                              color: subtleTextColor, fontSize: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide:
-                                BorderSide(color: Colors.grey.shade300),
+                                BorderSide(color: fieldBorderColor),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide:
-                                BorderSide(color: Colors.grey.shade300),
+                                BorderSide(color: fieldBorderColor),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 14),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: fieldFillColor,
                         ),
                         items: types.map((vt) {
                           final catColor =
@@ -902,7 +928,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: labelColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -913,9 +939,9 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
+                        color: fieldFillColor,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: fieldBorderColor),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -925,7 +951,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                 .format(_selectedDate),
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.black87,
+                              color: labelColor,
                             ),
                           ),
                           Icon(Icons.calendar_month_rounded,
@@ -939,34 +965,41 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
 
                   // 4. Catatan / Kronologi Kejadian
                   Text(
-                    "Catatan / Kronologi Kejadian",
+                    "Catatan / Deskripsi",
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: labelColor,
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _notesController,
                     maxLines: 4,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: labelColor,
+                    ),
                     decoration: InputDecoration(
                       hintText:
                           "Tuliskan rincian atau kronologi kejadian pelanggaran...",
                       hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey.shade500, fontSize: 13),
+                          color: isDark
+                              ? Colors.white38
+                              : Colors.grey.shade500,
+                          fontSize: 13),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide:
-                            BorderSide(color: Colors.grey.shade300),
+                            BorderSide(color: fieldBorderColor),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide:
-                            BorderSide(color: Colors.grey.shade300),
+                            BorderSide(color: fieldBorderColor),
                       ),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: fieldFillColor,
                     ),
                   ),
 
@@ -978,7 +1011,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: labelColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1033,7 +1066,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              side: BorderSide(color: Colors.grey.shade300),
+                              side: BorderSide(color: fieldBorderColor),
                             ),
                           ),
                         ),
@@ -1051,7 +1084,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              side: BorderSide(color: Colors.grey.shade300),
+                              side: BorderSide(color: fieldBorderColor),
                             ),
                           ),
                         ),

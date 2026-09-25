@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/data/models/violation/violationSanctionLevel.dart';
 import 'package:flutter/material.dart';
 
 class SanctionLevel {
@@ -57,7 +58,9 @@ class ViolationSanctionHelper {
     icon: Icons.dangerous_rounded,
   );
 
-  /// Menghitung level sanksi berdasarkan akumulasi poin
+  /// LEGACY fallback untuk list tanpa `sanction_levels` (misal list siswa).
+  /// Sumber kebenaran untuk detail adalah config DINAMIS via [visualForConfig].
+  /// Jangan tentukan level dari warna — hanya rentang poin + nama/action.
   static SanctionLevel getSanctionLevel(int points, {String? customStatusName}) {
     if (customStatusName != null && customStatusName.isNotEmpty) {
       final lower = customStatusName.toLowerCase();
@@ -85,6 +88,59 @@ class ViolationSanctionHelper {
     } else {
       return levelBaik;
     }
+  }
+
+  /// Visual dari config DINAMIS (samakan web).
+  /// Level aktif sudah ditentukan via [SanctionLevelConfig.activeSanctionFor];
+  /// fungsi ini hanya memetakan ke warna/icon (bukan penentu level).
+  /// Pemetaan web: L1=Ringan/Peringatan, L2=Sedang/Panggil OT,
+  /// L3=Berat/Skorsing, L4=Sangat Berat/Dikeluarkan.
+  static SanctionLevel visualForConfig(
+    SanctionLevelConfig? active,
+    List<SanctionLevelConfig> all,
+  ) {
+    if (active == null) return levelBaik;
+    final name = active.name.toLowerCase();
+    final action = active.actionType.toLowerCase();
+    final desc = active.description.toLowerCase();
+    bool has(List<String> keys) =>
+        keys.any((k) => name.contains(k) || action.contains(k) || desc.contains(k));
+
+    if (has(['sp 3', 'sp3', 'sangat berat', 'dikeluarkan'])) return levelSp3;
+    if (has(['sp 2', 'sp2', 'skorsing']) || has(['berat']) && has(['level 3', ' 3'])) {
+      return levelSp2;
+    }
+    if (has(['sp 1', 'sp1', 'panggil orang tua']) ||
+        (has(['sedang']) && !has(['berat'])) ||
+        has(['level 2', ' sp1'])) {
+      // Bedakan SP1 vs SP2: skorsing sudah ditangani di atas.
+      if (has(['sp 2', 'sp2', 'skorsing'])) return levelSp2;
+      // Level 3 berat tanpa kata skorsing tetap SP2.
+      if (has(['level 3']) || has(['berat']) && !has(['ringan', 'sedang'])) {
+        return levelSp2;
+      }
+      return levelSp1;
+    }
+    if (has(['level 4', 'sp 3', 'sp3'])) return levelSp3;
+    if (has(['level 3'])) return levelSp2;
+    if (has(['level 2'])) return levelSp1;
+    if (has(['level 1', 'ringan', 'peringatan', 'teguran', 'lisan'])) {
+      return levelPeringatanLisan;
+    }
+    // Fallback urutan config (min ASC): 0->Peringatan, 1->SP1, 2->SP2, 3+->SP3.
+    final sorted = List<SanctionLevelConfig>.from(all)
+      ..sort((a, b) => a.minPoints.compareTo(b.minPoints));
+    final idx = sorted.indexWhere((e) => e.id == active.id && e.name == active.name);
+    final order = idx >= 0 ? idx : sorted.indexOf(active);
+    if (order <= 0) {
+      // Jika hanya 1 level dan poin masuk, tetap peringatan kecuali Aman.
+      return active.minPoints <= 0 && (active.maxPoints ?? 0) >= 0 && order == 0
+          ? levelPeringatanLisan
+          : levelPeringatanLisan;
+    }
+    if (order == 1) return levelSp1;
+    if (order == 2) return levelSp2;
+    return levelSp3;
   }
 
   /// Warna kategori pelanggaran: Ringan, Sedang, Berat

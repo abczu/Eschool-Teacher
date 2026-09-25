@@ -198,20 +198,34 @@ class ViolationRepository {
     }
   }
 
-  /// 6. Detail Pelanggaran Siswa
-  Future<StudentViolationDetail> getStudentViolationDetail(int studentId) async {
+  /// 6. Detail/Ringkasan Pelanggaran Siswa (samakan web).
+  /// Strategi: coba alias `teacher/violations/summary?student_id=` dulu
+  /// (kontrak web), fallback ke `teacher/violations/student-detail/{id}`
+  /// yang sudah live di dev. Keduanya diparsing toleran via
+  /// [StudentViolationDetail.fromJson] (wrapper root/data, key alias).
+  Future<StudentViolationDetail> getStudentViolationSummary(int studentId) async {
     try {
+      final response = await Api.get(
+        url: Api.teacherViolationSummary(studentId),
+        useAuthToken: true,
+      );
+      final data = response['data'] is Map ? response['data'] : response;
+      return StudentViolationDetail.fromJson(Map<String, dynamic>.from(data));
+    } catch (e) {
+      AppLogger.debug('ViolationRepository.getStudentViolationSummary',
+          'Fallback ke student-detail', data: {'studentId': studentId});
       final response = await Api.get(
         url: Api.teacherViolationStudentDetail(studentId),
         useAuthToken: true,
       );
-
       final data = response['data'] is Map ? response['data'] : response;
       return StudentViolationDetail.fromJson(Map<String, dynamic>.from(data));
-    } catch (e) {
-      AppLogger.error('ViolationRepository.getStudentViolationDetail', 'Error', error: e);
-      rethrow;
     }
+  }
+
+  /// 6b. Detail Pelanggaran Siswa (kompat: delegasi ke summary+fallback).
+  Future<StudentViolationDetail> getStudentViolationDetail(int studentId) async {
+    return getStudentViolationSummary(studentId);
   }
 
   /// 7. Hapus Catatan Pelanggaran (Kesiswaan Only)

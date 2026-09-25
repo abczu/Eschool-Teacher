@@ -148,7 +148,7 @@ class _ViolationFilterBottomSheetState
 
           // 1. Filter Kelas
           Text(
-            "Pilih Kelas / Rombel",
+            "Pilih Kelas",
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,

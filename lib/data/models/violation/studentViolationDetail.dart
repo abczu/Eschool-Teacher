@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/models/violation/studentAvatarHelper.dart';
+import 'package:eschool_saas_staff/data/models/violation/violationSanctionLevel.dart';
 
 class ViolationRecord {
   final int id;
@@ -7,6 +8,7 @@ class ViolationRecord {
   final String category;
   final int points;
   final String incidentDate;
+  final String? description;
   final String? notes;
   final String? photoUrl;
   final String? reportedByName;
@@ -19,6 +21,7 @@ class ViolationRecord {
     required this.category,
     required this.points,
     required this.incidentDate,
+    this.description,
     this.notes,
     this.photoUrl,
     this.reportedByName,
@@ -42,11 +45,12 @@ class ViolationRecord {
         int.tryParse(vType['points']?.toString() ?? '') ??
         0;
 
-    // Reporter
+    // Reporter (toleransi key web)
     final reporter = json['reporter'] is Map
         ? json['reporter']
         : (json['user'] is Map ? json['user'] : null);
-    final repName = json['reported_by_name']?.toString() ??
+    final repName = json['reporter_name']?.toString() ??
+        json['reported_by_name']?.toString() ??
         json['reported_by']?.toString() ??
         reporter?['name']?.toString();
 
@@ -62,6 +66,13 @@ class ViolationRecord {
             ? (json['pivot']['occurred_at'] ?? json['pivot']['incident_date'] ?? json['pivot']['created_at'])
             : null);
 
+    // Detail tiap riwayat = description jika ada else notes (samakan web)
+    final desc = json['description']?.toString() ??
+        json['desc']?.toString() ??
+        json['deskripsi']?.toString() ??
+        json['keterangan']?.toString();
+    final noteVal = json['notes']?.toString() ?? json['chronology']?.toString();
+
     return ViolationRecord(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       violationTypeId: int.tryParse(json['violation_type_id']?.toString() ?? '') ??
@@ -70,13 +81,22 @@ class ViolationRecord {
       category: cat,
       points: pts,
       incidentDate: rawDate?.toString() ?? '',
-      notes: json['notes']?.toString() ?? json['chronology']?.toString(),
+      description: desc,
+      notes: noteVal,
       photoUrl: json['photo_url']?.toString() ??
           json['photo']?.toString() ??
           json['image']?.toString(),
       reportedByName: repName,
       createdAt: json['created_at']?.toString(),
     );
+  }
+
+  /// Detail riwayat samakan web: description jika ada else notes.
+  String? get detailText {
+    if (description != null && description!.trim().isNotEmpty) {
+      return description;
+    }
+    return notes;
   }
 
   /// Formatted date in Indonesian without relying on intl locale initialization
@@ -115,6 +135,7 @@ class ViolationRecord {
       'category': category,
       'points': points,
       'incident_date': incidentDate,
+      'description': description,
       'notes': notes,
       'photo_url': photoUrl,
       'reported_by_name': reportedByName,
@@ -133,7 +154,12 @@ class StudentViolationDetail {
   final int? rollNumber;
   final String? avatarUrl;
   final int totalPoints;
+  final int totalViolations;
   final String? sanctionStatus;
+  final String? sanctionLevel;
+  final String? sanctionDescription;
+  final String? actionType;
+  final List<SanctionLevelConfig> sanctionLevels;
   final List<ViolationRecord> violations;
 
   StudentViolationDetail({
@@ -146,9 +172,45 @@ class StudentViolationDetail {
     this.rollNumber,
     this.avatarUrl,
     this.totalPoints = 0,
+    this.totalViolations = 0,
     this.sanctionStatus,
+    this.sanctionLevel,
+    this.sanctionDescription,
+    this.actionType,
+    this.sanctionLevels = const [],
     this.violations = const [],
   });
+
+  /// Level aktif sesuai alur web (rentang poin dinamis + fallback nama/action).
+  /// null = Aman (0 poin / levels kosong / tidak cocok).
+  SanctionLevelConfig? get activeSanction => SanctionLevelConfig.activeSanctionFor(
+        sanctionLevels,
+        totalPoints,
+        sanctionLevel ?? sanctionStatus,
+        actionType,
+      );
+
+  /// Nama level untuk UI: sanctionStatus kosong -> pakai nama level aktif.
+  String get displaySanctionName {
+    if (sanctionStatus != null && sanctionStatus!.trim().isNotEmpty) {
+      return sanctionStatus!;
+    }
+    if (sanctionLevel != null && sanctionLevel!.trim().isNotEmpty) {
+      return sanctionLevel!;
+    }
+    final active = activeSanction;
+    if (active != null) return active.name;
+    return 'Aman';
+  }
+
+  /// Deskripsi sanksi dari server (sanction_description).
+  String? get displaySanctionDescription => sanctionDescription;
+
+  /// Jenis tindakan dari server (action_type) atau level aktif.
+  String? get displayActionType {
+    if (actionType != null && actionType!.trim().isNotEmpty) return actionType;
+    return activeSanction?.actionType;
+  }
 
   String? get displayAvatarUrl =>
       avatarUrl ??
@@ -212,13 +274,60 @@ class StudentViolationDetail {
         int.tryParse(json['points']?.toString() ?? '') ??
         0;
 
-    final rawViolations = json['violations'] ?? json['history'] ?? [];
+    // Riwayat: violations / violation_history / history / records (root atau data)
+    final rawViolations = json['violations'] ??
+        json['violation_history'] ??
+        json['history'] ??
+        json['records'] ??
+        [];
     List<ViolationRecord> records = [];
     if (rawViolations is List) {
       records = rawViolations
-          .map((e) => ViolationRecord.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) => ViolationRecord.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();
     }
+
+    // totalViolations fallback = jumlah violations
+    final totalV = int.tryParse(json['total_violations']?.toString() ?? '') ??
+        int.tryParse(studentData['total_violations']?.toString() ?? '') ??
+        records.length;
+
+    // sanction_levels dinamis (bisa di root/data, key alias sanctionLevels/levels)
+    final rawLevels = json['sanction_levels'] ??
+        json['sanctionLevels'] ??
+        json['levels'] ??
+        studentData['sanction_levels'] ??
+        [];
+    List<SanctionLevelConfig> levels = [];
+    if (rawLevels is List) {
+      levels = rawLevels
+          .where((e) => e is Map)
+          .map((e) => SanctionLevelConfig.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    }
+
+    String? pickStr(List<String> keys) {
+      for (final k in keys) {
+        final v = json[k] ?? studentData[k];
+        if (v != null) {
+          final s = v.toString().trim();
+          if (s.isNotEmpty && s.toLowerCase() != 'null') return s;
+        }
+      }
+      return null;
+    }
+
+    final sanctionLvl = pickStr(['sanction_level', 'sanctionLevel', 'level']);
+    final sanctionDesc = pickStr(
+        ['sanction_description', 'sanctionDescription', 'sanction_desc']);
+    final actType = pickStr([
+      'action_type',
+      'actionType',
+      'jenis_tindakan',
+      'jenisTindakan',
+      'tindakan',
+      'action'
+    ]);
 
     return StudentViolationDetail(
       studentId: sId,
@@ -247,10 +356,15 @@ class StudentViolationDetail {
           normalizeAvatar(json['profileUrl']) ??
           normalizeAvatar(json['profile_url']),
       totalPoints: pts,
+      totalViolations: totalV,
       sanctionStatus: json['sanction_status']?.toString() ??
           json['sanction_name']?.toString() ??
           json['status']?.toString() ??
           studentData['sanction_status']?.toString(),
+      sanctionLevel: sanctionLvl,
+      sanctionDescription: sanctionDesc,
+      actionType: actType,
+      sanctionLevels: levels,
       violations: records,
     );
   }

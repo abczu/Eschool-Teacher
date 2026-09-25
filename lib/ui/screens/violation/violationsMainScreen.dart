@@ -710,7 +710,7 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                                   fallbackClassName:
                                       _resolveFallbackClassName(roleCheck),
                                   onTap: () async {
-                                    final refreshed = await Get.toNamed(
+                                    await Get.toNamed(
                                       Routes.studentViolationDetailScreen,
                                       arguments: {
                                         'studentId': item.studentId,
@@ -718,7 +718,10 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                                         'isKesiswaan': roleCheck.isKesiswaan,
                                       },
                                     );
-                                    if (refreshed == true) {
+                                    // Selalu refresh saat kembali dari detail:
+                                    // data bisa berubah (misal hapus riwayat di
+                                    // detail) tanpa result back yang andal.
+                                    if (context.mounted) {
                                       _fetchStudentsForCurrentTab(roleCheck);
                                     }
                                   },

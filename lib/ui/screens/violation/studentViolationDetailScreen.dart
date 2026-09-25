@@ -51,6 +51,9 @@ class _StudentViolationDetailScreenState
     extends State<StudentViolationDetailScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _appBarAnimationController;
+  // True bila ada perubahan data (misal hapus riwayat) — dikirim sebagai
+  // route result agar halaman pemanggil bisa refresh otomatis.
+  bool _dataChanged = false;
 
   @override
   void initState() {
@@ -102,6 +105,7 @@ class _StudentViolationDetailScreenState
                   await cubit.deleteViolationItem(record.id, studentId);
               if (success) {
                 if (mounted) {
+                  setState(() => _dataChanged = true);
                   SnackBarUtils.showSnackBar(
                     context: context,
                     message: "Catatan pelanggaran berhasil dihapus",
@@ -160,7 +164,7 @@ class _StudentViolationDetailScreenState
         fabAnimationController: _appBarAnimationController,
         primaryColor: const Color(0xFF8B1F41),
         lightColor: const Color(0xFFAC3B5C),
-        onBackPressed: () => Get.back(),
+        onBackPressed: () => Get.back(result: _dataChanged),
         height: 85,
       ),
       body: BlocBuilder<StudentViolationDetailCubit, StudentViolationDetailState>(
@@ -180,10 +184,19 @@ class _StudentViolationDetailScreenState
 
           if (state is StudentViolationDetailFetchSuccess) {
             final detail = state.detail;
-            final sanction = ViolationSanctionHelper.getSanctionLevel(
-              detail.totalPoints,
-              customStatusName: detail.sanctionStatus,
-            );
+            // Level aktif DINAMIS dari server (samakan web). Visual hanya
+            // untuk warna/icon; penentu level = rentang poin + nama/action.
+            final active = detail.activeSanction;
+            final sanction = detail.sanctionLevels.isNotEmpty
+                ? ViolationSanctionHelper.visualForConfig(
+                    active, detail.sanctionLevels)
+                : ViolationSanctionHelper.getSanctionLevel(
+                    detail.totalPoints,
+                    customStatusName: detail.displaySanctionName,
+                  );
+            final levelName = detail.displaySanctionName;
+            final actionType = detail.displayActionType;
+            final sanctionDesc = detail.displaySanctionDescription;
 
             // Lengkapi foto web via cache student-list bila response
             // student-detail belum membawa image (kasus walas).
@@ -215,7 +228,14 @@ class _StudentViolationDetailScreenState
                   children: [
                     // 1. Profil Siswa & Kartu Sanksi
                     _buildStudentProfileCard(
-                        detail, sanction, primaryColor, isDark),
+                      detail,
+                      sanction,
+                      primaryColor,
+                      isDark,
+                      levelName: levelName,
+                      actionType: actionType,
+                      sanctionDesc: sanctionDesc,
+                    ),
 
                     const SizedBox(height: 24),
 
@@ -224,7 +244,7 @@ class _StudentViolationDetailScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Riwayat Pelanggaran (${detail.violations.length})",
+                          "Riwayat Pelanggaran (${detail.totalViolations > 0 ? detail.totalViolations : detail.violations.length})",
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -320,8 +340,11 @@ class _StudentViolationDetailScreenState
     StudentViolationDetail detail,
     SanctionLevel sanction,
     Color primaryColor,
-    bool isDark,
-  ) {
+    bool isDark, {
+    String? levelName,
+    String? actionType,
+    String? sanctionDesc,
+  }) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -455,14 +478,15 @@ class _StudentViolationDetailScreenState
             ),
           ),
 
-          // Sanction Status Banner
+          // Sanction Status Banner (samakan web: level + tindakan + deskripsi)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             decoration: BoxDecoration(
               color: sanction.backgroundColor,
-              borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius: detail.sanctionLevels.isNotEmpty
+                  ? BorderRadius.zero
+                  : const BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             child: Row(
               children: [
@@ -470,7 +494,7 @@ class _StudentViolationDetailScreenState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "Status Sanksi: ${sanction.title}",
+                    "Status Sanksi: ${levelName ?? sanction.title}",
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -481,6 +505,71 @@ class _StudentViolationDetailScreenState
               ],
             ),
           ),
+          // Daftar rentang level dinamis dari server (null max -> "≥ X Poin")
+          if (detail.sanctionLevels.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Theme.of(context).cardColor.withValues(alpha: 0.6)
+                    : Colors.grey.shade50,
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(20)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Ketentuan Level (dari server)",
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white60 : Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ...detail.sanctionLevels.map((lvl) {
+                    final isActive = detail.activeSanction?.name == lvl.name &&
+                        detail.activeSanction?.minPoints == lvl.minPoints;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isActive
+                                ? Icons.radio_button_checked_rounded
+                                : Icons.radio_button_off_rounded,
+                            size: 14,
+                            color: isActive
+                                ? sanction.primaryColor
+                                : Colors.grey.shade400,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              "${lvl.name} • ${lvl.displayRange}${lvl.actionType.trim().isNotEmpty ? ' • ${lvl.actionType}' : ''}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: isActive
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: isActive
+                                    ? sanction.textColor
+                                    : (isDark
+                                        ? Colors.white70
+                                        : Colors.grey.shade700),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -493,318 +582,128 @@ class _StudentViolationDetailScreenState
     required bool isDark,
     required bool isDeletingThis,
   }) {
-    final catColor = ViolationSanctionHelper.getCategoryColor(record.category);
     final formattedDate = record.formattedIncidentDate;
-    final cardColor =
-        isDark ? Theme.of(context).cardColor : Colors.white;
-    final borderColor =
-        isDark ? Colors.white12 : Colors.grey.shade200;
+    final cardColor = isDark ? Theme.of(context).cardColor : Colors.white;
+    final borderColor = isDark ? Colors.white12 : Colors.grey.shade200;
+    final muted = isDark ? Colors.white60 : Colors.grey.shade600;
+    final titleColor = isDark ? Colors.white : Colors.black87;
 
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              // 1. Left Accent Indicator Stripe matching category
-              Container(
-                width: 5,
-                color: catColor,
-              ),
-
-              // 2. Card Content
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Top Row: Category Badge ("Sedang"), Points (+4 Poin), and Delete
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Category Badge: "Sedang" / "Ringan" / "Berat"
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: catColor.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: catColor.withValues(alpha: 0.3),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: catColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  record.category,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: catColor,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Right side: Points pill & delete button
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.red.shade200,
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  "+${record.points} Poin",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.red.shade700,
-                                  ),
-                                ),
-                              ),
-                              if (widget.isKesiswaan) ...[
-                                const SizedBox(width: 8),
-                                InkWell(
-                                  onTap: isDeletingThis
-                                      ? null
-                                      : () => _confirmDeleteViolation(
-                                          record, studentId),
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: isDeletingThis
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child:
-                                                CustomCircularProgressIndicator(
-                                                    strokeWidth: 2),
-                                          )
-                                        : Icon(Icons.delete_outline_rounded,
-                                            color: Colors.red.shade400,
-                                            size: 18),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Violation Name Title
-                      Text(
-                        record.violationName,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black87,
-                          height: 1.35,
-                        ),
-                      ),
-
-                      // Notes / Chronology (if available)
-                      if (record.notes != null &&
-                          record.notes!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 10),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.amber.withValues(alpha: 0.08)
-                                : Colors.amber.shade50,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.amber.withValues(alpha: 0.25)
-                                  : Colors.amber.shade200,
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.sticky_note_2_rounded,
-                                    size: 15,
-                                    color: isDark
-                                        ? Colors.amber.shade200
-                                        : Colors.amber.shade700,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    "Catatan / Deskripsi",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? Colors.amber.shade200
-                                          : Colors.amber.shade800,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                record.notes!,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? Colors.white70
-                                      : Colors.grey.shade800,
-                                  height: 1.45,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: 12),
-
-                      // Bottom Row: Date + Attachment icon
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Date Pill
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.white10
-                                  : Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: borderColor),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.calendar_today_rounded,
-                                  size: 14,
-                                  color: isDark
-                                      ? Colors.white54
-                                      : Colors.grey.shade600,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  formattedDate,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: isDark
-                                        ? Colors.white70
-                                        : Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Attachment icon (if photo available)
-                          if (record.photoUrl != null &&
-                              record.photoUrl!.trim().isNotEmpty)
-                            InkWell(
-                              onTap: () => ImagePreviewDialog.show(
-                                context,
-                                imageUrl: record.photoUrl!,
-                                title: "Bukti: ${record.violationName}",
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white10
-                                      : Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.attach_file_rounded,
-                                  size: 18,
-                                  color: isDark
-                                      ? Colors.white54
-                                      : Colors.grey.shade600,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-
-                      // Reporter Name (if available)
-                      if (record.reportedByName != null &&
-                          record.reportedByName!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.person_outline_rounded,
-                                size: 13,
-                                color: isDark
-                                    ? Colors.white38
-                                    : Colors.grey.shade500),
-                            const SizedBox(width: 4),
-                            Text(
-                              "Dicatat oleh: ${record.reportedByName}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 11,
-                                color: isDark
-                                    ? Colors.white54
-                                    : Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
+              Text(
+                "+${record.points} Poin",
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.red.shade700,
                 ),
               ),
+              const Spacer(),
+              if (widget.isKesiswaan) ...[
+                if (isDeletingThis)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CustomCircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  InkWell(
+                    onTap: () =>
+                        _confirmDeleteViolation(record, studentId),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(Icons.delete_outline_rounded,
+                          color: Colors.red.shade300, size: 18),
+                    ),
+                  ),
+              ],
             ],
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            record.violationName,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: titleColor,
+              height: 1.35,
+            ),
+          ),
+          if (record.detailText != null &&
+              record.detailText!.trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              record.detailText!,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: muted,
+                height: 1.45,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.calendar_today_rounded, size: 13, color: muted),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  formattedDate +
+                      (record.reportedByName != null &&
+                              record.reportedByName!.trim().isNotEmpty
+                          ? "  •  ${record.reportedByName}"
+                          : ""),
+                  style: GoogleFonts.poppins(fontSize: 11, color: muted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (record.photoUrl != null &&
+                  record.photoUrl!.trim().isNotEmpty)
+                InkWell(
+                  onTap: () => ImagePreviewDialog.show(
+                    context,
+                    imageUrl: record.photoUrl!,
+                    title: "Bukti: ${record.violationName}",
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.attach_file_rounded,
+                            size: 15, color: muted),
+                        const SizedBox(width: 2),
+                        Text(
+                          "Bukti",
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

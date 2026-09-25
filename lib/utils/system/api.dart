@@ -359,6 +359,8 @@ class Api {
       "${databaseUrl}teacher/violations/give-points";
   static String teacherViolationStudentDetail(int studentId) =>
       "${databaseUrl}teacher/violations/student-detail/$studentId";
+  static String teacherViolationSummary(int studentId) =>
+      "${databaseUrl}teacher/violations/summary?student_id=$studentId";
   static String teacherViolationDelete(int violationId) =>
       "${databaseUrl}teacher/violations/$violationId";
   static String get teacherViolationExportPdf =>

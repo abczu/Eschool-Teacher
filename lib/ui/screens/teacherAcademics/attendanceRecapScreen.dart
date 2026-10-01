@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
-import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AttendanceRecapScreen extends StatefulWidget {
   final int schoolId;
@@ -51,6 +49,47 @@ class AttendanceRecapScreen extends StatefulWidget {
 class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _hasError = false;
+  String _errorMessage = '';
+  String _previewUrl = '';
+
+  String _buildPreviewUrl(String userParam, String apiToken) {
+    // Bangun URL via Uri agar token (mengandung "|") ter-encode dengan benar.
+    // Mode preview (isDownload=false): TANPA download => backend balas HTML.
+    // Mode unduh (isDownload=true): dengan download=true => PDF binary.
+    final queryParams = <String, String>{
+      'school_id': widget.schoolId.toString(),
+      'token': widget.token,
+      'api_token': apiToken,
+      'month': widget.month.toString(),
+      'year': widget.year.toString(),
+      'class_id': widget.classId.toString(),
+      'class_section_id': widget.classSectionId.toString(),
+      'type': 'api',
+      'gm': '1',
+      if (widget.isDownload) 'download': 'true',
+    };
+    // userParam berbentuk "teacher_id=xx" / "staff_id=xx"
+    final parts = userParam.split('=');
+    if (parts.length == 2 && parts[0].isNotEmpty) {
+      queryParams[parts[0]] = parts[1];
+    }
+    return Uri.parse(Api.recapDownload)
+        .replace(queryParameters: queryParams)
+        .toString();
+  }
+
+  void _loadPreview() {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = '';
+    });
+    _controller.loadRequest(
+      Uri.parse(_previewUrl),
+      headers: Api.headers(useAuthToken: true),
+    );
+  }
 
   @override
   void initState() {
@@ -65,20 +104,9 @@ class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
         ? "staff_id=${user.staff?.id ?? user.id}"
         : "teacher_id=${user.teacher?.id ?? user.id}";
 
-    final String url = "${Api.recapDownload}?"
-        "school_id=${widget.schoolId}"
-        "&token=${widget.token}"
-        "&api_token=$apiToken"
-        "&month=${widget.month}"
-        "&year=${widget.year}"
-        "&class_id=${widget.classId}"
-        "&class_section_id=${widget.classSectionId}"
-        "&$userParam"
-        "&type=api"
-        "&gm=1"
-        "${widget.isDownload ? '&download=1' : ''}";
+    _previewUrl = _buildPreviewUrl(userParam, apiToken);
 
-    debugPrint("[RecapScreen] Full URL: $url");
+    debugPrint("[RecapScreen] Full URL: $_previewUrl");
     debugPrint("[RecapScreen] Params: schoolId=${widget.schoolId}, classId=${widget.classId}, classSectionId=${widget.classSectionId}, month=${widget.month}, year=${widget.year}");
 
     _controller = WebViewController()
@@ -88,23 +116,61 @@ class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
         NavigationDelegate(
           onPageStarted: (String url) {
             debugPrint("[RecapScreen] Loading started: $url");
-            setState(() {
-              _isLoading = true;
-            });
+            if (mounted) {
+              setState(() {
+                _isLoading = true;
+                _hasError = false;
+              });
+            }
           },
           onPageFinished: (String url) {
             debugPrint("[RecapScreen] Loading finished: $url");
-            setState(() {
-              _isLoading = false;
-            });
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          },
+          onHttpError: (HttpResponseError error) {
+            debugPrint(
+                "[RecapScreen] HTTP error: ${error.response?.statusCode} ${error.response?.uri}");
+            if (mounted) {
+              final code = error.response?.statusCode;
+              setState(() {
+                _isLoading = false;
+                _hasError = true;
+                if (code == 401) {
+                  _errorMessage =
+                      'Sesi habis (401). Silakan login ulang lalu coba lagi.';
+                } else if (code == 403) {
+                  _errorMessage =
+                      'Anda tidak memiliki izin (403) untuk rekap ini.';
+                } else if (code == 404) {
+                  _errorMessage =
+                      'Data rekap tidak ditemukan (404). Periksa kelas/bulan yang dipilih.';
+                } else {
+                  _errorMessage =
+                      'Gagal memuat pratinjau (HTTP ${code ?? 'unknown'}).';
+                }
+              });
+            }
           },
           onWebResourceError: (WebResourceError error) {
-            debugPrint("WebView Error: ${error.description}, Code: ${error.errorCode}");
+            debugPrint(
+                "WebView Error: ${error.description}, Code: ${error.errorCode}");
+            if (mounted && error.isForMainFrame == true) {
+              setState(() {
+                _isLoading = false;
+                _hasError = true;
+                _errorMessage =
+                    'Gagal memuat pratinjau: ${error.description}. Periksa koneksi / token sesi.';
+              });
+            }
           },
         ),
       )
       ..loadRequest(
-        Uri.parse(url),
+        Uri.parse(_previewUrl),
         headers: Api.headers(useAuthToken: true),
       );
   }
@@ -125,6 +191,31 @@ class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(),
+            ),
+          if (_hasError && !_isLoading)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off_outlined,
+                        size: 56, color: Colors.grey),
+                    const SizedBox(height: 12),
+                    Text(
+                      _errorMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _loadPreview,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba Lagi'),
+                    ),
+                  ],
+                ),
+              ),
             ),
         ],
       ),

@@ -10,7 +10,6 @@ import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
@@ -372,7 +371,9 @@ class _RecapAttendanceSubjectScreenState
         "&class_section_id=$classSectionId"
         "&type=api"
         "&gm=1"
-        "${isDownload ? '&download=1' : ''}";
+        // Backend /recap-download: tanpa download => HTML (preview WebView),
+        // dengan download=true => stream binary PDF (Content-Type: application/pdf)
+        "${isDownload ? '&download=true' : ''}";
 
     if (isDownload) {
       debugPrint("[RecapSubject] Showing download dialog for: $url");
@@ -386,15 +387,20 @@ class _RecapAttendanceSubjectScreenState
         ),
       );
     } else {
-      debugPrint("[RecapSubject] Showing preview dialog for: $url");
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => DownloadAttendanceRecapDialog(
-          url: url,
-          fileName: "Preview-Rekap-Absensi-$month-$_selectedYear",
-          isPreview: true,
-        ),
+      // Preview / Review: buka WebView interaktif (HTML), jangan diparsing
+      // sebagai PDF via DownloadAttendanceRecapDialog.
+      debugPrint("[RecapSubject] Navigating to WebView preview: $url");
+      getx.Get.toNamed(
+        Routes.attendanceRecapScreen,
+        arguments: {
+          'schoolId': effectiveSchoolId,
+          'token': token,
+          'month': month,
+          'year': _selectedYear,
+          'classId': classId,
+          'classSectionId': classSectionId,
+          'isDownload': false,
+        },
       );
     }
   }

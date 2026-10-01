@@ -1,8 +1,5 @@
-import 'dart:io';
 import 'package:eschool_saas_staff/cubits/academics/downloadAttendanceRecapCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
-import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,9 +29,12 @@ class DownloadAttendanceRecapDialog extends StatelessWidget {
           if (state is DownloadAttendanceRecapSuccess) {
             Get.back();
             if (!isPreview) {
+              // Sukses = kartu popup yang sama, tapi hijau (bukan merah/maroon
+              // warna primer yang terkesan seperti error).
               Utils.showSnackBar(
                 message: "File rekap berhasil diunduh ke folder Download",
                 context: context,
+                backgroundColor: Colors.green,
               );
             }
             OpenFilex.open(state.downloadedFilePath);

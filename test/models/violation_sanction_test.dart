@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/models/violation/studentViolationDetail.dart';
+import 'package:eschool_saas_staff/data/models/violation/violationSanctionHelper.dart';
 import 'package:eschool_saas_staff/data/models/violation/violationSanctionLevel.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -140,5 +141,37 @@ void main() {
     final byAction = SanctionLevelConfig.activeSanctionFor(
         levels, 999, 'Tidak Ada', 'Skorsing');
     expect(byAction?.name, 'Level 3');
+  });
+
+  test('judul legacy sudah gaya web (Aman, Level 1-4)', () {
+    expect(ViolationSanctionHelper.levelBaik.title, 'Aman');
+    expect(ViolationSanctionHelper.levelPeringatanLisan.title, 'Level 1');
+    expect(ViolationSanctionHelper.levelSp1.title, 'Level 2');
+    expect(ViolationSanctionHelper.levelSp2.title, 'Level 3');
+    expect(ViolationSanctionHelper.levelSp3.title, 'Level 4');
+    // 0 poin tanpa nama server -> Aman (bukan Baik)
+    final s = ViolationSanctionHelper.getSanctionLevel(0);
+    expect(s.title, 'Aman');
+  });
+
+  test('matcher mengenali nama Level dari server untuk warna', () {
+    expect(
+        ViolationSanctionHelper.getSanctionLevel(0, customStatusName: 'Level 3')
+            .title,
+        'Level 3');
+    expect(
+        ViolationSanctionHelper.getSanctionLevel(0, customStatusName: 'Level 1')
+            .title,
+        'Level 1');
+  });
+
+  test('label badge list: server > 0 poin > fallback', () {
+    String label({required int p, String? n, String fallback = 'Level 2'}) =>
+        ViolationSanctionHelper.listBadgeLabel(
+            points: p, sanctionName: n, fallbackTitle: fallback);
+    expect(label(p: 0), 'Aman');
+    expect(label(p: 0, n: 'Baik'), 'Aman');
+    expect(label(p: 4, n: 'Level 1'), 'Level 1');
+    expect(label(p: 60, fallback: 'Level 3'), 'Level 3');
   });
 }

@@ -24,6 +24,20 @@ class DownloadAttendanceRecapFailure extends DownloadAttendanceRecapState {
 class DownloadAttendanceRecapCubit extends Cubit<DownloadAttendanceRecapState> {
   DownloadAttendanceRecapCubit() : super(DownloadAttendanceRecapInitial());
 
+  /// Memastikan URL /recap-download selalu membawa `download=true` sehingga
+  /// backend mengembalikan stream binary PDF (application/pdf),
+  /// bukan halaman HTML preview.
+  String _ensureDownloadParam(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    if (!uri.path.contains('recap-download')) return url;
+    final params = Map<String, String>.from(uri.queryParameters);
+    final dl = (params['download'] ?? '').toLowerCase();
+    if (dl == 'true' || dl == '1') return url;
+    params['download'] = 'true';
+    return uri.replace(queryParameters: params).toString();
+  }
+
   void downloadRecap({
     required String url,
     required String fileName,
@@ -46,11 +60,17 @@ class DownloadAttendanceRecapCubit extends Cubit<DownloadAttendanceRecapState> {
         savePath = "$directoryPath/$fileName.pdf";
       }
 
+      // Wajib: endpoint tanpa download=true membalas HTML, bukan PDF.
+      final effectiveUrl = _ensureDownloadParam(url);
+
       final dio = Dio();
+      final requestHeaders = Api.headers(useAuthToken: true)
+        // Minta PDF secara eksplisit; jangan paksa Accept: application/json
+        ..['Accept'] = 'application/pdf, */*';
       final response = await dio.get(
-        url,
+        effectiveUrl,
         options: Options(
-          headers: Api.headers(useAuthToken: true),
+          headers: requestHeaders,
           responseType: ResponseType.bytes, // Ambil raw bytes agar bisa dicek
           followRedirects: true,
         ),
@@ -71,15 +91,30 @@ class DownloadAttendanceRecapCubit extends Cubit<DownloadAttendanceRecapState> {
           dataBytes[3] == 0x46; // %PDF
 
       if (!contentType.contains('application/pdf') && !isPdfMagicBytes) {
-        final errorMsg = String.fromCharCodes(dataBytes);
-        if (errorMsg.contains("Terjadi kesalahan")) {
+        final errorMsg = dataBytes.length > 4096
+            ? String.fromCharCodes(dataBytes.sublist(0, 4096))
+            : String.fromCharCodes(dataBytes);
+        final lowered = errorMsg.toLowerCase();
+        if (lowered.contains("terjadi kesalahan")) {
           throw Exception(
               "Server masih error: Terjadi kesalahan saat memproses data.");
+        }
+        if (lowered.contains("unauthenticated") ||
+            lowered.contains("sesi habis") ||
+            lowered.contains("token") && lowered.contains("login") ||
+            lowered.contains("silakan login")) {
+          throw Exception(
+              "Sesi habis / token tidak valid. Silakan login ulang lalu coba unduh lagi.");
+        }
+        if (lowered.contains("kelas tidak ditemukan") ||
+            lowered.contains("class not found")) {
+          throw Exception(
+              "Kelas tidak ditemukan di server. Periksa kelas/bulan yang dipilih.");
         }
         if (errorMsg.contains("<html") ||
             errorMsg.contains("<!DOCTYPE html>")) {
           throw Exception(
-              "Gagal memuat PDF: Server mengembalikan halaman web. Pastikan token sesi valid.");
+              "Gagal memuat PDF: server mengembalikan halaman web (kemungkinan tanpa download=true atau sesi kedaluwarsa). Buka via Review/WebView atau login ulang.");
         }
         throw Exception(
             "Server tidak mengirimkan file PDF (Content-Type: $contentType)");

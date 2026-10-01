@@ -301,8 +301,8 @@ class StudentViolationDetail {
     List<SanctionLevelConfig> levels = [];
     if (rawLevels is List) {
       levels = rawLevels
-          .where((e) => e is Map)
-          .map((e) => SanctionLevelConfig.fromJson(Map<String, dynamic>.from(e as Map)))
+          .whereType<Map>()
+          .map((e) => SanctionLevelConfig.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
 

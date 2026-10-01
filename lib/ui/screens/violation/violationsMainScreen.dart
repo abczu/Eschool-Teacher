@@ -137,14 +137,11 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
       }
     }
 
-    // Jika keduanya false (akun guru umum), fallback agar UI langsung menampilkan list siswa
-    if (!isKesiswaan && !isHomeroom) {
-      if (primaryClasses.isNotEmpty) {
-        isHomeroom = true;
-      } else {
-        isKesiswaan = true;
-      }
-    }
+    // Fallback saat backend belum memastikan role apa pun (misal masih
+    // loading / offline): JANGAN pernah menebak isKesiswaan=true.
+    // Akses kesiswaan (FAB Tambah Poin, endpoint all-students) hanya untuk
+    // flag asli dari backend. Menaikkan isHomeroom dari primaryClasses di
+    // atas sudah cukup agar guru tetap melihat list kelasnya.
 
     return ViolationRoleCheck(
       isKesiswaan: isKesiswaan,
@@ -737,25 +734,46 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                   ),
                 ],
               ),
-              floatingActionButton: roleCheck.isKesiswaan
-                  ? FloatingActionButton.extended(
-                      onPressed: () async {
-                        final result = await Get.toNamed(
-                          Routes.giveViolationPointsScreen,
-                        );
-                        if (result == true) {
-                          _fetchStudentsForCurrentTab(roleCheck);
+              // FAB Tambah Poin: HANYA kesiswaan asli dari backend
+              // (roleState success), bukan hasil fallback resolve. Dibungkus
+              // BlocBuilder students agar FAB muncul BERSAMAAN dengan list
+              // (setelah loading selesai), tidak mendahului kartu siswa.
+              floatingActionButton: (roleState is ViolationRoleCheckSuccess &&
+                      roleCheck.isKesiswaan)
+                  ? BlocBuilder<ViolationStudentsCubit,
+                      ViolationStudentsState>(
+                      builder: (context, studentsState) {
+                        if (studentsState is! ViolationStudentsFetchSuccess) {
+                          return const SizedBox.shrink();
                         }
+                        return TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeOutBack,
+                          builder: (context, value, child) =>
+                              Transform.scale(scale: value, child: child),
+                          child: FloatingActionButton.extended(
+                            onPressed: () async {
+                              final result = await Get.toNamed(
+                                Routes.giveViolationPointsScreen,
+                              );
+                              if (result == true && context.mounted) {
+                                _fetchStudentsForCurrentTab(roleCheck);
+                              }
+                            },
+                            backgroundColor: const Color(0xFF8B1F41),
+                            icon: const Icon(Icons.add_rounded,
+                                color: Colors.white),
+                            label: Text(
+                              "Tambah Poin",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        );
                       },
-                      backgroundColor: const Color(0xFF8B1F41),
-                      icon: const Icon(Icons.add_rounded, color: Colors.white),
-                      label: Text(
-                        "Tambah Poin",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
                     )
                   : null,
             ),
@@ -1019,6 +1037,12 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
       item.totalPoints,
       customStatusName: item.sanctionName,
     );
+    // Teks badge samakan web (Aman, Level 1-4): utamakan nama dari server.
+    final badgeText = ViolationSanctionHelper.listBadgeLabel(
+      points: item.totalPoints,
+      sanctionName: item.sanctionName,
+      fallbackTitle: sanction.title,
+    );
     // Samakan dengan kesiswaan: jika response walas flat tanpa className,
     // tampilkan nama kelas perwalian agar tidak muncul "- • Absen X".
     final displayClassName =
@@ -1150,7 +1174,7 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                             size: 13, color: sanction.primaryColor),
                         const SizedBox(width: 4),
                         Text(
-                          sanction.title,
+                          badgeText,
                           style: GoogleFonts.poppins(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

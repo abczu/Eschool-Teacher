@@ -18,8 +18,11 @@ class SanctionLevel {
 }
 
 class ViolationSanctionHelper {
+  // Judul disamakan web: Aman + Level 1-4 (bukan Baik/SP1/...).
+  // Level AKTIF tetap ditentukan config dinamis; judul ini hanya label
+  // fallback untuk list yang belum membawa `sanction_levels`.
   static const SanctionLevel levelBaik = SanctionLevel(
-    title: "Baik",
+    title: "Aman",
     primaryColor: Color(0xFF2E7D32),
     backgroundColor: Color(0xFFE8F5E9),
     textColor: Color(0xFF1B5E20),
@@ -27,7 +30,7 @@ class ViolationSanctionHelper {
   );
 
   static const SanctionLevel levelPeringatanLisan = SanctionLevel(
-    title: "Peringatan Lisan",
+    title: "Level 1",
     primaryColor: Color(0xFFF57F17),
     backgroundColor: Color(0xFFFFF8E1),
     textColor: Color(0xFFE65100),
@@ -35,7 +38,7 @@ class ViolationSanctionHelper {
   );
 
   static const SanctionLevel levelSp1 = SanctionLevel(
-    title: "Surat Peringatan 1 (SP 1)",
+    title: "Level 2",
     primaryColor: Color(0xFFE65100),
     backgroundColor: Color(0xFFFFF3E0),
     textColor: Color(0xFFBF360C),
@@ -43,7 +46,7 @@ class ViolationSanctionHelper {
   );
 
   static const SanctionLevel levelSp2 = SanctionLevel(
-    title: "Surat Peringatan 2 (SP 2)",
+    title: "Level 3",
     primaryColor: Color(0xFFD32F2F),
     backgroundColor: Color(0xFFFFEBEE),
     textColor: Color(0xFFB71C1C),
@@ -51,7 +54,7 @@ class ViolationSanctionHelper {
   );
 
   static const SanctionLevel levelSp3 = SanctionLevel(
-    title: "SP 3 (Panggilan Orang Tua & Kepala Sekolah)",
+    title: "Level 4",
     primaryColor: Color(0xFF880E4F),
     backgroundColor: Color(0xFFFCE4EC),
     textColor: Color(0xFF4A148C),
@@ -64,7 +67,16 @@ class ViolationSanctionHelper {
   static SanctionLevel getSanctionLevel(int points, {String? customStatusName}) {
     if (customStatusName != null && customStatusName.isNotEmpty) {
       final lower = customStatusName.toLowerCase();
-      if (lower.contains('sp 3') || lower.contains('sp3')) {
+      // Nama gaya web didahulukan agar warna badge list selaras detail.
+      if (lower.contains('level 4')) {
+        return levelSp3;
+      } else if (lower.contains('level 3')) {
+        return levelSp2;
+      } else if (lower.contains('level 2')) {
+        return levelSp1;
+      } else if (lower.contains('level 1')) {
+        return levelPeringatanLisan;
+      } else if (lower.contains('sp 3') || lower.contains('sp3')) {
         return levelSp3;
       } else if (lower.contains('sp 2') || lower.contains('sp2')) {
         return levelSp2;
@@ -88,6 +100,23 @@ class ViolationSanctionHelper {
     } else {
       return levelBaik;
     }
+  }
+
+  /// Teks badge status untuk kartu list (samakan web: Aman, Level 1-4).
+  /// Prioritas: nama dari server (dinormalisasi Baik -> Aman),
+  /// lalu 0 poin -> Aman, sisanya label visual fallback.
+  static String listBadgeLabel({
+    required int points,
+    String? sanctionName,
+    required String fallbackTitle,
+  }) {
+    final raw = (sanctionName ?? '').trim();
+    if (raw.isNotEmpty) {
+      if (raw.toLowerCase() == 'baik') return 'Aman';
+      return raw;
+    }
+    if (points <= 0) return 'Aman';
+    return fallbackTitle;
   }
 
   /// Visual dari config DINAMIS (samakan web).

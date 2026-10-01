@@ -9,16 +9,24 @@ import 'package:get/get.dart';
 class EnvSwitcherUtil {
   static void showEnvDialog(BuildContext context) {
     Get.dialog(
-      StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: const Text(
-              'Pilih Environment',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-            ),
+      Theme(
+        data: ThemeData.light(useMaterial3: true),
+        child: StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Pilih Environment',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  color: Colors.black87,
+                ),
+              ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -38,8 +46,9 @@ class EnvSwitcherUtil {
                 child: const Text('Tutup'),
               ),
             ],
-          );
-        },
+            );
+          },
+        ),
       ),
       barrierDismissible: true,
     );

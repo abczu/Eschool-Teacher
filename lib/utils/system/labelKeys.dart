@@ -254,7 +254,7 @@ const String examResultKey = "examResult";
 
 const String classListKey = "classList";
 const String leaveAppliedSuccessfullyKey = "leaveAppliedSuccessfully";
-const String pleaseAddReasonKey = "Tambahkan Alasan Terkebih dahulu";
+const String pleaseAddReasonKey = "Tambahkan Alasan Terlebih dahulu";
 const String mediumKey = "medium";
 
 const String noLessonKey = "noLesson";

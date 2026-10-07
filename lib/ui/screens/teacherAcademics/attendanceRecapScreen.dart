@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
@@ -123,13 +124,24 @@ class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
               });
             }
           },
-          onPageFinished: (String url) {
+          onPageFinished: (String url) async {
             debugPrint("[RecapScreen] Loading finished: $url");
             if (mounted) {
               setState(() {
                 _isLoading = false;
               });
             }
+            // Fallback: longgarkan viewport backend agar user-scalable=yes,
+            // sehingga pinch-zoom tetap jalan walau template masih maximum-scale=1.
+            try {
+              await _controller.runJavaScript(
+                "(function(){var m=document.querySelector('meta[name=viewport]');"
+                "if(m){m.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');}"
+                "else{var m2=document.createElement('meta');m2.name='viewport';"
+                "m2.content='width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';"
+                "document.head.appendChild(m2);}})();",
+              );
+            } catch (_) {}
           },
           onHttpError: (HttpResponseError error) {
             debugPrint(
@@ -168,11 +180,18 @@ class _AttendanceRecapScreenState extends State<AttendanceRecapScreen> {
             }
           },
         ),
-      )
-      ..loadRequest(
-        Uri.parse(_previewUrl),
-        headers: Api.headers(useAuthToken: true),
       );
+
+    // Enable pinch-zoom di Android agar tabel lebar bisa di-zoom + digeser.
+    // iOS mengikuti meta viewport (sudah dilonggarkan via JS di onPageFinished).
+    if (_controller.platform is AndroidWebViewController) {
+      (_controller.platform as AndroidWebViewController).enableZoom(true);
+    }
+
+    _controller.loadRequest(
+      Uri.parse(_previewUrl),
+      headers: Api.headers(useAuthToken: true),
+    );
   }
 
   @override

@@ -481,26 +481,6 @@ class RecapAttendanceContainer extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: _buildActionButtons(section, monthIndex, context),
             ),
-
-            // Info NIS/NISN: jika masih kosong di preview, data master belum diisi admin.
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: isDark ? Colors.white38 : Colors.grey.shade500,
-                ),
-                const SizedBox(width: 6),
-                const Expanded(
-                  child: Text(
-                    'NIS/NISN kosong? Lengkapi data master via admin sekolah.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

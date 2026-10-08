@@ -997,14 +997,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                       return;
                                     }
 
-                                    if (_textEditingController.text
-                                        .trim()
-                                        .isEmpty) {
-                                      _showValidationSnackBar(
-                                          message: pleaseAddReasonKey);
-                                      return;
-                                    }
-
                                     if (_selectedFromDate == null) {
                                       _showValidationSnackBar(
                                           message: pleaseSelectFromDateKey);
@@ -1014,6 +1006,20 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                     if (_selectedToDate == null) {
                                       _showValidationSnackBar(
                                           message: pleaseSelectToDateKey);
+                                      return;
+                                    }
+
+                                    if (_leaveDays.isEmpty) {
+                                      _showValidationSnackBar(
+                                          message: noValidLeaveDaysKey);
+                                      return;
+                                    }
+
+                                    if (_textEditingController.text
+                                        .trim()
+                                        .isEmpty) {
+                                      _showValidationSnackBar(
+                                          message: pleaseAddReasonKey);
                                       return;
                                     }
 
@@ -1993,7 +1999,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "Total durasi cuti: ${_selectedToDate!.difference(_selectedFromDate!).inDays + 1} hari",
+                      _leaveDays.length ==
+                              _selectedToDate!
+                                      .difference(_selectedFromDate!)
+                                      .inDays +
+                                  1
+                          ? "Total durasi cuti: ${_selectedToDate!.difference(_selectedFromDate!).inDays + 1} hari"
+                          : "Total durasi: ${_selectedToDate!.difference(_selectedFromDate!).inDays + 1} hari (${_leaveDays.length} hari valid)",
                       style: const TextStyle(
                         color: maroonPrimary,
                         fontWeight: FontWeight.w600,
@@ -2070,7 +2082,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                     _buildGeneratedLeaveDaysContainer(),
 
                                     // Reason input section
-                                    if (_leaveDays.isNotEmpty)
+                                    // Tampilkan jika tanggal sudah dipilih,
+                                    // jangan bergantung pada _leaveDays agar
+                                    // kolom tidak hilang saat tanggal ke-filter libur.
+                                    if (_selectedFromDate != null &&
+                                        _selectedToDate != null)
                                       Padding(
                                         padding: EdgeInsets.symmetric(
                                           horizontal:
@@ -2078,6 +2094,54 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                           vertical: 8,
                                         ),
                                         child: _buildReasonTextFieldSection(),
+                                      ),
+
+                                    // Warning saat tanggal terpilih tapi
+                                    // tidak ada hari valid (libur / di luar TA).
+                                    if (_selectedFromDate != null &&
+                                        _selectedToDate != null &&
+                                        _leaveDays.isEmpty)
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal:
+                                              appContentHorizontalPadding,
+                                          vertical: 8,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.orange.shade50,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            border: Border.all(
+                                              color: Colors.orange.shade300,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.warning_amber_rounded,
+                                                color:
+                                                    Colors.orange.shade800,
+                                                size: 24,
+                                              ),
+                                              const SizedBox(width: 14),
+                                              Expanded(
+                                                child: Text(
+                                                  noValidLeaveDaysKey,
+                                                  style: TextStyle(
+                                                    color: Colors
+                                                        .orange.shade900,
+                                                    fontSize: 13,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight:
+                                                        FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
 
                                     // Attachment section

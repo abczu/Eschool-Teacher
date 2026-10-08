@@ -255,6 +255,8 @@ const String examResultKey = "examResult";
 const String classListKey = "classList";
 const String leaveAppliedSuccessfullyKey = "leaveAppliedSuccessfully";
 const String pleaseAddReasonKey = "Tambahkan Alasan Terlebih dahulu";
+const String noValidLeaveDaysKey =
+    "Tanggal yang dipilih tidak valid (hari libur / di luar tahun ajaran)";
 const String mediumKey = "medium";
 
 const String noLessonKey = "noLesson";

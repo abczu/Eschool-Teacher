@@ -257,6 +257,10 @@ const String leaveAppliedSuccessfullyKey = "leaveAppliedSuccessfully";
 const String pleaseAddReasonKey = "Tambahkan Alasan Terlebih dahulu";
 const String noValidLeaveDaysKey =
     "Tanggal yang dipilih tidak valid (hari libur / di luar tahun ajaran)";
+// Pesan spesifik ketika pengajuan jatuh pada hari libur (sinkron BE 422).
+const String leaveOnHolidayKey = "leaveOnHoliday";
+const String allDatesAreHolidaysKey = "allDatesAreHolidays";
+const String someDatesAreHolidaysKey = "someDatesAreHolidays";
 const String mediumKey = "medium";
 
 const String noLessonKey = "noLesson";

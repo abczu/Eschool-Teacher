@@ -56,11 +56,17 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   DateTime? _selectedFromDate;
   DateTime? _selectedToDate;
   Map<DateTime, String> _leaveDays = {};
+  // Tanggal yang dilewati otomatis karena hari libur (sinkron API BE).
+  // Key: tanggal (tanpa jam), Value: judul libur dari API / libur mingguan.
+  Map<DateTime, String> _skippedHolidayDates = {};
   List<PlatformFile> _uploadedFiles = [];
   bool _isAttachmentExpanded = false;
   bool _isReasonExpanded = true;
   bool _showDateSelection = false;
   double _headerHeight = 200.0;
+  // Handle overlay snackbar agar tidak double-insert / glitch saat
+  // ditampilkan tepat setelah date picker tertutup.
+  OverlayEntry? _validationOverlayEntry;
 
   @override
   void initState() {
@@ -130,12 +136,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   @override
   void dispose() {
+    _dismissValidationSnackBar();
     _textEditingController.dispose();
     _animationController.dispose();
     _slideController.dispose();
     _scrollController.dispose();
     _appBarAnimationController.dispose();
     super.dispose();
+  }
+
+  void _dismissValidationSnackBar() {
+    if (_validationOverlayEntry != null &&
+        _validationOverlayEntry!.mounted) {
+      _validationOverlayEntry!.remove();
+    }
+    _validationOverlayEntry = null;
   }
 
   Future<void> _addFiles() async {
@@ -177,10 +192,37 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     }
   }
 
+  DateTime _normalizeDay(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  String _formatHolidayDay(DateTime date) {
+    try {
+      return DateFormat('d MMMM yyyy', 'id_ID').format(date);
+    } catch (_) {
+      return '${date.day}-${date.month}-${date.year}';
+    }
+  }
+
+  /// Pesan tegas "tidak bisa ajukan cuti karena libur" (sinkron BE 422).
+  /// Contoh: "Tidak dapat mengajukan cuti karena hari libur: Hari Raya Natal (25 Desember 2026)."
+  String _holidayBlockedMessage(DateTime date, String? title) {
+    final base = leaveOnHolidayKey.tr;
+    final holidayName =
+        (title ?? '').trim().isEmpty ? 'Hari Libur' : title!.trim();
+    return '$base: $holidayName (${_formatHolidayDay(date)}).';
+  }
+
   void generateLeaveDays() {
-    List<int> holidayWeekdays =
-        context.read<LeaveSettingsAndSessionYearsCubit>().getHolidayWeekDays();
+    final cubit = context.read<LeaveSettingsAndSessionYearsCubit>();
+    List<int> holidayWeekdays = cubit.getHolidayWeekDays();
+    Map<DateTime, String> holidayTitles = {};
+    try {
+      holidayTitles = cubit.getHolidayDatesWithTitle();
+    } catch (_) {
+      holidayTitles = {};
+    }
     _leaveDays = {};
+    _skippedHolidayDates = {};
     int differenceInDays =
         _selectedToDate!.difference(_selectedFromDate!).inDays;
     _leaveDays.addAll({
@@ -195,8 +237,50 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       _selectedToDate!: fullDayKey,
     });
 
-    _leaveDays
-        .removeWhere((key, value) => holidayWeekdays.contains(key.weekday));
+    // Filter 1: libur mingguan dari GET leave-settings.
+    _leaveDays.removeWhere((key, value) {
+      if (holidayWeekdays.contains(key.weekday)) {
+        final day = _normalizeDay(key);
+        _skippedHolidayDates[day] =
+            cubit.getHolidayTitle(day) ?? 'Libur Akhir Pekan';
+        return true;
+      }
+      return false;
+    });
+    // Filter 2: tanggal merah dari GET holidays (nasional/sekolah).
+    _leaveDays.removeWhere((key, value) {
+      final day = _normalizeDay(key);
+      final title = holidayTitles[day];
+      if (title != null) {
+        _skippedHolidayDates[day] = title;
+        return true;
+      }
+      return false;
+    });
+  }
+
+  /// Tampilkan snackbar setelah route date picker selesai di-pop.
+  /// Jeda ini menghilangkan glitch merah satu frame yang terjadi saat
+  /// overlay di-insert bersamaan dengan animasi pop dialog.
+  void _showSnackBarAfterPicker(String message) {
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      _showValidationSnackBar(message: message);
+    });
+  }
+
+  /// Cek satu tanggal yang baru dipilih user. Return true jika diblokir libur.
+  bool _rejectIfHoliday(DateTime date) {
+    try {
+      final cubit = context.read<LeaveSettingsAndSessionYearsCubit>();
+      final day = _normalizeDay(date);
+      if (cubit.isHolidayDate(day)) {
+        _showSnackBarAfterPicker(
+            _holidayBlockedMessage(day, cubit.getHolidayTitle(day)));
+        return true;
+      }
+    } catch (_) {}
+    return false;
   }
 
   void onTapFromDate() async {
@@ -226,9 +310,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         context: context,
         firstDate: DateTime.now(),
         initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (context, child) {
+        builder: (dialogContext, child) {
           return Theme(
-            data: Theme.of(context).copyWith(
+            data: Theme.of(dialogContext).copyWith(
               colorScheme: ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
@@ -242,20 +326,29 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ),
               dialogTheme: DialogThemeData(backgroundColor: cardColor),
             ),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: child!,
+            // Jangan paksa tinggi fix (SizedBox 70%) — itu yang membuat
+            // scrim/dialog ke-stretch dan terlihat sebagai blok merah.
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: child!,
+              ),
             ),
           );
         },
         lastDate: parsedLastDate, // Gunakan variabel yang sudah aman divalidasi di sini
     );
 
+    if (!mounted) return;
     setState(() {
       _showDateSelection = false;
     });
 
     if (selectedDate != null) {
+      // Tolak langsung jika tanggal mulai = hari libur (mingguan/nasional).
+      if (_rejectIfHoliday(selectedDate)) {
+        return;
+      }
       setState(() {
         _selectedFromDate = selectedDate;
       });
@@ -265,9 +358,17 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           setState(() {
             _selectedToDate = null;
             _leaveDays = {};
+            _skippedHolidayDates = {};
           });
         } else {
           generateLeaveDays();
+          // Jika semua tanggal dalam range adalah libur, langsung beri tahu.
+          if (_leaveDays.isEmpty && _skippedHolidayDates.isNotEmpty) {
+            final first = _skippedHolidayDates.entries.first;
+            _showSnackBarAfterPicker(
+                _holidayBlockedMessage(first.key, first.value));
+          }
+          setState(() {});
         }
       }
     }
@@ -304,9 +405,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         context: context,
         firstDate: _selectedFromDate!, // Menggunakan tanggal dari dari pilihan pertama
         initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (context, child) {
+        builder: (dialogContext, child) {
           return Theme(
-            data: Theme.of(context).copyWith(
+            data: Theme.of(dialogContext).copyWith(
               colorScheme: ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
@@ -320,15 +421,18 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ),
               dialogTheme: DialogThemeData(backgroundColor: cardColor),
             ),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: child!,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: child!,
+              ),
             ),
           );
         },
         lastDate: parsedLastDate, // Gunakan variabel yang sudah divalidasi
     );
 
+    if (!mounted) return;
     setState(() {
       _showDateSelection = false;
     });
@@ -338,6 +442,24 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         _selectedToDate = selectedDate;
       });
       generateLeaveDays();
+      // Range hanya 1 hari dan hari itu libur -> tolak dengan pesan tegas.
+      if (_leaveDays.isEmpty && _skippedHolidayDates.isNotEmpty) {
+        final first = _skippedHolidayDates.entries.first;
+        _showSnackBarAfterPicker(
+            _holidayBlockedMessage(first.key, first.value));
+        setState(() {
+          _selectedToDate = null;
+          _skippedHolidayDates = {};
+        });
+        return;
+      }
+      // Sebagian tanggal kepotong libur -> info, bukan error.
+      if (_skippedHolidayDates.isNotEmpty && _leaveDays.isNotEmpty) {
+        final first = _skippedHolidayDates.entries.first;
+        _showSnackBarAfterPicker(
+            '${someDatesAreHolidaysKey.tr}: ${first.value} (${_formatHolidayDay(first.key)}).');
+      }
+      setState(() {});
     }
   }
 
@@ -637,20 +759,31 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   }
 
   void _showValidationSnackBar({required String message}) {
+    if (!mounted) return;
     HapticFeedback.lightImpact();
 
-    // Create overlay entry for custom animated snackbar
-    OverlayState? overlayState = Overlay.of(context);
-    OverlayEntry? overlayEntry;
+    // Hapus snackbar lama dulu agar tidak double-insert / flicker.
+    _dismissValidationSnackBar();
 
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 30,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: TweenAnimationBuilder<double>(
+    // Pakai root overlay agar tidak menempel ke overlay dialog date picker
+    // yang sedang di-pop (itu penyebab glitch merah satu frame).
+    OverlayState? overlayState;
+    try {
+      overlayState = Overlay.of(context, rootOverlay: true);
+    } catch (_) {
+      overlayState = Overlay.of(context);
+    }
+
+    _validationOverlayEntry = OverlayEntry(
+      builder: (overlayContext) => SafeArea(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+            child: Material(
+              color: Colors.transparent,
+              child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 600),
             curve: Curves.elasticOut,
@@ -667,11 +800,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               );
             },
             child: GestureDetector(
-              onTap: () {
-                if (overlayEntry != null && overlayEntry.mounted) {
-                  overlayEntry.remove();
-                }
-              },
+              onTap: _dismissValidationSnackBar,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
@@ -800,21 +929,30 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             ),
           ),
         ),
+        ),
+        ),
       ),
     );
 
     // Insert overlay
-    overlayState.insert(overlayEntry);
+    overlayState.insert(_validationOverlayEntry!);
 
     // Auto dismiss after duration
     Future.delayed(const Duration(seconds: 4), () {
-      if (overlayEntry != null && overlayEntry.mounted) {
-        overlayEntry.remove();
-      }
+      _dismissValidationSnackBar();
     });
   }
 
   String _translateErrorMessage(String errorMessage) {
+    final lower = errorMessage.toLowerCase();
+    // Pesan 422 BE sudah Indonesia & spesifik ("...karena hari libur: ...").
+    // Teruskan apa adanya agar user tahu judul liburnya.
+    if (lower.contains('karena hari libur')) {
+      return errorMessage;
+    }
+    if (lower.contains('no valid working days')) {
+      return allDatesAreHolidaysKey.tr;
+    }
     // Map of English error messages to Indonesian translations
     final Map<String, String> errorTranslations = {
       'You already have a leave request for this period. Please check your existing leave requests.':
@@ -860,6 +998,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   void _clearAllFields() {
     _leaveDays = {};
+    _skippedHolidayDates = {};
     _textEditingController.clear();
     _selectedFromDate = null;
     _selectedToDate = null;
@@ -879,12 +1018,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       listener: (context, state) {
         if (state is ApplyLeaveSuccess) {
           _leaveDays = {};
+          _skippedHolidayDates = {};
           _textEditingController.clear();
           _selectedFromDate = null;
           _selectedToDate = null;
           _uploadedFiles = [];
           setState(() {});
-          Navigator.pop(context);
+          // Return true agar riwayat tahu ada pengajuan baru (UI jadi beda).
+          Navigator.pop(context, true);
 
           CustomSuccessMessage.show(
             context: context,
@@ -1010,8 +1151,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                     }
 
                                     if (_leaveDays.isEmpty) {
-                                      _showValidationSnackBar(
-                                          message: noValidLeaveDaysKey);
+                                      if (_skippedHolidayDates.isNotEmpty) {
+                                        final first = _skippedHolidayDates
+                                            .entries.first;
+                                        _showValidationSnackBar(
+                                            message: _holidayBlockedMessage(
+                                                first.key, first.value));
+                                      } else {
+                                        _showValidationSnackBar(
+                                            message: noValidLeaveDaysKey);
+                                      }
                                       return;
                                     }
 
@@ -1432,6 +1581,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       return const SizedBox();
     }
 
+    final skipped = _skippedHolidayDates.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
     return SlideTransition(
       position: _slideAnimation,
       child: Column(
@@ -1459,29 +1611,32 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Detail Hari Cuti",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
-                        color: textDarkColor,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Detail Hari Cuti",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
+                          color: textDarkColor,
+                        ),
                       ),
-                    ),
-                    Text(
-                      "${dateTimes.length} hari yang perlu diatur",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: textMediumColor,
-                        fontFamily: 'Poppins',
+                      Text(
+                        skipped.isEmpty
+                            ? "${dateTimes.length} hari yang perlu diatur"
+                            : "${dateTimes.length} hari valid • ${skipped.length} libur dilewati",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: textMediumColor,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const Spacer(),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1506,6 +1661,62 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ],
             ),
           ),
+          if (skipped.isNotEmpty)
+            Container(
+              margin: EdgeInsets.only(
+                  left: appContentHorizontalPadding,
+                  right: appContentHorizontalPadding,
+                  bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.beach_access_rounded,
+                      color: Colors.orange.shade800, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          someDatesAreHolidaysKey.tr,
+                          style: TextStyle(
+                            color: Colors.orange.shade900,
+                            fontSize: 12.5,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        ...skipped.take(3).map((e) => Text(
+                              '• ${_formatHolidayDay(e.key)} — ${e.value}',
+                              style: TextStyle(
+                                color: Colors.orange.shade900,
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
+                            )),
+                        if (skipped.length > 3)
+                          Text(
+                            '• +${skipped.length - 3} hari libur lainnya',
+                            style: TextStyle(
+                              color: Colors.orange.shade900,
+                              fontSize: 12,
+                              fontFamily: 'Poppins',
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ...dateTimes.map((dateTime) =>
               _buildLeaveDaysWithReasonContainer(dateTime: dateTime)),
         ],
@@ -2118,6 +2329,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                             ),
                                           ),
                                           child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Icon(
                                                 Icons.warning_amber_rounded,
@@ -2127,16 +2340,57 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                               ),
                                               const SizedBox(width: 14),
                                               Expanded(
-                                                child: Text(
-                                                  noValidLeaveDaysKey,
-                                                  style: TextStyle(
-                                                    color: Colors
-                                                        .orange.shade900,
-                                                    fontSize: 13,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight:
-                                                        FontWeight.w500,
-                                                  ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      _skippedHolidayDates
+                                                              .isNotEmpty
+                                                          ? allDatesAreHolidaysKey
+                                                              .tr
+                                                          : noValidLeaveDaysKey,
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .orange.shade900,
+                                                        fontSize: 13,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    if (_skippedHolidayDates
+                                                        .isNotEmpty) ...[
+                                                      const SizedBox(height: 6),
+                                                      ...(_skippedHolidayDates
+                                                                  .entries
+                                                                  .toList()
+                                                                ..sort((a, b) =>
+                                                                    a.key.compareTo(
+                                                                        b.key)))
+                                                          .take(3)
+                                                          .map((e) => Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        top:
+                                                                            2),
+                                                                child: Text(
+                                                                  '• ${_formatHolidayDay(e.key)} — ${e.value}',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .orange
+                                                                        .shade900,
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontFamily:
+                                                                        'Poppins',
+                                                                  ),
+                                                                ),
+                                                              )),
+                                                    ],
+                                                  ],
                                                 ),
                                               ),
                                             ],

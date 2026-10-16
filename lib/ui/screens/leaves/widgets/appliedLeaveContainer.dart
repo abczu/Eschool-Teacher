@@ -1,8 +1,5 @@
-﻿import 'dart:math';
-
-import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
+﻿import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
 import 'package:eschool_saas_staff/ui/screens/leave/leaveRequestsScreen.dart';
-import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
@@ -20,18 +17,21 @@ class AppliedLeaveContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color leaveStatusColor = Theme.of(context)
-        .extension<CustomColors>()!
-        .totalStudentOverviewBackgroundColor!;
-    if (LeaveRequestStatus.approved ==
-        getLeaveRequestStatusEnumFromValue(leaveRequest.status ?? 0)) {
-      leaveStatusColor = Theme.of(context)
-          .extension<CustomColors>()!
-          .totalStaffOverviewBackgroundColor!;
-    } else if (LeaveRequestStatus.pending ==
-        getLeaveRequestStatusEnumFromValue(leaveRequest.status ?? 0)) {
-      leaveStatusColor = Theme.of(context).colorScheme.primary;
-    }
+    final status =
+        getLeaveRequestStatusEnumFromValue(leaveRequest.status ?? 0);
+    final bool isApproved = status == LeaveRequestStatus.approved;
+    final bool isRejected = status == LeaveRequestStatus.rejected;
+    final Color statusColor = isApproved
+        ? Colors.green.shade700
+        : isRejected
+            ? Colors.red.shade700
+            : Theme.of(context).colorScheme.primary;
+    final IconData statusIcon = isApproved
+        ? Icons.check_circle_rounded
+        : isRejected
+            ? Icons.cancel_rounded
+            : Icons.schedule_rounded;
+    final int dayCount = leaveRequest.leaveDetail?.length ?? 0;
     return GestureDetector(
       onTap: () {
         Utils.showBottomSheet(
@@ -39,65 +39,71 @@ class AppliedLeaveContainer extends StatelessWidget {
             context: context);
       },
       child: Container(
-        height: Utils().getResponsiveHeight(context, 70),
-        padding: EdgeInsets.symmetric(
-            vertical: appContentHorizontalPadding,
-            horizontal: appContentHorizontalPadding),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-            border: Border(
-                bottom:
-                    BorderSide(color: Theme.of(context).colorScheme.tertiary))),
-        child: LayoutBuilder(builder: (context, boxConstraints) {
-          return Column(
-            children: [
-              Row(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border:
+              Border.all(color: statusColor.withValues(alpha: 0.35), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: statusColor.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(statusIcon, color: statusColor, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: boxConstraints.maxWidth * (0.1),
-                    child: CustomTextContainer(
-                      textKey: (index + 1).toString(),
+                  CustomTextContainer(
+                    textKey: Utils.formatDateLeave(
+                      DateTime.parse(leaveRequest.fromDate ?? ""),
+                    ),
+                    style: TextStyle(
+                      fontSize: Utils.getScaledValue(context, 13),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 2,
+                  ),
+                  if (dayCount > 0)
+                    Text(
+                      '$dayCount hari • ${leaveRequest.reason ?? ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          fontSize: Utils.getScaledValue(context, 14)),
-                    ),
-                  ),
-                  SizedBox(
-                    width: boxConstraints.maxWidth * (0.47),
-                    child: CustomTextContainer(
-                      textKey: Utils.formatDateLeave(
-                        DateTime.parse(leaveRequest.fromDate ?? ""),
+                        fontSize: Utils.getScaledValue(context, 12),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6),
                       ),
-                      style: TextStyle(
-                        fontSize: Utils.getScaledValue(context, 13),
-                      ),
-                      maxLines: 2,
                     ),
-                  ),
-                  SizedBox(
-                    width: boxConstraints.maxWidth * (0.43),
-                    child: Row(
-                      children: [
-                        StatusWithFadedBackgroundContainer(
-                            backgroundColor: leaveStatusColor.withValues(alpha: 0.1),
-                            textColor: leaveStatusColor,
-                            titleKey: getLeaveRequestStatusKey(
-                                getLeaveRequestStatusEnumFromValue(
-                                    leaveRequest.status ?? 0))),
-                        const Spacer(),
-                        Transform.rotate(
-                          angle: (pi * 270) / 180,
-                          child: Icon(
-                            Icons.arrow_drop_down,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
                 ],
               ),
-            ],
-          );
-        }),
+            ),
+            const SizedBox(width: 8),
+            StatusWithFadedBackgroundContainer(
+                backgroundColor: statusColor.withValues(alpha: 0.12),
+                textColor: statusColor,
+                titleKey: getLeaveRequestStatusKey(status)),
+          ],
+        ),
       ),
     );
   }

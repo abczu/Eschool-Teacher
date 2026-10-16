@@ -1,3 +1,4 @@
+import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/userLeavesCubit.dart';
@@ -341,27 +342,72 @@ class _LeavesScreenState extends State<LeavesScreen>
           }).toList();
 
           if (filteredLeaves.isEmpty) {
+            // BEFORE: belum pernah / belum ada pengajuan pada filter ini.
+            // Dibuat beda total dari state terisi: ikon + CTA ajukan.
             return Center(
               child: Padding(
-                padding: const EdgeInsets.only(top: 100),
+                padding: const EdgeInsets.only(top: 100, left: 24, right: 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.event_busy,
-                      size: 64,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? maroonLight
-                          : maroonPrimary.withValues(alpha: 0.5),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: maroonPrimary.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.event_busy,
+                        size: 48,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? maroonLight
+                            : maroonPrimary.withValues(alpha: 0.6),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       "Tidak ada pengajuan cuti",
                       style: TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: textDarkColor,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Belum ada cuti yang diajukan.\nKetuk tombol di bawah untuk membuat pengajuan baru.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 13,
                         color: textMediumColor,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Get.toNamed(Routes.applyLeaveScreen)?.then((_) {
+                          if (context.mounted) getLeaves();
+                        });
+                      },
+                      icon: const Icon(Icons.add_rounded,
+                          color: Colors.white, size: 20),
+                      label: Text(
+                        applyLeaveKey.tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: maroonPrimary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                       ),
                     ),
                   ],
@@ -554,66 +600,159 @@ class _LeavesScreenState extends State<LeavesScreen>
                       ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
+                        padding: const EdgeInsets.all(16),
                         itemCount: filteredLeaves.length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 1,
-                          color: borderColor,
-                        ),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final leave = filteredLeaves[index];
+                          final status =
+                              getLeaveRequestStatusEnumFromValue(
+                                  leave.status ?? 0);
+                          final bool isApproved =
+                              status == LeaveRequestStatus.approved;
+                          final bool isRejected =
+                              status == LeaveRequestStatus.rejected;
+                          final Color statusColor = isApproved
+                              ? Colors.green.shade700
+                              : isRejected
+                                  ? Colors.red.shade700
+                                  : Colors.orange.shade800;
+                          final Color statusBg = isApproved
+                              ? Colors.green.shade50
+                              : isRejected
+                                  ? Colors.red.shade50
+                                  : Colors.orange.shade50;
+                          final IconData statusIcon = isApproved
+                              ? Icons.check_circle_rounded
+                              : isRejected
+                                  ? Icons.cancel_rounded
+                                  : Icons.schedule_rounded;
+                          final int dayCount =
+                              leave.leaveDetail?.length ?? 0;
                           return Container(
-                            padding: const EdgeInsets.all(20),
-                            child: Row(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Theme.of(context).cardColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: statusColor.withValues(alpha: 0.35),
+                                width: 1.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: statusColor.withValues(alpha: 0.08),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        maroonPrimary.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    "${index + 1}",
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: maroonPrimary,
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withValues(
+                                            alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(statusIcon,
+                                          color: statusColor, size: 22),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            leave.fromDate != null
+                                                ? Utils.formatDate(_parseDate(
+                                                    leave.fromDate!))
+                                                : '',
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                              color: textDarkColor,
+                                            ),
+                                          ),
+                                          if (leave.fromDate != leave.toDate)
+                                            Text(
+                                              "s/d ${leave.toDate != null ? Utils.formatDate(_parseDate(leave.toDate!)) : ''}${dayCount > 0 ? ' • $dayCount hari' : ''}",
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 12,
+                                                color: textMediumColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: statusBg,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                            color: statusColor.withValues(
+                                                alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(statusIcon,
+                                              size: 14, color: statusColor),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            getLeaveRequestStatusKey(status)
+                                                .tr,
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 11,
+                                              color: statusColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if ((leave.reason ?? '').isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white10
+                                          : const Color(0xFFF8F4F5),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      leave.reason!,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12.5,
+                                        color: textMediumColor,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        leave.fromDate != null
-                                            ? Utils.formatDate(
-                                                _parseDate(leave.fromDate!))
-                                            : '',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                          color: textDarkColor,
-                                        ),
-                                      ),
-                                      if (leave.fromDate != leave.toDate)
-                                        Text(
-                                          "s/d ${leave.toDate != null ? Utils.formatDate(_parseDate(leave.toDate!)) : ''}",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontSize: 12,
-                                            color: textMediumColor,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
+                                ],
                               ],
                             ),
                           );

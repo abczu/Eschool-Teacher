@@ -14,6 +14,7 @@ import 'package:eschool_saas_staff/ui/widgets/student/studentAttendanceContainer
 import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:eschool_saas_staff/utils/system/dateFormatter.dart';
+import 'package:eschool_saas_staff/utils/system/snackBarUtils.dart';
 
 class ExtracurricularAttendanceScreen extends StatefulWidget {
   const ExtracurricularAttendanceScreen({super.key});
@@ -89,7 +90,9 @@ class _ExtracurricularAttendanceScreenState
   }
 
   // Load attendance data
-  void _loadAttendanceData() {
+  // [silent] dipakai saat reload setelah simpan: daftar siswa tetap tampil
+  // (tidak berkedip jadi spinner), data diperbarui begitu response datang.
+  void _loadAttendanceData({bool silent = false}) {
     if (_selectedExtracurricularId != null) {
       // Use extracurricular ID as attendance ID for now
       // This might need adjustment based on actual backend implementation
@@ -97,6 +100,7 @@ class _ExtracurricularAttendanceScreenState
             attendanceId: _selectedExtracurricularId!,
             extracurricularId: _selectedExtracurricularId,
             date: _formatDateForApi(_selectedDate), // Use DD-MM-YYYY format
+            silent: silent,
           );
     }
   }
@@ -458,21 +462,29 @@ class _ExtracurricularAttendanceScreenState
                 }
 
                 if (state is ExtracurricularAttendanceSaveSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        state.message,
-                        style: GoogleFonts.poppins(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                  final String eskulName =
+                      _selectedExtracurricularName ?? 'Ekstrakurikuler';
+                  final int? savedCount = state.savedCount;
+                  final String successMessage =
+                      (savedCount != null && savedCount > 0)
+                          ? 'Absensi $eskulName berhasil disimpan '
+                              '($savedCount siswa)'
+                          : 'Absensi $eskulName berhasil disimpan';
+
+                  CustomSuccessMessage.show(
+                    context: context,
+                    message: successMessage,
+                    // 110 = tinggi submit bar + jarak, supaya kartu tidak
+                    // menutupi tombol "Simpan Absensi".
+                    bottom: 110,
+                    duration: const Duration(seconds: 3),
                   );
-                  // Reload data after save with delay to ensure backend has processed
+                  // Reload data setelah save (tanpa spinner) agar backend
+                  // selesai memproses lebih dulu.
                   debugPrint(
                       '✅ [ATTENDANCE SCREEN] Save successful, reloading data...');
                   Future.delayed(const Duration(milliseconds: 500), () {
-                    _loadAttendanceData();
+                    if (mounted) _loadAttendanceData(silent: true);
                   });
                 }
 

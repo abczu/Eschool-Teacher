@@ -16,9 +16,12 @@ class ExtracurricularAttendanceCubit
     required int attendanceId,
     int? extracurricularId,
     String? date,
+    bool silent = false,
   }) async {
     try {
-      emit(ExtracurricularAttendanceLoading());
+      // Reload setelah simpan memakai silent agar daftar siswa tidak
+      // berkedip menjadi spinner.
+      if (!silent) emit(ExtracurricularAttendanceLoading());
 
       debugPrint(
           '🔍 [ATTENDANCE CUBIT] Getting attendance data for ID: $attendanceId');

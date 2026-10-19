@@ -29,6 +29,7 @@ class CustomSuccessMessage {
     Color backgroundColor = Colors.green,
     Color textColor = Colors.white,
     VoidCallback? onDismiss,
+    double bottom = 30,
   }) {
     // Add haptic feedback for better UX
     HapticFeedback.mediumImpact();
@@ -39,7 +40,7 @@ class CustomSuccessMessage {
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: 30,
+        bottom: bottom,
         left: 20,
         right: 20,
         child: Material(

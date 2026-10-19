@@ -811,11 +811,18 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     _validationOverlayEntry = OverlayEntry(
       builder: (overlayContext) => SafeArea(
         child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            // 108 = tinggi submit bar (90) + jarak, supaya kartu tidak
-            // menutupi tombol "Kirim Cuti".
-            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 108),
+          alignment: Alignment.center,
+          child: Container(
+            // Margin samping tetap; bottom = tinggi keyboard supaya kartu
+            // tidak tertutup saat validasi muncul bersamaan dengan keyboard
+            // (mis. "alasan wajib diisi"). maxWidth menjaga kartu tidak
+            // melar penuh di layar lebar.
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              bottom: MediaQuery.viewInsetsOf(overlayContext).bottom,
+            ),
+            constraints: const BoxConstraints(maxWidth: 440),
             child: Material(
               color: Colors.transparent,
               child: Semantics(
@@ -834,7 +841,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       child: Opacity(
                         opacity: t,
                         child: Transform.translate(
-                          offset: Offset(0, 40 * (1 - t)),
+                          // Kartu tampil di tengah, jadi geser masuknya dibuat
+                          // kecil saja (dulu 40 karena muncul dari bawah).
+                          offset: Offset(0, 12 * (1 - t)),
                           child: child,
                         ),
                       ),

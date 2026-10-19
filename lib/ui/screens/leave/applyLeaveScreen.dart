@@ -62,7 +62,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   List<PlatformFile> _uploadedFiles = [];
   bool _isAttachmentExpanded = false;
   bool _isReasonExpanded = true;
-  bool _showDateSelection = false;
   double _headerHeight = 200.0;
   // Handle overlay snackbar agar tidak double-insert / glitch saat
   // ditampilkan tepat setelah date picker tertutup.
@@ -283,11 +282,48 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     return false;
   }
 
+  /// Tema date picker tanpa mengganti seluruh ColorScheme (itu bikin warna
+  /// container dialog tidak konsisten & terlihat glitch). Cukup override
+  /// primary + DatePickerThemeData, dan batasi lebar dialog.
+  Widget _buildDatePickerDialog(BuildContext dialogContext, Widget? child) {
+    final baseTheme = Theme.of(dialogContext);
+    return Theme(
+      data: baseTheme.copyWith(
+        colorScheme: baseTheme.colorScheme.copyWith(
+          primary: maroonPrimary,
+          onPrimary: Colors.white,
+          surface: cardColor,
+          onSurface: textDarkColor,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: maroonPrimary),
+        ),
+        datePickerTheme: DatePickerThemeData(
+          backgroundColor: cardColor,
+          surfaceTintColor: Colors.transparent,
+          headerBackgroundColor: maroonPrimary,
+          headerForegroundColor: Colors.white,
+          dividerColor: borderColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          cancelButtonStyle:
+              TextButton.styleFrom(foregroundColor: maroonPrimary),
+          confirmButtonStyle:
+              TextButton.styleFrom(foregroundColor: maroonPrimary),
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+
   void onTapFromDate() async {
     HapticFeedback.lightImpact();
-    setState(() {
-      _showDateSelection = true;
-    });
 
     // 1. Ambil data string endDate dari Cubit
     final sessionEndDateStr = context
@@ -310,39 +346,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         context: context,
         firstDate: DateTime.now(),
         initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (dialogContext, child) {
-          return Theme(
-            data: Theme.of(dialogContext).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: maroonPrimary,
-                onPrimary: Colors.white,
-                onSurface: textDarkColor,
-                surface: cardColor,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: maroonPrimary,
-                ),
-              ),
-              dialogTheme: DialogThemeData(backgroundColor: cardColor),
-            ),
-            // Jangan paksa tinggi fix (SizedBox 70%) — itu yang membuat
-            // scrim/dialog ke-stretch dan terlihat sebagai blok merah.
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: child!,
-              ),
-            ),
-          );
-        },
+        barrierColor: Colors.black.withValues(alpha: 0.5),
+        builder: _buildDatePickerDialog,
         lastDate: parsedLastDate, // Gunakan variabel yang sudah aman divalidasi di sini
     );
 
     if (!mounted) return;
-    setState(() {
-      _showDateSelection = false;
-    });
 
     if (selectedDate != null) {
       // Tolak langsung jika tanggal mulai = hari libur (mingguan/nasional).
@@ -380,9 +389,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     }
 
     HapticFeedback.lightImpact();
-    setState(() {
-      _showDateSelection = true;
-    });
 
     // 1. Ambil data string endDate dari Cubit
     final sessionEndDateStr = context
@@ -405,37 +411,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         context: context,
         firstDate: _selectedFromDate!, // Menggunakan tanggal dari dari pilihan pertama
         initialEntryMode: DatePickerEntryMode.calendarOnly,
-        builder: (dialogContext, child) {
-          return Theme(
-            data: Theme.of(dialogContext).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: maroonPrimary,
-                onPrimary: Colors.white,
-                onSurface: textDarkColor,
-                surface: cardColor,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: maroonPrimary,
-                ),
-              ),
-              dialogTheme: DialogThemeData(backgroundColor: cardColor),
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: child!,
-              ),
-            ),
-          );
-        },
+        barrierColor: Colors.black.withValues(alpha: 0.5),
+        builder: _buildDatePickerDialog,
         lastDate: parsedLastDate, // Gunakan variabel yang sudah divalidasi
     );
 
     if (!mounted) return;
-    setState(() {
-      _showDateSelection = false;
-    });
 
     if (selectedDate != null) {
       setState(() {
@@ -788,12 +769,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             duration: const Duration(milliseconds: 600),
             curve: Curves.elasticOut,
             builder: (context, value, child) {
+              // Curves.elasticOut overshoot di atas 1.0 (memantul). Nilai
+              // mentah itu bikin Opacity kena assert 'opacity <= 1.0'
+              // sehingga subtree ini diganti ErrorWidget full-screen.
+              final t = value.clamp(0.0, 1.0);
               return Transform.scale(
-                scale: 0.85 + (value * 0.15),
-                child:  Opacity(
-                  opacity: value,
+                scale: 0.85 + (t * 0.15),
+                child: Opacity(
+                  opacity: t,
                   child: Transform.translate(
-                    offset: Offset(0, 40 * (1 - value)),
+                    offset: Offset(0, 40 * (1 - t)),
                     child: child,
                   ),
                 ),
@@ -2518,42 +2503,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 },
               ),
             ),
-            // Date selection overlay animation
-            if (_showDateSelection)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                color: Colors.black54,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: CircularProgressIndicator(
-                            color: maroonPrimary,
-                            strokeWidth: 3,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          "Memuat...",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            // Catatan: overlay full-screen "Memuat..." saat memilih tanggal
+            // sudah dihapus. Overlay itu tampil di belakang date picker
+            // (double scrim) dan membuat glitch blok gelap/merah saat
+            // dialog pop. Date picker sudah punya scrim sendiri.
           ],
         ),
       ),

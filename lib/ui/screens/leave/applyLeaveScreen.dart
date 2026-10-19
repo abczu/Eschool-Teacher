@@ -21,6 +21,24 @@ import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/widgets/applyLeaveSuccessMessage.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/widgets/leaveThemeColors.dart';
 
+// Isi notifikasi cuti dipatok berbahasa Indonesia (permintaan produk), jadi
+// tidak memakai .tr agar tetap Indonesia walau bahasa aplikasi diganti.
+const String _idNoticeLeaveOnHoliday =
+    'Tidak dapat mengajukan cuti karena hari libur';
+const String _idNoticeAllHolidays =
+    'Semua tanggal yang dipilih adalah hari libur, pengajuan cuti tidak dapat dilanjutkan.';
+const String _idNoticeSomeHolidays =
+    'Hari libur dilewati otomatis, hanya hari kerja yang diajukan.';
+const String _idNoticeSelectFromDate =
+    'Silakan pilih tanggal mulai cuti terlebih dahulu.';
+const String _idNoticeSelectToDate =
+    'Silakan pilih tanggal selesai cuti terlebih dahulu.';
+const String _idNoticeNoValidDays =
+    'Tanggal yang dipilih tidak valid (hari libur / di luar tahun ajaran).';
+const String _idNoticeAddReason =
+    'Silakan isi alasan pengajuan cuti terlebih dahulu.';
+const String _idNoticeDefaultHoliday = 'Hari Libur';
+
 class ApplyLeaveScreen extends StatefulWidget {
   const ApplyLeaveScreen({super.key});
 
@@ -202,13 +220,29 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     }
   }
 
-  /// Pesan tegas "tidak bisa ajukan cuti karena libur" (sinkron BE 422).
-  /// Contoh: "Tidak dapat mengajukan cuti karena hari libur: Hari Raya Natal (25 Desember 2026)."
-  String _holidayBlockedMessage(DateTime date, String? title) {
-    final base = leaveOnHolidayKey.tr;
-    final holidayName =
-        (title ?? '').trim().isEmpty ? 'Hari Libur' : title!.trim();
-    return '$base: $holidayName (${_formatHolidayDay(date)}).';
+  /// Nama libur dari cubit/API, dengan fallback berbahasa Indonesia.
+  String _holidayName(String? title) =>
+      (title ?? '').trim().isEmpty ? _idNoticeDefaultHoliday : title!.trim();
+
+  /// Notifikasi tegas "tidak bisa ajukan cuti karena hari libur" (sinkron
+  /// BE 422). [afterPicker] true = tunggu animasi pop date picker selesai.
+  void _holidayNotice(DateTime date, String? title,
+      {bool afterPicker = true}) {
+    final detailTitle = _holidayName(title);
+    final detailSubtitle = _formatHolidayDay(date);
+    if (afterPicker) {
+      _showSnackBarAfterPicker(
+        _idNoticeLeaveOnHoliday,
+        detailTitle: detailTitle,
+        detailSubtitle: detailSubtitle,
+      );
+    } else {
+      _showValidationSnackBar(
+        _idNoticeLeaveOnHoliday,
+        detailTitle: detailTitle,
+        detailSubtitle: detailSubtitle,
+      );
+    }
   }
 
   void generateLeaveDays() {
@@ -258,13 +292,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     });
   }
 
-  /// Tampilkan snackbar setelah route date picker selesai di-pop.
-  /// Jeda ini menghilangkan glitch merah satu frame yang terjadi saat
-  /// overlay di-insert bersamaan dengan animasi pop dialog.
-  void _showSnackBarAfterPicker(String message) {
+  /// Tampilkan notifikasi setelah route date picker selesai di-pop.
+  /// Jeda ini menghilangkan glitch satu frame saat overlay di-insert
+  /// bersamaan dengan animasi pop dialog.
+  void _showSnackBarAfterPicker(
+    String message, {
+    String? detailTitle,
+    String? detailSubtitle,
+  }) {
     Future.delayed(const Duration(milliseconds: 350), () {
       if (!mounted) return;
-      _showValidationSnackBar(message: message);
+      _showValidationSnackBar(
+        message,
+        detailTitle: detailTitle,
+        detailSubtitle: detailSubtitle,
+      );
     });
   }
 
@@ -274,8 +316,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       final cubit = context.read<LeaveSettingsAndSessionYearsCubit>();
       final day = _normalizeDay(date);
       if (cubit.isHolidayDate(day)) {
-        _showSnackBarAfterPicker(
-            _holidayBlockedMessage(day, cubit.getHolidayTitle(day)));
+        _holidayNotice(day, cubit.getHolidayTitle(day));
         return true;
       }
     } catch (_) {}
@@ -374,8 +415,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           // Jika semua tanggal dalam range adalah libur, langsung beri tahu.
           if (_leaveDays.isEmpty && _skippedHolidayDates.isNotEmpty) {
             final first = _skippedHolidayDates.entries.first;
-            _showSnackBarAfterPicker(
-                _holidayBlockedMessage(first.key, first.value));
+            _holidayNotice(first.key, first.value);
           }
           setState(() {});
         }
@@ -384,7 +424,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
   }
   void onTapToDate() async {
     if (_selectedFromDate == null) {
-      _showValidationSnackBar(message: pleaseSelectFromDateKey);
+      _showValidationSnackBar(_idNoticeSelectFromDate);
       return;
     }
 
@@ -426,8 +466,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       // Range hanya 1 hari dan hari itu libur -> tolak dengan pesan tegas.
       if (_leaveDays.isEmpty && _skippedHolidayDates.isNotEmpty) {
         final first = _skippedHolidayDates.entries.first;
-        _showSnackBarAfterPicker(
-            _holidayBlockedMessage(first.key, first.value));
+        _holidayNotice(first.key, first.value);
         setState(() {
           _selectedToDate = null;
           _skippedHolidayDates = {};
@@ -438,7 +477,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       if (_skippedHolidayDates.isNotEmpty && _leaveDays.isNotEmpty) {
         final first = _skippedHolidayDates.entries.first;
         _showSnackBarAfterPicker(
-            '${someDatesAreHolidaysKey.tr}: ${first.value} (${_formatHolidayDay(first.key)}).');
+          _idNoticeSomeHolidays,
+          detailTitle: _holidayName(first.value),
+          detailSubtitle: _formatHolidayDay(first.key),
+        );
       }
       setState(() {});
     }
@@ -739,7 +781,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     );
   }
 
-  void _showValidationSnackBar({required String message}) {
+  /// Notifikasi bawah layar. Isinya selalu bahasa Indonesia (dipatok, tidak
+  /// ikut bahasa aplikasi). Opsional menampilkan kotak detail, mis. nama
+  /// hari libur + tanggalnya.
+  void _showValidationSnackBar(
+    String message, {
+    String? detailTitle,
+    String? detailSubtitle,
+  }) {
     if (!mounted) return;
     HapticFeedback.lightImpact();
 
@@ -747,7 +796,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     _dismissValidationSnackBar();
 
     // Pakai root overlay agar tidak menempel ke overlay dialog date picker
-    // yang sedang di-pop (itu penyebab glitch merah satu frame).
+    // yang sedang di-pop.
     OverlayState? overlayState;
     try {
       overlayState = Overlay.of(context, rootOverlay: true);
@@ -755,175 +804,286 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       overlayState = Overlay.of(context);
     }
 
+    final String detailLabel = (detailTitle ?? '').trim();
+    final bool hasDetail = detailLabel.isNotEmpty;
+    final String detailSub = (detailSubtitle ?? '').trim();
+    const autoDismissDuration = Duration(seconds: 4);
+
     _validationOverlayEntry = OverlayEntry(
       builder: (overlayContext) => SafeArea(
         child: Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
-            padding:
-                const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+            // 108 = tinggi submit bar (90) + jarak, supaya kartu tidak
+            // menutupi tombol "Kirim Cuti".
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 108),
             child: Material(
               color: Colors.transparent,
-              child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.elasticOut,
-            builder: (context, value, child) {
-              // Curves.elasticOut overshoot di atas 1.0 (memantul). Nilai
-              // mentah itu bikin Opacity kena assert 'opacity <= 1.0'
-              // sehingga subtree ini diganti ErrorWidget full-screen.
-              final t = value.clamp(0.0, 1.0);
-              return Transform.scale(
-                scale: 0.85 + (t * 0.15),
-                child: Opacity(
-                  opacity: t,
-                  child: Transform.translate(
-                    offset: Offset(0, 40 * (1 - t)),
-                    child: child,
-                  ),
-                ),
-              );
-            },
-            child: GestureDetector(
-              onTap: _dismissValidationSnackBar,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.orange.shade500,
-                      Colors.orange.shade600,
-                      Colors.orange.shade700,
-                      Colors.orange.shade800,
-                    ],
-                    stops: const [0.0, 0.3, 0.7, 1.0],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.orange.shade900.withValues(alpha: 0.5),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
-                      spreadRadius: -5,
-                    ),
-                    BoxShadow(
-                      color: Colors.orange.shade400.withValues(alpha: 0.3),
-                      blurRadius: 50,
-                      offset: const Offset(0, 8),
-                      spreadRadius: 2,
-                    ),
-                  ],
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    width: 1.5,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Animated warning icon with pulse effect
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 800),
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: 0.9 + (value * 0.1),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.25),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Perhatian!',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  offset: const Offset(0, 1),
-                                  blurRadius: 3,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            message,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.95),
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Enhanced close button
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 1,
+              child: Semantics(
+                liveRegion: true,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) {
+                    // Curves.elasticOut overshoot di atas 1.0 (memantul).
+                    // Nilai mentah itu bikin Opacity kena assert
+                    // 'opacity <= 1.0' -> ErrorWidget merah full-screen.
+                    final t = value.clamp(0.0, 1.0);
+                    return Transform.scale(
+                      scale: 0.88 + (t * 0.12),
+                      child: Opacity(
+                        opacity: t,
+                        child: Transform.translate(
+                          offset: Offset(0, 40 * (1 - t)),
+                          child: child,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: Colors.white,
-                        size: 18,
+                    );
+                  },
+                  child: GestureDetector(
+                    onTap: _dismissValidationSnackBar,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.orange.shade500,
+                            Colors.orange.shade600,
+                            Colors.orange.shade700,
+                            Colors.orange.shade800,
+                          ],
+                          stops: const [0.0, 0.3, 0.7, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Colors.orange.shade900.withValues(alpha: 0.5),
+                            blurRadius: 30,
+                            offset: const Offset(0, 15),
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color:
+                                Colors.orange.shade400.withValues(alpha: 0.3),
+                            blurRadius: 50,
+                            offset: const Offset(0, 8),
+                            spreadRadius: 2,
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header: ikon + judul + tombol tutup
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 12, 8, 10),
+                              child: Row(
+                                children: [
+                                  TweenAnimationBuilder<double>(
+                                    tween:
+                                        Tween<double>(begin: 0.0, end: 1.0),
+                                    duration:
+                                        const Duration(milliseconds: 800),
+                                    builder: (context, value, child) {
+                                      return Transform.scale(
+                                        scale: 0.9 + (value * 0.1),
+                                        child: child,
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(9),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.25),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Perhatian!',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.2,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.25),
+                                            offset: const Offset(0, 1),
+                                            blurRadius: 3,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // Tombol tutup
+                                  InkWell(
+                                    onTap: _dismissValidationSnackBar,
+                                    customBorder: const CircleBorder(),
+                                    child: Container(
+                                      width: 34,
+                                      height: 34,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.2),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.close_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Garis pemisah header dengan isi
+                            Container(
+                              height: 1,
+                              color: Colors.white.withValues(alpha: 0.18),
+                            ),
+                            // Isi pesan: full width supaya tidak terhimpit
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    message,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13.5,
+                                      color:
+                                          Colors.white.withValues(alpha: 0.98),
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.45,
+                                    ),
+                                  ),
+                                  if (hasDetail) ...[
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.18),
+                                        borderRadius:
+                                            BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.25),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            detailLabel,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                              height: 1.3,
+                                            ),
+                                          ),
+                                          if (detailSub.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              detailSub,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12.5,
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.85),
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            // Progress bar: indikator auto-dismiss
+                            TweenAnimationBuilder<double>(
+                              tween: Tween<double>(begin: 1.0, end: 0.0),
+                              duration: autoDismissDuration,
+                              curve: Curves.linear,
+                              builder: (context, value, child) {
+                                return LinearProgressIndicator(
+                                  value: value,
+                                  minHeight: 3,
+                                  backgroundColor:
+                                      Colors.white.withValues(alpha: 0.2),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white.withValues(alpha: 0.9),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-        ),
-        ),
       ),
     );
 
-    // Insert overlay
     overlayState.insert(_validationOverlayEntry!);
 
-    // Auto dismiss after duration
-    Future.delayed(const Duration(seconds: 4), () {
+    // Auto dismiss
+    Future.delayed(autoDismissDuration, () {
       _dismissValidationSnackBar();
     });
   }
@@ -936,7 +1096,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       return errorMessage;
     }
     if (lower.contains('no valid working days')) {
-      return allDatesAreHolidaysKey.tr;
+      return _idNoticeAllHolidays;
     }
     // Map of English error messages to Indonesian translations
     final Map<String, String> errorTranslations = {
@@ -1125,13 +1285,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
                                     if (_selectedFromDate == null) {
                                       _showValidationSnackBar(
-                                          message: pleaseSelectFromDateKey);
+                                          _idNoticeSelectFromDate);
                                       return;
                                     }
 
                                     if (_selectedToDate == null) {
                                       _showValidationSnackBar(
-                                          message: pleaseSelectToDateKey);
+                                          _idNoticeSelectToDate);
                                       return;
                                     }
 
@@ -1139,12 +1299,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                       if (_skippedHolidayDates.isNotEmpty) {
                                         final first = _skippedHolidayDates
                                             .entries.first;
-                                        _showValidationSnackBar(
-                                            message: _holidayBlockedMessage(
-                                                first.key, first.value));
+                                        _holidayNotice(
+                                            first.key, first.value,
+                                            afterPicker: false);
                                       } else {
                                         _showValidationSnackBar(
-                                            message: noValidLeaveDaysKey);
+                                            _idNoticeNoValidDays);
                                       }
                                       return;
                                     }
@@ -1153,7 +1313,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                         .trim()
                                         .isEmpty) {
                                       _showValidationSnackBar(
-                                          message: pleaseAddReasonKey);
+                                          _idNoticeAddReason);
                                       return;
                                     }
 

@@ -103,32 +103,51 @@ class ExtracurricularAttendanceRepository {
 
       debugPrint('🔍 [ATTENDANCE REPO] Save response: $response');
 
-      // Check if request was successful
-      if (response['error'] == false) {
-        // Create save response manually since API doesn't return savedCount
+      // Backend membalas dengan dua bentuk yang berbeda:
+      //   {error: false, message: ...}    -> dipakai endpoint lain
+      //   {success: true, message: ...}   -> endpoint attendance ini
+      //                                     (TIDAK punya key 'error')
+      // Jadi sukses harus dicek dari keduanya, sama seperti
+      // getExtracurricularAttendance di atas. Kalau hanya cek
+      // 'error == false', simpan yang sukses akan dianggap gagal.
+      final bool isSuccess =
+          response['error'] == false || response['success'] == true;
+
+      if (isSuccess) {
+        // Backend mengembalikan jumlah baris yang benar-benar tersimpan di
+        // data.saved_count, contoh: {"success": true, "data": {"saved_count": 1}}.
+        // Kalau nilainya tidak ada / bukan angka (backend versi lama), pakai
+        // jumlah baris yang kita kirim sebagai perkiraan.
+        final dynamic dataMap = response['data'];
+        final dynamic savedCountFromApi =
+            dataMap is Map ? dataMap['saved_count'] : null;
+        final int savedCount = savedCountFromApi is int
+            ? savedCountFromApi
+            : request.attendanceData.length;
+
         final saveResponse = ExtracurricularAttendanceSaveResponse(
           success: true,
           message: response['message'] ?? 'Absensi berhasil disimpan',
-          savedCount: request.attendanceData.length,
+          savedCount: savedCount,
         );
 
         debugPrint(
-            '✅ [ATTENDANCE REPO] Successfully saved ${request.attendanceData.length} attendance records');
+            '✅ [ATTENDANCE REPO] Successfully saved $savedCount attendance records');
         return saveResponse;
-      } else {
-        final errorMessage = response['message'] ?? 'Gagal menyimpan absensi';
-        final errorCode = response['code'];
-
-        // Handle specific error codes
-        if (errorCode == 103) {
-          throw Exception(
-              'Format tanggal tidak valid. Pastikan menggunakan format YYYY-MM-DD');
-        }
-
-        debugPrint(
-            '❌ [ATTENDANCE REPO] API returned error: $errorMessage (code: $errorCode)');
-        throw Exception(errorMessage);
       }
+
+      final errorMessage = response['message'] ?? 'Gagal menyimpan absensi';
+      final errorCode = response['code'];
+
+      // Handle specific error codes
+      if (errorCode == 103) {
+        throw Exception(
+            'Format tanggal tidak valid. Pastikan menggunakan format YYYY-MM-DD');
+      }
+
+      debugPrint(
+          '❌ [ATTENDANCE REPO] API returned error: $errorMessage (code: $errorCode)');
+      throw Exception(errorMessage);
     } catch (e) {
       debugPrint('❌ [ATTENDANCE REPO] Error saving attendance: $e');
 
@@ -273,7 +292,9 @@ class ExtracurricularAttendanceRepository {
 
       debugPrint('🔍 [ATTENDANCE REPO] History response: $response');
 
-      if (response['error'] == false) {
+      // Sama seperti endpoint attendance lain: sukses bisa datang sebagai
+      // {error: false} atau {success: true}.
+      if (response['error'] == false || response['success'] == true) {
         final List<dynamic> data = response['data'] ?? [];
         final List<ExtracurricularAttendance> attendanceList = data
             .map((item) => ExtracurricularAttendance.fromJson(item))

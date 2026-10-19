@@ -13,7 +13,6 @@ import 'package:eschool_saas_staff/utils/system/optimized_file_compression_utils
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -1404,7 +1403,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                   },
                                                   blendMode: BlendMode.srcIn,
                                                   child: Text(
-                                                    submitLeaveKey.tr,
+                                                    'Kirim Cuti',
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1829,7 +1828,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          someDatesAreHolidaysKey.tr,
+                          _idNoticeSomeHolidays,
                           style: TextStyle(
                             color: Colors.orange.shade900,
                             fontSize: 12.5,
@@ -2492,9 +2491,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                     Text(
                                                       _skippedHolidayDates
                                                               .isNotEmpty
-                                                          ? allDatesAreHolidaysKey
-                                                              .tr
-                                                          : noValidLeaveDaysKey,
+                                                          ? _idNoticeAllHolidays
+                                                          : _idNoticeNoValidDays,
                                                       style: TextStyle(
                                                         color: Colors
                                                             .orange.shade900,

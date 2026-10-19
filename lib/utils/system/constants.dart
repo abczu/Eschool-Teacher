@@ -105,6 +105,18 @@ const List<String> weekDays = [
   "Sunday"
 ];
 
+/// Nama hari berbahasa Indonesia, index 0 = Senin (sejajar dengan [weekDays]).
+/// Dipakai untuk teks yang dipatok berbahasa Indonesia.
+const List<String> idWeekDayNames = [
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+  "Minggu"
+];
+
 String getLeaveTypeValueFromKey({required String leaveTypeKey}) {
   if (leaveTypeKey == firstHalfKey) {
     return "First Half";

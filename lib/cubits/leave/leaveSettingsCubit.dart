@@ -11,18 +11,6 @@ import 'package:flutter/foundation.dart';
 
 abstract class LeaveSettingsAndSessionYearsState {}
 
-/// Nama hari berbahasa Indonesia (index 0 = Senin), dipakai untuk judul
-/// libur mingguan supaya tidak muncul "Sunday" dari daftar `weekDays`.
-const List<String> _idWeekDayNames = [
-  'Senin',
-  'Selasa',
-  'Rabu',
-  'Kamis',
-  'Jumat',
-  'Sabtu',
-  'Minggu',
-];
-
 class LeaveSettingsAndSessionYearsInitial
     extends LeaveSettingsAndSessionYearsState {}
 
@@ -171,7 +159,7 @@ class LeaveSettingsAndSessionYearsCubit
     final fromApi = getHolidayDatesWithTitle()[normalized];
     if (fromApi != null) return fromApi;
     if (getHolidayWeekDays().contains(normalized.weekday)) {
-      final dayName = _idWeekDayNames[normalized.weekday - 1];
+      final dayName = idWeekDayNames[normalized.weekday - 1];
       return 'Libur Akhir Pekan ($dayName)';
     }
     return null;

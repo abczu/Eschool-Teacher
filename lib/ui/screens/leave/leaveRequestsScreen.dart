@@ -1538,7 +1538,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                             title: CustomTextContainer(
                                 textKey: _safeParseDate(leaveDetail.date) !=
                                         null
-                                    ? "${Utils.formatDate(_safeParseDate(leaveDetail.date)!)}, ${Utils.weekDays[_safeParseDate(leaveDetail.date)!.weekday - 1].tr}"
+                                    ? "${Utils.formatDate(_safeParseDate(leaveDetail.date)!)}, ${idWeekDayNames[_safeParseDate(leaveDetail.date)!.weekday - 1]}"
                                     : "${leaveDetail.date ?? 'Tanggal tidak tersedia'}, -"),
                             subtitle: CustomTextContainer(
                                 textKey: translateLeaveType(leaveDetail.type)),

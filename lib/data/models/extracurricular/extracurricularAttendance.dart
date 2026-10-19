@@ -1,4 +1,5 @@
 ﻿import '../../../utils/system/dateFormatter.dart';
+import '../../../utils/system/jsonUtils.dart';
 import 'package:flutter/foundation.dart';
 
 // Enum untuk status kehadiran dengan validasi yang ketat
@@ -141,10 +142,9 @@ class ExtracurricularAttendance {
     }
 
     // Validasi student_name terlebih dahulu
-    final studentName = json['student_name'] ??
-        json['name'] ??
-        json['studentName'] ??
-        'Unknown Student';
+    final studentName =
+        readText(json, ['student_name', 'name', 'studentName']) ??
+            'Unknown Student';
     if (studentName == 'Unknown Student') {
       debugPrint(
           ' [MODEL] Student name not found, available fields: ${json.keys.toList()}');
@@ -209,15 +209,19 @@ class ExtracurricularAttendance {
       attendanceId: json['attendance_id'] ?? json['id'] ?? 0,
       studentId: studentId,
       studentName: studentName,
-      studentNisn: json['student_nisn'] ?? json['nisn'],
-      className: json['class_name'] ?? json['kelas'] ?? json['className'],
+      // Field teks dibaca lewat readText agar aman terhadap nilai angka /
+      // kosong (lihat lib/utils/system/jsonUtils.dart).
+      studentNisn: readText(json, ['student_nisn', 'nisn']),
+      className: readText(json, ['class_name', 'kelas', 'className']),
       status: parsedStatus,
       date: parsedDate,
       extracurricularId:
           json['extracurricular_id'] ?? json['ekstrakurikuler_id'],
-      extracurricularName: json['eskul_name'] ??
-          json['extracurricular_name'] ??
-          json['ekstrakurikuler_name'],
+      extracurricularName: readText(json, [
+        'eskul_name',
+        'extracurricular_name',
+        'ekstrakurikuler_name',
+      ]),
     );
 
     debugPrint('🔍 [MODEL] Created ExtracurricularAttendance: ${result.toString()}');

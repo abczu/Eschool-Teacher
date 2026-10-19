@@ -1,3 +1,5 @@
+import '../../../utils/system/jsonUtils.dart';
+
 class ExtracurricularMember {
   final int? id;
   final int? studentId;
@@ -33,16 +35,18 @@ class ExtracurricularMember {
     return ExtracurricularMember(
       id: json['id'],
       studentId: json['student_id'],
-      studentName: json['student_name'] ??
-          json['student_name'], // API menggunakan student_name
-      studentNisn: json['student_nisn'] ?? json['nisn'],
-      className: json['class_name'] ?? json['kelas'], // API menggunakan kelas
+      // Field teks dibaca lewat readText agar aman kalau backend mengirim
+      // angka atau nilai kosong (lihat lib/utils/system/jsonUtils.dart).
+      studentName: readText(json, ['student_name']),
+      studentNisn: readText(json, ['student_nisn', 'nisn']),
+      className: readText(json, ['class_name', 'kelas']), // API: kelas
       extracurricularId: json['extracurricular_id'] ?? json['eskul_id'],
-      extracurricularName: json['extracurricular_name'] ??
-          json['eskul_name'], // API menggunakan eskul_name
+      // API mengirim 'eskul_name'
+      extracurricularName:
+          readText(json, ['extracurricular_name', 'eskul_name']),
       status: json['status']?.toString(),
-      joinDate:
-          json['join_date'] ?? json['from_date'], // API menggunakan from_date
+      // API mengirim 'from_date'
+      joinDate: readText(json, ['join_date', 'from_date']),
       approvedDate: json['approved_date'],
       rejectedDate: json['rejected_date'],
       createdAt: json['created_at'],

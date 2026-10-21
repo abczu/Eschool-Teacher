@@ -4,6 +4,7 @@ class StudentViolationItem {
   final int studentId;
   final String studentName;
   final String? nisn;
+  final String? nis;
   final String? admissionNo;
   final int? classId;
   final String? className;
@@ -16,6 +17,7 @@ class StudentViolationItem {
     required this.studentId,
     required this.studentName,
     this.nisn,
+    this.nis,
     this.admissionNo,
     this.classId,
     this.className,
@@ -33,6 +35,41 @@ class StudentViolationItem {
         studentName: studentName,
         classId: classId,
       );
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
+  }
+
+  String? get resolvedNisn => _nonEmpty(nisn);
+
+  String? get resolvedNis => _nonEmpty(nis);
+
+  String? get resolvedAdmissionNo => _nonEmpty(admissionNo);
+
+  /// Teks identitas siswa: NISN -> NIS -> No. Pendaftaran.
+  String get studentIdentityText {
+    final nisnValue = resolvedNisn;
+    if (nisnValue != null) return "NISN: $nisnValue";
+
+    final nisValue = resolvedNis;
+    if (nisValue != null) return "NIS: $nisValue";
+
+    final admissionNoValue = resolvedAdmissionNo;
+    if (admissionNoValue != null) {
+      return "No. Pendaftaran: $admissionNoValue";
+    }
+
+    return "No. Pendaftaran: -";
+  }
+
+  /// Nilai identitas yang bisa dipakai untuk pencarian lokal.
+  List<String> get identitySearchValues => [
+        if (resolvedNisn != null) resolvedNisn!,
+        if (resolvedNis != null) resolvedNis!,
+        if (resolvedAdmissionNo != null) resolvedAdmissionNo!,
+      ];
 
   factory StudentViolationItem.fromJson(Map<String, dynamic> json) {
     // Siswa profile bisa berada di json['student'] atau langsung di root
@@ -117,6 +154,7 @@ class StudentViolationItem {
       studentId: id,
       studentName: name,
       nisn: (studentData['nisn'] ?? json['nisn'])?.toString(),
+      nis: (studentData['nis'] ?? json['nis'])?.toString(),
       admissionNo: (studentData['admission_no'] ?? json['admission_no'])?.toString(),
       classId: cId,
       className: cName,
@@ -134,6 +172,7 @@ class StudentViolationItem {
       'student_id': studentId,
       'student_name': studentName,
       'nisn': nisn,
+      'nis': nis,
       'admission_no': admissionNo,
       'class_id': classId,
       'class_name': className,

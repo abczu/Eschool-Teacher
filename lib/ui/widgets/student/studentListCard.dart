@@ -330,7 +330,7 @@ class StudentListCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "GR No : ${studentDetails.student?.admissionNo ?? '-'}",
+                                    studentDetails.studentIdentityText,
                                     style: const TextStyle(
                                       color: textMediumColor,
                                       fontFamily: 'Poppins',

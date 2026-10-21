@@ -429,9 +429,9 @@ class _StudentViolationDetailScreenState
                               : Colors.grey.shade700,
                         ),
                       ),
-                      if (detail.nisn != null && detail.nisn!.isNotEmpty)
+                      if (detail.identityText != null)
                         Text(
-                          "NISN: ${detail.nisn}",
+                          detail.identityText!,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: isDark

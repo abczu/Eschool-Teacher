@@ -36,6 +36,8 @@ class StudentDetails {
   final PaidFeeDetails? paidFeeDetails;
   final String? profileUrl;
   final String? rollNumber;
+  final String? nis;
+  final String? nisn;
   final List<PaymentHistory>? paymentHistory;
 
   StudentDetails({
@@ -67,6 +69,8 @@ class StudentDetails {
     this.examMarks,
     this.profileUrl,
     this.rollNumber,
+    this.nis,
+    this.nisn,
     this.classSection,
     this.paymentStatus,
     this.paymentHistory,
@@ -98,6 +102,8 @@ class StudentDetails {
     Student? student,
     String? profileUrl,
     String? rollNumber,
+    String? nis,
+    String? nisn,
     ClassSection? classSection,
     PaymentStatus? paymentStatus,
     List<PaymentHistory>? paymentHistory,
@@ -128,6 +134,8 @@ class StudentDetails {
       schoolNames: schoolNames ?? this.schoolNames,
       profileUrl: profileUrl ?? this.profileUrl,
       rollNumber: rollNumber ?? this.rollNumber,
+      nis: nis ?? this.nis,
+      nisn: nisn ?? this.nisn,
       classSection: classSection ?? this.classSection,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paymentHistory: paymentHistory ?? this.paymentHistory,
@@ -254,6 +262,8 @@ class StudentDetails {
       profileUrl: json['profileUrl']?.toString(),
       rollNumber:
           json['roll_number']?.toString() ?? json['rollNumber']?.toString(),
+      nis: json['nis']?.toString(),
+      nisn: json['nisn']?.toString(),
       classSection: classSection,
       paymentStatus: paymentStatus,
       paymentHistory: paymentHistory,
@@ -286,6 +296,8 @@ class StudentDetails {
         'student': student?.toJson(),
         'profileUrl': profileUrl,
         'rollNumber': rollNumber,
+        'nis': nis,
+        'nisn': nisn,
       };
 
   @override
@@ -299,6 +311,44 @@ class StudentDetails {
         : '${firstName ?? ''} ${lastName ?? ''}';
     return name.trim();
   }
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
+  }
+
+  /// NISN dari object student (nested) atau root response.
+  String? get resolvedNisn => _nonEmpty(student?.nisn) ?? _nonEmpty(nisn);
+
+  /// NIS dari object student (nested) atau root response.
+  String? get resolvedNis => _nonEmpty(student?.nis) ?? _nonEmpty(nis);
+
+  /// Nomor pendaftaran (admission_no) siswa.
+  String? get resolvedAdmissionNo => _nonEmpty(student?.admissionNo);
+
+  /// Teks identitas siswa: NISN -> NIS -> No. Pendaftaran.
+  String get studentIdentityText {
+    final nisnValue = resolvedNisn;
+    if (nisnValue != null) return "NISN: $nisnValue";
+
+    final nisValue = resolvedNis;
+    if (nisValue != null) return "NIS: $nisValue";
+
+    final admissionNoValue = resolvedAdmissionNo;
+    if (admissionNoValue != null) {
+      return "No. Pendaftaran: $admissionNoValue";
+    }
+
+    return "No. Pendaftaran: -";
+  }
+
+  /// Nilai identitas yang bisa dipakai untuk pencarian lokal.
+  List<String> get identitySearchValues => [
+        if (resolvedNisn != null) resolvedNisn!,
+        if (resolvedNis != null) resolvedNis!,
+        if (resolvedAdmissionNo != null) resolvedAdmissionNo!,
+      ];
 
   String getGender() {
     if (gender == "male") {

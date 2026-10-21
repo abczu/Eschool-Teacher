@@ -6,6 +6,8 @@ class Student {
   final int? userId;
   final int? classSectionId;
   final String? admissionNo;
+  final String? nis;
+  final String? nisn;
   final int? rollNumber;
   final String? admissionDate;
   final int? schoolId;
@@ -26,6 +28,8 @@ class Student {
     this.userId,
     this.classSectionId,
     this.admissionNo,
+    this.nis,
+    this.nisn,
     this.rollNumber,
     this.admissionDate,
     this.schoolId,
@@ -45,6 +49,8 @@ class Student {
       int? userId,
       int? classSectionId,
       String? admissionNo,
+      String? nis,
+      String? nisn,
       int? rollNumber,
       String? admissionDate,
       int? schoolId,
@@ -63,6 +69,8 @@ class Student {
       userId: userId ?? this.userId,
       classSectionId: classSectionId ?? this.classSectionId,
       admissionNo: admissionNo ?? this.admissionNo,
+      nis: nis ?? this.nis,
+      nisn: nisn ?? this.nisn,
       rollNumber: rollNumber ?? this.rollNumber,
       admissionDate: admissionDate ?? this.admissionDate,
       schoolId: schoolId ?? this.schoolId,
@@ -81,7 +89,9 @@ class Student {
       : id = json['id'] as int?,
         userId = json['user_id'] as int?,
         classSectionId = json['class_section_id'] as int?,
-        admissionNo = json['admission_no'] as String?,
+        admissionNo = json['admission_no']?.toString(),
+        nis = json['nis']?.toString(),
+        nisn = json['nisn']?.toString(),
         rollNumber = json['roll_number'] as int?,
         admissionDate = json['admission_date'] as String?,
         schoolId = json['school_id'] as int?,
@@ -101,6 +111,8 @@ class Student {
         'user_id': userId,
         'class_section_id': classSectionId,
         'admission_no': admissionNo,
+        'nis': nis,
+        'nisn': nisn,
         'roll_number': rollNumber,
         'admission_date': admissionDate,
         'school_id': schoolId,

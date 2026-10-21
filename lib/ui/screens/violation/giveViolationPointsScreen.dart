@@ -61,6 +61,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
   // Selected Student
   int? _selectedStudentId;
   String? _selectedStudentName;
+  String? _selectedStudentIdentity;
   String? _selectedClassName;
   String? _selectedStudentImage;
 
@@ -449,7 +450,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: "Cari nama atau NISN siswa...",
+                          hintText: "Cari nama, NISN, atau NIS siswa...",
                           prefixIcon:
                               const Icon(Icons.search_rounded, size: 20),
                           border: OutlineInputBorder(
@@ -485,12 +486,12 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                         final name = (s.fullName ??
                                                 "${s.firstName ?? ''} ${s.lastName ?? ''}")
                                             .toLowerCase();
-                                        final nisn = (s.student?.admissionNo ??
-                                                s.rollNumber ??
-                                                '')
-                                            .toLowerCase();
+                                        final rollNumber =
+                                            (s.rollNumber ?? '').toLowerCase();
                                         return name.contains(q) ||
-                                            nisn.contains(q);
+                                            rollNumber.contains(q) ||
+                                            s.identitySearchValues.any((value) =>
+                                                value.toLowerCase().contains(q));
                                       }).toList();
 
                                       if (filtered.isEmpty) {
@@ -512,10 +513,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                           final name = s.fullName ??
                                               "${s.firstName ?? ''} ${s.lastName ?? ''}"
                                                   .trim();
-                                          final nisn =
-                                              s.student?.admissionNo ??
-                                                  s.rollNumber ??
-                                                  '-';
+                                          final identityText = s.studentIdentityText;
 
                                           final studentImage =
                                               (s.image != null &&
@@ -613,7 +611,7 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                                   fontSize: 14),
                                             ),
                                             subtitle: Text(
-                                              "NISN / No: $nisn",
+                                              identityText,
                                               style: GoogleFonts.poppins(
                                                   fontSize: 12,
                                                   color: modalMutedColor),
@@ -626,6 +624,8 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                                 _selectedStudentId =
                                                     s.student?.id ?? s.id;
                                                 _selectedStudentName = name;
+                                                _selectedStudentIdentity =
+                                                    identityText;
                                                 _selectedClassName =
                                                     selectedClass?.fullName ??
                                                         selectedClass?.name;
@@ -799,6 +799,14 @@ class _GiveViolationPointsScreenState extends State<GiveViolationPointsScreen>
                                         : subtleTextColor,
                                   ),
                                 ),
+                                if (_selectedStudentIdentity != null)
+                                  Text(
+                                    _selectedStudentIdentity!,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: subtleTextColor,
+                                    ),
+                                  ),
                                 if (_selectedClassName != null)
                                   Text(
                                     "Kelas: $_selectedClassName",

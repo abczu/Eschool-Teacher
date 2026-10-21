@@ -148,6 +148,7 @@ class StudentViolationDetail {
   final int studentId;
   final String studentName;
   final String? nisn;
+  final String? nis;
   final String? admissionNo;
   final int? classId;
   final String? className;
@@ -166,6 +167,7 @@ class StudentViolationDetail {
     required this.studentId,
     required this.studentName,
     this.nisn,
+    this.nis,
     this.admissionNo,
     this.classId,
     this.className,
@@ -180,6 +182,20 @@ class StudentViolationDetail {
     this.sanctionLevels = const [],
     this.violations = const [],
   });
+
+  /// Teks identitas siswa: NISN -> NIS -> No. Pendaftaran.
+  String? get identityText {
+    if (nisn != null && nisn!.trim().isNotEmpty) {
+      return "NISN: ${nisn!.trim()}";
+    }
+    if (nis != null && nis!.trim().isNotEmpty) {
+      return "NIS: ${nis!.trim()}";
+    }
+    if (admissionNo != null && admissionNo!.trim().isNotEmpty) {
+      return "No. Pendaftaran: ${admissionNo!.trim()}";
+    }
+    return null;
+  }
 
   /// Level aktif sesuai alur web (rentang poin dinamis + fallback nama/action).
   /// null = Aman (0 poin / levels kosong / tidak cocok).
@@ -333,6 +349,7 @@ class StudentViolationDetail {
       studentId: sId,
       studentName: sName,
       nisn: (studentData['nisn'] ?? json['nisn'])?.toString(),
+      nis: (studentData['nis'] ?? json['nis'])?.toString(),
       admissionNo: (studentData['admission_no'] ?? json['admission_no'])?.toString(),
       classId: cId,
       className: cName,

@@ -599,6 +599,35 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                           ],
                         ),
                         const SizedBox(height: 6),
+                        // NISN (prioritas) & NIS
+                        if (widget.studentDetails.resolvedNisn != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              "NISN: ${widget.studentDetails.resolvedNisn}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: textMediumColor,
+                                fontFamily: 'Poppins',
+                              ),
+                              overflow: TextOverflow.visible,
+                              softWrap: true,
+                            ),
+                          ),
+                        if (widget.studentDetails.resolvedNis != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              "NIS: ${widget.studentDetails.resolvedNis}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: textMediumColor,
+                                fontFamily: 'Poppins',
+                              ),
+                              overflow: TextOverflow.visible,
+                              softWrap: true,
+                            ),
+                          ),
                         // Admission / registration number with copy-to-clipboard
                         Builder(builder: (context) {
                           final admissionNo =

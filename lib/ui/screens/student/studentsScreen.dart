@@ -786,11 +786,13 @@ class _StudentsScreenState extends State<StudentsScreen>
                       ? state.students
                       : state.students.where((student) {
                           final name = student.cleanFullName.toLowerCase();
-                          final admissionNo =
-                              (student.student?.admissionNo ?? student.rollNumber ?? "")
-                                  .toLowerCase();
+                          final identityValues = student.identitySearchValues;
+                          final rollNumber =
+                              (student.rollNumber ?? "").toLowerCase();
                           return name.contains(searchQuery) ||
-                              admissionNo.contains(searchQuery);
+                              identityValues.any((value) =>
+                                  value.toLowerCase().contains(searchQuery)) ||
+                              rollNumber.contains(searchQuery);
                         }).toList();
 
                   return FadeTransition(

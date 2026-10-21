@@ -56,7 +56,8 @@ class Api {
         },
         onError: (e, handler) {
           if (kDebugMode) {
-            AppLogger.error('Dio.Error', '${e.requestOptions.method} ${e.requestOptions.uri}',
+            AppLogger.error('Dio.Error',
+                '${e.requestOptions.method} ${e.requestOptions.uri}',
                 data: {
                   'statusCode': e.response?.statusCode,
                   'response': e.response?.data,
@@ -88,8 +89,9 @@ class Api {
     if (statusCode == 400) return "Permintaan tidak valid (Bad Request)";
     if (statusCode == 401) return "Sesi habis, silakan login kembali";
     if (statusCode == 422) return "Data tidak valid atau kurang lengkap";
-    if (statusCode == 500)
+    if (statusCode == 500) {
       return "Terjadi kesalahan pada server (Internal Server Error)";
+    }
     if (statusCode == 404) return "Data atau file tidak ditemukan";
 
     return fallbackCode ?? "Terjadi kesalahan, silakan coba lagi";
@@ -240,7 +242,7 @@ class Api {
   static String get getUsers => "${databaseUrl}users";
   static String get getUserChatHistory => "${databaseUrl}users/chat/history";
 
-  static String get recapDownload => "${baseUrl}/recap-download";
+  static String get recapDownload => "$baseUrl/recap-download";
 
   //-------------
 
@@ -367,6 +369,10 @@ class Api {
       "${databaseUrl}teacher/violations/export-pdf";
   static String get teacherViolationHomeroomExportPdf =>
       "${databaseUrl}teacher/violations/homeroom/export-pdf";
+  static String get teacherViolationAllStudentsPdf =>
+      "${databaseUrl}teacher/violations/all-students-pdf";
+  static String get teacherViolationHomeroomPdf =>
+      "${databaseUrl}teacher/violations/homeroom-pdf";
   static String parentViolationChildren(int studentId) =>
       "${databaseUrl}parent/violations/children/$studentId";
   static String parentViolationChildrenExportPdf(int studentId) =>
@@ -393,10 +399,11 @@ class Api {
 
     final user = AuthRepository.getUserDetails();
     // Gunakan logika yang lebih kuat untuk mendeteksi staff agar tidak terkena dampak obfuscation di APK Release
-    final bool isStaffAccount = (user.staff != null && user.staff!.id != null) || 
-                                 user.getRoles().toLowerCase().contains("staff") ||
-                                 (user.occupation ?? "").toLowerCase().contains("staff");
-                                 
+    final bool isStaffAccount =
+        (user.staff != null && user.staff!.id != null) ||
+            user.getRoles().toLowerCase().contains("staff") ||
+            (user.occupation ?? "").toLowerCase().contains("staff");
+
     final String currentRole = isStaffAccount ? "staff" : "teacher";
 
     debugPrint('🕒 [API_HEADER_DEBUG] User Full Name: ${user.fullName}');
@@ -433,44 +440,86 @@ class Api {
     }
   }
 
-  /// Mengambil data dokumen (PDF) dengan prioritas 'pdf_url' (Fase 2 Backend).
+  /// Mengambil data dokumen (PDF) dengan prioritas `pdf_url`.
+  ///
+  /// Backend juga mengirim `pdf` (Base64 murni). Jika unduhan `pdf_url`
+  /// gagal (mis. signed URL kedaluwarsa), Base64 dipakai sebagai fallback.
   static Future<Uint8List> fetchDocumentBytes(Map<String, dynamic> data) async {
-    // 1. Cek kunci utama
-    if (data['pdf_url'] != null && data['pdf_url'].toString().isNotEmpty) {
-      final dio = _dio;
-      final response = await dio.get<List<int>>(
-        data['pdf_url'].toString(),
-        options: Options(responseType: ResponseType.bytes),
-      );
-      return Uint8List.fromList(response.data!);
-    }
-    if (data['pdf'] != null && data['pdf'].toString().isNotEmpty) {
-      return base64Decode(data['pdf'].toString());
-    }
+    final sources = <({String? url, String? base64})>[];
 
-    // 2. Cek di dalam kunci 'data' (Sering digunakan di Laravel)
-    if (data['data'] != null) {
-      final nestedData = data['data'];
-      if (nestedData is Map) {
-        if (nestedData['pdf_url'] != null) {
-          final dio = _dio;
-          final response = await dio.get<List<int>>(
-            nestedData['pdf_url'].toString(),
-            options: Options(responseType: ResponseType.bytes),
-          );
-          return Uint8List.fromList(response.data!);
+    void addSource(dynamic raw) {
+      if (raw is Map) {
+        final map = Map<String, dynamic>.from(raw);
+        final url = map['pdf_url']?.toString().trim();
+        final pdf = map['pdf']?.toString().trim();
+        if ((url != null && url.isNotEmpty) ||
+            (pdf != null && pdf.isNotEmpty)) {
+          sources.add((url: url, base64: pdf));
         }
-        if (nestedData['pdf'] != null) {
-          return base64Decode(nestedData['pdf'].toString());
-        }
-      } else if (nestedData is String && nestedData.isNotEmpty) {
-        // Jika 'data' itu sendiri adalah string base64
-        return base64Decode(nestedData);
+      } else if (raw is String && raw.trim().isNotEmpty) {
+        // Jika `data` itu sendiri adalah string Base64.
+        sources.add((url: null, base64: raw.trim()));
       }
     }
 
-    debugPrint("ERROR: No PDF content found in API response. Keys: ${data.keys}");
+    // 1. Kunci utama, lalu 2. kunci `data` (umum di Laravel).
+    addSource(data);
+    addSource(data['data']);
+
+    Object? lastError;
+    for (final source in sources) {
+      final url = source.url;
+      if (url != null && url.isNotEmpty) {
+        try {
+          final response = await _dio.get<List<int>>(
+            url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+          final bytes = response.data;
+          if (bytes != null && bytes.isNotEmpty) {
+            return Uint8List.fromList(bytes);
+          }
+          lastError = 'Server mengirim berkas kosong dari pdf_url';
+        } catch (e) {
+          lastError = e;
+          debugPrint(
+            'fetchDocumentBytes: gagal mengunduh pdf_url, mencoba Base64. $e',
+          );
+        }
+      }
+
+      final encoded = source.base64;
+      if (encoded != null && encoded.isNotEmpty) {
+        try {
+          return _decodePdfBase64(encoded);
+        } catch (e) {
+          lastError = e;
+          debugPrint(
+            'fetchDocumentBytes: gagal mendekode Base64 PDF. $e',
+          );
+        }
+      }
+    }
+
+    debugPrint(
+        "ERROR: No PDF content found in API response. Keys: ${data.keys}");
+    if (lastError != null) {
+      throw ApiException("Gagal mengambil dokumen PDF dari server.");
+    }
     throw ApiException("Konten dokumen tidak ditemukan di server.");
+  }
+
+  /// Decode Base64 PDF. Prefix data URI (jika ada) tetap dibuang
+  /// agar kompatibel dengan backend yang mengirim string murni.
+  static Uint8List _decodePdfBase64(String value) {
+    var encoded = value.trim();
+    if (encoded.startsWith('data:')) {
+      final commaIndex = encoded.indexOf(',');
+      if (commaIndex != -1) {
+        encoded = encoded.substring(commaIndex + 1);
+      }
+    }
+    return base64Decode(encoded);
   }
 
   static Future<Map<String, dynamic>> post({
@@ -508,7 +557,8 @@ class Api {
               headers: headers(
                   useAuthToken: useAuthToken ?? true,
                   includeSchoolCode: useAuthToken ?? true,
-                  contentType: null))); // Biarkan Dio yang mengatur Content-Type untuk FormData
+                  contentType:
+                      null))); // Biarkan Dio yang mengatur Content-Type untuk FormData
 
       AppLogger.debug('Api.post', 'Response meta', data: {
         'statusCode': response.statusCode,
@@ -628,10 +678,11 @@ class Api {
       final Dio dio = _dio;
 
       final user = AuthRepository.getUserDetails();
-      final bool isStaffAccount = (user.staff != null && user.staff!.id != null) || 
-                                   user.getRoles().toLowerCase().contains("staff") ||
-                                   (user.occupation ?? "").toLowerCase().contains("staff");
-                                   
+      final bool isStaffAccount =
+          (user.staff != null && user.staff!.id != null) ||
+              user.getRoles().toLowerCase().contains("staff") ||
+              (user.occupation ?? "").toLowerCase().contains("staff");
+
       final String currentRole = isStaffAccount ? "staff" : "teacher";
 
       // Add default parameters
@@ -655,8 +706,7 @@ class Api {
         options: Options(
             headers: requestHeaders,
             validateStatus: (status) => status! < 300,
-            responseType:
-                isRawPdf ? ResponseType.bytes : ResponseType.json),
+            responseType: isRawPdf ? ResponseType.bytes : ResponseType.json),
       );
 
       AppLogger.debug('Api.get', 'Response meta', data: {

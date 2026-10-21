@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/violation/studentViolationDetail.dart';
 import 'package:eschool_saas_staff/data/models/violation/studentViolationItem.dart';
@@ -6,7 +7,7 @@ import 'package:eschool_saas_staff/data/models/violation/violationRoleCheck.dart
 import 'package:eschool_saas_staff/data/models/violation/violationType.dart';
 import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:eschool_saas_staff/utils/system/logger.dart';
-import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/violationPdfUtils.dart';
 
 class ViolationRepository {
   /// 1. Cek Hak Akses Role Guru (Kesiswaan & Wali Kelas)
@@ -257,42 +258,84 @@ class ViolationRepository {
     }
   }
 
-  /// 8. Download PDF Rekapitulasi Pelanggaran
-  Future<String> downloadViolationPdf({
-    int? classId,
-    bool isHomeroom = false,
+  /// 8. Ambil berkas PDF rekapitulasi pelanggaran.
+  ///
+  /// Endpoint baru:
+  /// - `teacher/violations/homeroom-pdf` (Wali Kelas)
+  /// - `teacher/violations/all-students-pdf` (Kesiswaan)
+  ///
+  /// Jika endpoint baru belum tersedia (404), fallback ke endpoint lama
+  /// `homeroom/export-pdf` / `export-pdf` agar fitur tetap berjalan
+  /// sebelum backend production di-deploy.
+  Future<({Uint8List bytes, String fileName})> fetchViolationRecapPdf({
+    required ViolationPdfRequest request,
   }) async {
     try {
-      final url = isHomeroom
-          ? Api.teacherViolationHomeroomExportPdf
-          : Api.teacherViolationExportPdf;
+      final primaryUrl = request.isHomeroom
+          ? Api.teacherViolationHomeroomPdf
+          : Api.teacherViolationAllStudentsPdf;
 
-      final Map<String, dynamic> query = {
-        if (classId != null && classId > 0) 'class_id': classId,
-      };
+      Map<String, dynamic> response;
+      try {
+        response = await Api.get(
+          url: primaryUrl,
+          useAuthToken: true,
+          queryParameters: request.queryParameters,
+        );
+      } on ApiException catch (e) {
+        if (!_isEndpointNotFound(e)) rethrow;
 
-      final response = await Api.get(
-        url: url,
-        useAuthToken: true,
-        queryParameters: query,
-      );
+        final legacyUrl = request.isHomeroom
+            ? Api.teacherViolationHomeroomExportPdf
+            : Api.teacherViolationExportPdf;
 
-      final bytes = await Api.fetchDocumentBytes(response);
+        AppLogger.warn(
+          'ViolationRepository.fetchViolationRecapPdf',
+          'Endpoint baru belum tersedia, memakai endpoint lama',
+          data: {
+            'primaryUrl': primaryUrl,
+            'legacyUrl': legacyUrl,
+            'message': e.errorMessage,
+          },
+        );
 
-      final directoryPath = await Utils.getPublicDownloadsDirectory();
-      final prefix = isHomeroom ? 'rekap_kelas' : 'rekap_sekolah';
-      final fileName =
-          "${prefix}_pelanggaran_${DateTime.now().millisecondsSinceEpoch}.pdf";
-      final filePath = "$directoryPath/Violations/$fileName";
+        response = await Api.get(
+          url: legacyUrl,
+          useAuthToken: true,
+          queryParameters: request.legacyQueryParameters,
+        );
+      }
 
-      final file = File(filePath);
-      await file.create(recursive: true);
-      await file.writeAsBytes(bytes);
-
-      return filePath;
+      final bytes = await _extractPdfBytes(response);
+      return (bytes: bytes, fileName: request.buildFileName());
     } catch (e) {
-      AppLogger.error('ViolationRepository.downloadViolationPdf', 'Error', error: e);
+      AppLogger.error('ViolationRepository.fetchViolationRecapPdf', 'Error',
+          error: e);
       rethrow;
     }
+  }
+
+  Future<Uint8List> _extractPdfBytes(Map<String, dynamic> response) async {
+    final bytes = await Api.fetchDocumentBytes(response);
+    final isPdf = bytes.length >= 4 &&
+        bytes[0] == 0x25 && // %
+        bytes[1] == 0x50 && // P
+        bytes[2] == 0x44 && // D
+        bytes[3] == 0x46; // F
+
+    if (!isPdf) {
+      throw ApiException(
+        'Server tidak mengirimkan berkas PDF yang valid. Silakan coba lagi.',
+      );
+    }
+
+    return bytes;
+  }
+
+  bool _isEndpointNotFound(ApiException error) {
+    final message = error.errorMessage.toLowerCase();
+    return message.contains('tidak ditemukan') ||
+        message.contains('not found') ||
+        message.contains('404');
   }
 }

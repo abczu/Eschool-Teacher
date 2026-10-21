@@ -563,20 +563,13 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
                     if (showTabs)
                       _buildSegmentedTabBar(primaryColor, roleCheck, isDark),
 
-                    // 2. Search Bar & Filter Button
+                    // 2. Search Bar, Filter, & Rekap PDF
                     _buildSearchBar(
                       primaryColor,
                       roleCheck,
                       isDark,
+                      canExportPdf,
                     ),
-
-                    // 2b. Banner aksi rekap PDF (khusus role yang berwenang)
-                    if (canExportPdf)
-                      _buildPdfBanner(
-                        primaryColor,
-                        roleCheck,
-                        isDark,
-                      ),
 
                     // 3. Main List Siswa
                     Expanded(
@@ -1033,8 +1026,8 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
     );
   }
 
-  Widget _buildSearchBar(
-      Color primaryColor, ViolationRoleCheck roleCheck, bool isDark) {
+  Widget _buildSearchBar(Color primaryColor, ViolationRoleCheck roleCheck,
+      bool isDark, bool canExportPdf) {
     final bool hasActiveFilter = _selectedClassId != null ||
         (_selectedFilter != null && _selectedFilter != 'all');
     return Padding(
@@ -1118,125 +1111,33 @@ class _ViolationsMainScreenState extends State<ViolationsMainScreen>
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  /// Banner aksi rekap PDF. Menggantikan tombol ikon kecil agar aksi
-  /// pratinjau/unduh lebih terlihat dan mudah ditemukan.
-  Widget _buildPdfBanner(
-    Color primaryColor,
-    ViolationRoleCheck roleCheck,
-    bool isDark,
-  ) {
-    final scopeLabel = _buildPdfScopeLabel(roleCheck);
-    final gradientEnd =
-        isDark ? const Color(0xFF6E1833) : const Color(0xFFB23A5D);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          onTap: () => _openPdfSheet(roleCheck),
-          borderRadius: BorderRadius.circular(18),
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              gradient: LinearGradient(
-                colors: [primaryColor, gradientEnd],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withValues(alpha: isDark ? 0.28 : 0.18),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
+          if (canExportPdf) ...[
+            const SizedBox(width: 10),
+            Tooltip(
+              message: "Rekap Pelanggaran (PDF)",
+              child: InkWell(
+                onTap: () => _openPdfSheet(roleCheck),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  height: 46,
+                  width: 46,
+                  decoration: BoxDecoration(
+                    color: isDark ? Theme.of(context).cardColor : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.picture_as_pdf_rounded,
+                    size: 22,
+                    color: isDark ? Colors.white70 : primaryColor,
+                  ),
                 ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(13),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.22),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.picture_as_pdf_rounded,
-                      color: Colors.white,
-                      size: 23,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Rekap Pelanggaran",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          "Pratinjau & unduh laporan PDF",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            color: Colors.white.withValues(alpha: 0.78),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          scopeLabel,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.92),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ],
               ),
             ),
-          ),
-        ),
+          ],
+        ],
       ),
     );
   }

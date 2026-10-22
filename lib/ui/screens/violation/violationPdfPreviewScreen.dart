@@ -50,9 +50,13 @@ class ViolationPdfPreviewScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: ZoomablePdfViewer(
-        bytes: document.bytes,
-        accentColor: primaryColor,
+      // SafeArea bawah agar toolbar zoom tidak tertutup navigation/gesture bar.
+      body: SafeArea(
+        top: false,
+        child: ZoomablePdfViewer(
+          bytes: document.bytes,
+          accentColor: primaryColor,
+        ),
       ),
     );
   }
